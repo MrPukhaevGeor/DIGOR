@@ -1,0 +1,2 @@
+C:/Users/kudza/Desktop/mobile/android/app/.cxx/Debug/v5r6m1x1/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/kudza/Desktop/mobile/android/app/.cxx/Debug/v5r6m1x1/x86_64/CMakeFiles/rebuild_cache.dir

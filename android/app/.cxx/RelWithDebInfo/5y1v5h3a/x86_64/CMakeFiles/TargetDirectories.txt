@@ -1,0 +1,2 @@
+/Users/roma/StudioProjects/mobile/android/app/.cxx/RelWithDebInfo/5y1v5h3a/x86_64/CMakeFiles/edit_cache.dir
+/Users/roma/StudioProjects/mobile/android/app/.cxx/RelWithDebInfo/5y1v5h3a/x86_64/CMakeFiles/rebuild_cache.dir
