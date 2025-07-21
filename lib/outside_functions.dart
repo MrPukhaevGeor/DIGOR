@@ -6,9 +6,10 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'app.dart';
-import 'providers/api_provider.dart';
-import 'providers/localization.dart';
-import 'providers/search.dart';
+import 'presentation/providers/api_provider.dart';
+import 'presentation/providers/localization.dart';
+import 'presentation/providers/search.dart';
+import 'presentation/providers/search_mode.dart';
 
 class OutsideFunctions {
   static Future<void> sendMail(BuildContext context) async {
@@ -159,12 +160,12 @@ class OutsideFunctions {
                         onPressed: () {
                           Navigator.of(context).pop();
                           if (controller.text.trim().isNotEmpty) {
-                            ref.read(apiClientProvider).addReport(
-                              {
-                                'text': controller.text.trim(),
-                                'date': DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now())
-                              },
-                            );
+                            // ref.read(apiClientProvider).addReport(
+                            //   {
+                            //     'text': controller.text.trim(),
+                            //     'date': DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now())
+                            //   },
+                            // );
                             // FirebaseFirestore.instance.collection('reports').add(
                             //   {
                             //     'report': controller.text.trim(),
@@ -367,7 +368,7 @@ class OutsideFunctions {
         return Center(
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: theme.scaffoldBackgroundColor,
               borderRadius: BorderRadius.circular(2),
             ),
             margin: const EdgeInsets.symmetric(horizontal: 22),
@@ -386,10 +387,13 @@ class OutsideFunctions {
                     children: [
                       TextButton(
                         onPressed: Navigator.of(context).pop,
-                        child: Text(tr('no').toUpperCase(), style: TextStyle(color: Colors.blue,  fontWeight: FontWeight.w600),),
+                        child: Text(
+                          tr('no').toUpperCase(),
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
                       ),
                       TextButton(
-                        child: Text(tr('yes').toUpperCase(), style: TextStyle(color: Colors.blue, fontWeight: FontWeight.w600)),
+                        child: Text(tr('yes').toUpperCase(), style: TextStyle(fontWeight: FontWeight.w600)),
                         onPressed: () {
                           callback();
                           Navigator.of(context).pop();

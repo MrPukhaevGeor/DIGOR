@@ -1,2 +1,0 @@
-/Users/roma/StudioProjects/mobile/android/app/.cxx/RelWithDebInfo/5y1v5h3a/armeabi-v7a/CMakeFiles/edit_cache.dir
-/Users/roma/StudioProjects/mobile/android/app/.cxx/RelWithDebInfo/5y1v5h3a/armeabi-v7a/CMakeFiles/rebuild_cache.dir
