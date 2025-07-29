@@ -64,6 +64,10 @@ class HistoryNotifier extends AsyncNotifier<List<WordModel>> {
         return 'rusDigorKey';
       case 'turkDigor':
         return 'turkDigorKey';
+      case 'ironRussian':
+        return 'ironRusKey';
+      case 'rusIron':
+        return 'rusIronKey';
       default:
         return 'digRusKey';
     }

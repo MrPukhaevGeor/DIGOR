@@ -15,7 +15,7 @@ class WordModel extends Equatable {
   final String? audioUrl;
   final Map<String, int>? refs;
   final String? dict;
-  final int? originalId;
+  final int? translationId;
 
   const WordModel({
     required this.id,
@@ -25,7 +25,7 @@ class WordModel extends Equatable {
     required this.refs,
     required this.dict,
     required this.translate,
-    required this.originalId,
+    required this.translationId,
   });
 
   @override
@@ -46,7 +46,7 @@ class WordModel extends Equatable {
         (k, e) => MapEntry(k, e as int),
       ),
       dict: json['dict'] as String?,
-      originalId: json['original_id'] as int?,
+      translationId: json['trn_id'] as int?,
     );
   }
 }

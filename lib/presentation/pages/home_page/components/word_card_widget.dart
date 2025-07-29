@@ -37,7 +37,8 @@ class WordCardWidget extends ConsumerWidget {
           ref.read(selectedBottomPanelWordIdProvider.notifier).id = word.id;
         } else {
           textController.selection = TextSelection(baseOffset: 0, extentOffset: textController.value.text.length);
-          Navigator.of(context).push(NavigateEffects.fadeTransitionToPage(WordPage(word.id)));
+          Navigator.of(context).push(NavigateEffects.fadeTransitionToPage(
+              WordPage(word.translationId != null ? word.translationId! : word.id)));
         }
       },
       contentPadding: const EdgeInsets.symmetric(horizontal: 11),

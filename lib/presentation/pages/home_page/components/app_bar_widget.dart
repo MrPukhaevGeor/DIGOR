@@ -28,61 +28,168 @@ class AppBarWidget extends ConsumerWidget {
       case LanguageMode.digEnglish:
         dropDownValueFirst = tr('digor');
         dropDownValueSecond = tr('english');
+        dropDownFirstValues = [
+          tr('digor'),
+          // tr('iron'),
+        ];
         dropDownSecondValues = [
           tr('english'),
           tr('russian'),
-          tr('turkish'),
+          // tr('turkish'),
         ];
-        break;
+
       case LanguageMode.digRussian:
         dropDownValueFirst = tr('digor');
         dropDownValueSecond = tr('russian');
+        dropDownFirstValues = [
+          tr('digor'),
+          tr('iron'),
+        ];
         dropDownSecondValues = [
           tr('russian'),
           tr('english'),
-          tr('turkish'),
+          // tr('turkish'),
         ];
-        break;
+
       case LanguageMode.digTurkish:
         dropDownValueFirst = tr('digor');
         dropDownValueSecond = tr('turkish');
+        dropDownFirstValues = [
+          tr('digor'),
+          tr('iron'),
+        ];
         dropDownSecondValues = [
-          tr('turkish'),
+          // tr('turkish'),
           tr('russian'),
           tr('english'),
         ];
-        break;
+
       case LanguageMode.engDigor:
         dropDownValueFirst = tr('english');
         dropDownValueSecond = tr('digor');
         dropDownFirstValues = [
           tr('english'),
           tr('russian'),
-          tr('turkish'),
+          // tr('turkish'),
         ];
-        break;
+        dropDownSecondValues = [
+          tr('digor'),
+          // tr('iron'),
+        ];
+
       case LanguageMode.rusDigor:
         dropDownValueFirst = tr('russian');
         dropDownValueSecond = tr('digor');
         dropDownFirstValues = [
           tr('russian'),
           tr('english'),
-          tr('turkish'),
+          // tr('turkish'),
         ];
-        break;
+        dropDownSecondValues = [
+          tr('digor'),
+          tr('iron'),
+        ];
+
       case LanguageMode.turkDigor:
         dropDownValueFirst = tr('turkish');
         dropDownValueSecond = tr('digor');
-        dropDownFirstValues = [tr('turkish'), tr('russian'), tr('english')];
-        break;
+        dropDownFirstValues = [
+          // tr('turkish'),
+          tr('russian'), tr('english')
+        ];
+        dropDownSecondValues = [
+          tr('digor'),
+          tr('iron'),
+        ];
+
+      case LanguageMode.ironRussian:
+        dropDownValueFirst = tr('iron');
+        dropDownValueSecond = tr('russian');
+        dropDownFirstValues = [
+          tr('iron'),
+          tr('digor'),
+        ];
+        dropDownSecondValues = [
+          tr('russian'),
+          // tr('english'),
+          // tr('turkish'),
+        ];
+
+      // case LanguageMode.ironEnglish:
+      //   dropDownValueFirst = tr('iron');
+      //   dropDownValueSecond = tr('english');
+      //   dropDownFirstValues = [
+      //     tr('iron'),
+      //     tr('digor'),
+      //   ];
+      //   dropDownSecondValues = [
+      //     tr('english'),
+      //     tr('russian'),
+      //     // tr('turkish'),
+      //   ];
+
+      // case LanguageMode.ironTurkish:
+      //   dropDownValueFirst = tr('iron');
+      //   // dropDownValueSecond = tr('turkish');
+      //   dropDownFirstValues = [
+      //     tr('iron'),
+      //     tr('digor'),
+      //   ];
+      //   dropDownSecondValues = [
+      //     // tr('turkish'),
+      //     tr('russian'),
+      //     tr('english'),
+      //   ];
+
+      case LanguageMode.rusIron:
+        dropDownValueFirst = tr('russian');
+        dropDownValueSecond = tr('iron');
+        dropDownFirstValues = [
+          tr('russian'),
+          // tr('english'),
+          // tr('turkish'),
+        ];
+        dropDownSecondValues = [
+          tr('iron'),
+          tr('digor'),
+        ];
+
+      // case LanguageMode.engIron:
+      //   dropDownValueFirst = tr('english');
+      //   dropDownValueSecond = tr('iron');
+      //   dropDownFirstValues = [
+      //     tr('english'),
+      //     tr('russian'),
+      //     // tr('turkish'),
+      //   ];
+      //   dropDownSecondValues = [
+      //     tr('iron'),
+      //     tr('digor'),
+      //   ];
+
+      // case LanguageMode.turkIron:
+      //   dropDownValueFirst = tr('turkish');
+      //   dropDownValueSecond = tr('iron');
+      //   dropDownFirstValues = [
+      //     // tr('turkish')
+      //     tr('russian'), tr('english')
+      //   ];
+      //   dropDownSecondValues = [
+      //     tr('iron'),
+      //     tr('digor'),
+      //   ];
 
       default:
         dropDownValueFirst = tr('digor');
         dropDownValueSecond = tr('russian');
+        dropDownFirstValues = [
+          tr('digor'),
+          tr('iron'),
+        ];
         dropDownSecondValues = [
           tr('russian'),
           tr('english'),
-          tr('turkish'),
+          // tr('turkish'),
         ];
     }
     final history = ref.watch(historyProvider).value;

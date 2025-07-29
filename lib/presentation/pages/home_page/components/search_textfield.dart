@@ -25,7 +25,8 @@ class SearchTextfield extends ConsumerWidget {
               cursorHeight: 24,
               onSubmitted: (_) {
                 if (ref.read(translateModeProvider) && wordList.value != null && wordList.value!.isNotEmpty) {
-                  Navigator.of(context).push(NavigateEffects.fadeTransitionToPage(WordPage(wordList.value!.first.id)));
+                  Navigator.of(context).push(NavigateEffects.fadeTransitionToPage(
+                      WordPage(wordList.value!.first.translationId ?? wordList.value!.first.id)));
                 }
               },
               showCursor: true,
