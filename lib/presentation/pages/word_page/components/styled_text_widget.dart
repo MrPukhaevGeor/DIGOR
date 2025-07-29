@@ -68,10 +68,15 @@ class _StyledTextWidgetState extends State<StyledTextWidget> {
                           'ref': StyledTextActionTag(
                             (String? text, Map<String?, String?> attrs) {
                               if (widget.word.refs!.containsKey(text)) {
-                                ref.read(splitModeProvider)
-                                    ? ref.read(selectedBottomPanelWordIdProvider.notifier).id = widget.word.refs![text]!
-                                    : Navigator.of(context)
-                                        .push(NavigateEffects.fadeTransitionToPage(WordPage(widget.word.refs![text]!)));
+                                try {
+                                  ref.read(splitModeProvider)
+                                      ? ref.read(selectedBottomPanelWordIdProvider.notifier).id =
+                                          widget.word.refs![text]!
+                                      : Navigator.of(context).push(
+                                          NavigateEffects.fadeTransitionToPage(WordPage(widget.word.refs![text]!)));
+                                } catch (e) {
+                                  print(e);
+                                }
                               } else {
                                 OutsideFunctions.showRefSnackBar(context, text ?? '');
                               }

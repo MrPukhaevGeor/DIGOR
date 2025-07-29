@@ -1,11 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/database/db_helper.dart';
 import '../../data/data_sources/local/sqlite_datasource.dart';
 import '../../domain/models/word_model.dart';
 import 'search_mode.dart';
 
-// Асинхронный провайдер для поиска
 final searchProvider = FutureProvider.family<List<WordModel>, String>((ref, text) async {
   if (text.trim().isEmpty) {
     return [];
@@ -18,27 +16,44 @@ final searchProvider = FutureProvider.family<List<WordModel>, String>((ref, text
     case LanguageMode.digEnglish:
       fromLang = 'dig';
       toLang = 'en';
-      break;
+
     case LanguageMode.digRussian:
       fromLang = 'dig';
       toLang = 'ru';
-      break;
+
     case LanguageMode.digTurkish:
       fromLang = 'dig';
       toLang = 'turk';
-      break;
+
     case LanguageMode.engDigor:
       fromLang = 'en';
       toLang = 'dig';
-      break;
+
     case LanguageMode.rusDigor:
       fromLang = 'ru';
       toLang = 'dig';
-      break;
+
     case LanguageMode.turkDigor:
       fromLang = 'turk';
       toLang = 'dig';
-      break;
+    case LanguageMode.engIron:
+      fromLang = 'en';
+      toLang = 'iron';
+    case LanguageMode.rusIron:
+      fromLang = 'ru';
+      toLang = 'iron';
+    case LanguageMode.ironTurkish:
+      fromLang = 'iron';
+      toLang = 'turk';
+    case LanguageMode.ironEnglish:
+      fromLang = 'iron';
+      toLang = 'en';
+    case LanguageMode.ironRussian:
+      fromLang = 'iron';
+      toLang = 'ru';
+    case LanguageMode.turkIron:
+      fromLang = 'turk';
+      toLang = 'iron';
   }
 
   final api = ref.watch(localApiClientProvider);

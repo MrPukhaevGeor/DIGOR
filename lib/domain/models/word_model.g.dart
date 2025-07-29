@@ -16,7 +16,7 @@ WordModel _$WordModelFromJson(Map<String, dynamic> json) => WordModel(
       ),
       dict: json['dict'] as String?,
       translate: json['translate'] as String,
-      originalId: (json['originalId'] as num?)?.toInt(),
+      translationId: (json['translationId'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$WordModelToJson(WordModel instance) => <String, dynamic>{
@@ -27,5 +27,5 @@ Map<String, dynamic> _$WordModelToJson(WordModel instance) => <String, dynamic>{
       'audio_url': instance.audioUrl,
       'refs': instance.refs,
       'dict': instance.dict,
-      'originalId': instance.originalId,
+      'translationId': instance.translationId,
     };

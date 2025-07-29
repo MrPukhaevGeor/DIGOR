@@ -33,7 +33,7 @@ class _HistoryList extends ConsumerWidget {
       data: (data) {
         return ListView.separated(
           padding: const EdgeInsets.only(top: 4),
-          itemBuilder: (context, index) => WordCardWidget(word: data[index]),
+          itemBuilder: (context, index) => WordCardWidget(key: ValueKey(data[index].id), word: data[index]),
           separatorBuilder: (context, index) => const SizedBox(height: 1, child: Divider(thickness: 1)),
           itemCount: data.length,
           physics: const BouncingScrollPhysics(),
