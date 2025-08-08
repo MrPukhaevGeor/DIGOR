@@ -1,7 +1,7 @@
 name: digor_dictionary
 description: A new Flutter project.
 publish_to: 'none'
-version: 1.0.5+6
+version: 2.0.0+8
 
 environment:
   sdk: '^3.6.0 '
@@ -66,4 +66,11 @@ flutter:
         - asset: assets/fonts/SamsungOne/SamsungOne-600.ttf
           weight: 600
         - asset: assets/fonts/SamsungOne/SamsungOne-700.ttf
+          weight: 700
+    - family: HelveticaNeue
+      fonts:
+        - asset: assets/fonts/HelveticaNeue/HelveticaNeue-Medium.otf
+        - asset: assets/fonts/HelveticaNeue/HelveticaNeue-Light.otf
+          weight: 300
+        - asset: assets/fonts/HelveticaNeue/HelveticaNeue-Bold.otf
           weight: 700

@@ -50,5 +50,8 @@
     "dictionaries": "Dictionaries",
     "unable_to_load_data": "Unable to load data",
     "check_your_network_connection": "Check your network connection",
-    "retry": "Retry"
+    "retry": "Retry",
+    "copy": "Copy",
+    "paste": "Paste",
+    "select_all": "Select All"
 }

@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'shared_pref.dart';
 
-enum LocalizationLanguage { system, russian, english, turkish, digor }
+enum LocalizationLanguage { system, russian, english, turkish, digor, iron }
 
 class LocalizationModeNotifier extends StateNotifier<LocalizationLanguage> {
   final Ref ref;
@@ -29,6 +29,8 @@ class LocalizationModeNotifier extends StateNotifier<LocalizationLanguage> {
       case 'tr_TR':
         state = LocalizationLanguage.turkish;
         break;
+      case 'uz_UZ':
+        state = LocalizationLanguage.iron;
       case 'de_DE':
         state = LocalizationLanguage.digor;
         break;
@@ -51,6 +53,9 @@ class LocalizationModeNotifier extends StateNotifier<LocalizationLanguage> {
         break;
       case LocalizationLanguage.digor:
         sharedPreferences.setString('localLang', 'de_DE');
+        break;
+      case LocalizationLanguage.iron:
+        sharedPreferences.setString('localLang', 'uz_UZ');
         break;
     }
     state = locale;

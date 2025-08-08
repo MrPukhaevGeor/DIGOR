@@ -68,8 +68,8 @@ class SearchModeNotifier extends StateNotifier<AsyncValue<LanguageMode>> {
     if (value == tr('iron')) {
       switch (toLanguage) {
         case 'en':
-          state = const AsyncValue.data(LanguageMode.ironEnglish);
-          await sharedPreferences.setString('langMode', 'ironEnglish');
+          state = const AsyncValue.data(LanguageMode.ironRussian);
+          await sharedPreferences.setString('langMode', 'ironRussian');
         case 'ru':
           state = const AsyncValue.data(LanguageMode.ironRussian);
           await sharedPreferences.setString('langMode', 'ironRussian');
@@ -132,8 +132,8 @@ class SearchModeNotifier extends StateNotifier<AsyncValue<LanguageMode>> {
           await sharedPreferences.setString('langMode', 'rusIron');
 
         case 'en':
-          state = const AsyncValue.data(LanguageMode.engIron);
-          await sharedPreferences.setString('langMode', 'engIron');
+          state = const AsyncValue.data(LanguageMode.rusIron);
+          await sharedPreferences.setString('langMode', 'rusIron');
 
         case 'turk':
           state = const AsyncValue.data(LanguageMode.turkIron);
@@ -271,17 +271,17 @@ class SearchModeNotifier extends StateNotifier<AsyncValue<LanguageMode>> {
       case LanguageMode.turkDigor:
         return 'Turk-Dig';
       case LanguageMode.engIron:
-        return 'En-Iron';
+        return 'En-Ir';
       case LanguageMode.rusIron:
-        return 'Ru-Iron';
+        return 'Ru-Ir';
       case LanguageMode.ironTurkish:
-        return 'Iron-Turk';
+        return 'Ir-Turk';
       case LanguageMode.ironEnglish:
-        return 'Iron-En';
+        return 'Ir-En';
       case LanguageMode.ironRussian:
-        return 'Iron-Ru';
+        return 'Ir-Ru';
       case LanguageMode.turkIron:
-        return 'Turk-Iron';
+        return 'Turk-Ir';
       default:
         return 'Dig-Ru';
     }

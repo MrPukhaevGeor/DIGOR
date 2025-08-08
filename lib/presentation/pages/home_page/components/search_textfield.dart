@@ -1,5 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../navigator/navigate_effect.dart';
@@ -22,6 +24,44 @@ class SearchTextfield extends ConsumerWidget {
         child: Column(
           children: [
             TextField(
+              contextMenuBuilder: (context, editableTextState) {
+                return AdaptiveTextSelectionToolbar(
+                  anchors: editableTextState.contextMenuAnchors,
+                  children: [
+                    if (editableTextState.textEditingValue.text.isNotEmpty)
+                      TextButton(
+                        onPressed: () {
+                          editableTextState.copySelection(SelectionChangedCause.toolbar);
+                        },
+                        child: Text(
+                          tr('copy'),
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ),
+                    TextButton(
+                      onPressed: () {
+                        editableTextState.pasteText(SelectionChangedCause.toolbar);
+                      },
+                      child: Text(
+                        tr('paste'),
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ),
+                    if (editableTextState.textEditingValue.text.isNotEmpty)
+                      TextButton(
+                        onPressed: () {
+                          editableTextState.selectAll(
+                            SelectionChangedCause.toolbar,
+                          );
+                        },
+                        child: Text(
+                          tr('select_all'),
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ),
+                  ],
+                );
+              },
               cursorHeight: 24,
               onSubmitted: (_) {
                 if (ref.read(translateModeProvider) && wordList.value != null && wordList.value!.isNotEmpty) {

@@ -50,5 +50,8 @@
     "dictionaries": "Словари",
     "unable_to_load_data": "Не удаётся загрузить данные",
     "check_your_network_connection": "Проверьте подключение к сети",
-    "retry": "Повторить"
+    "retry": "Повторить",
+    "copy": "Копировать",
+    "paste": "Вставить",
+    "select_all": "Выбрать все"
 }

@@ -13,21 +13,33 @@ class TitleWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final zoom = ref.watch(articleZoomProvider);
-    return Text.rich(
+
+    return SelectableText.rich(
       TextSpan(
         style: theme.textTheme.headlineSmall!.copyWith(
           fontSize: 30 * zoom,
-          fontFamily: 'Araboto',
+          fontFamily: 'HelveticaNeue',
         ),
         children: [
           TextSpan(text: title.trim()),
           if (audioUrl != null && audioUrl!.isNotEmpty)
             WidgetSpan(
-                baseline: TextBaseline.ideographic,
-                alignment: PlaceholderAlignment.middle,
-                child: PlayAudioButton(audioUrl!)),
+              baseline: TextBaseline.ideographic,
+              alignment: PlaceholderAlignment.middle,
+              child: PlayAudioButton(audioUrl!),
+            ),
         ],
       ),
+      showCursor: true,
+      cursorColor: Colors.blue,
+      toolbarOptions: const ToolbarOptions(
+        copy: true,
+        selectAll: true,
+      ),
+      selectionControls: materialTextSelectionControls,
+      onSelectionChanged: (selection, cause) {
+        if (selection.isValid) {}
+      },
     );
   }
 }

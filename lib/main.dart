@@ -12,7 +12,13 @@ Future<void> main() async {
 
   runApp(
     EasyLocalization(
-      supportedLocales: const [Locale('en', 'US'), Locale('ru', 'RU'), Locale('tr', 'TR'), Locale('de', 'DE')],
+      supportedLocales: const [
+        Locale('en', 'US'),
+        Locale('ru', 'RU'),
+        Locale('tr', 'TR'),
+        Locale('de', 'DE'),
+        Locale('uz', 'UZ')
+      ],
       path: 'lang',
       fallbackLocale: const Locale('ru', 'RU'),
       child: ProviderScope(

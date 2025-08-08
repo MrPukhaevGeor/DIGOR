@@ -11,8 +11,10 @@ class GratitudesPage extends StatelessWidget {
     final theme = Theme.of(context);
     return Scaffold(
         appBar: AppBar(
-          title: Text(tr('gratitudes')),
-
+          title: Text(
+            tr('gratitudes'),
+            style: theme.textTheme.bodyMedium!.copyWith(color: Colors.white, fontSize: 18),
+          ),
           backgroundColor: theme.primaryColor,
         ),
         body: Padding(
@@ -613,7 +615,7 @@ Bu uygulamayı mümkün kılan herkese özellikle vurgulamak ve teşekkür etmek
               // textAlign: TextAlign.justify,
               style: theme.textTheme.headlineSmall!.copyWith(
                 fontSize: 14,
-                fontFamily: 'SamsungOnes',
+                fontFamily: 'HelveticaNeue',
               ),
               textAlign: TextAlign.justify,
               tags: {

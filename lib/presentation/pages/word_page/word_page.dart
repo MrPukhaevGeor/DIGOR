@@ -35,24 +35,27 @@ class WordPage extends ConsumerWidget {
               ? PreferredSize(
                   preferredSize: Size.fromHeight(kToolbarHeight), child: WordPageAppBar(body: word.body ?? ''))
               : null,
-          body: Stack(
-            children: [
-              ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  const DictionaryNameWidget(),
-                  SizedBox(height: 1, child: Divider(thickness: 1, color: theme.primaryColor.withOpacity(.5))),
-                  const SizedBox(height: 18),
-                  TitleWidget(word.title, word.audioUrl),
-                  const SizedBox(height: 28),
-                  StyledTextWidget(
-                    word: word,
-                    isShowingExamples: ref.watch(exampleModeProvider) == ExampleModeEnum.show,
-                  ),
-                ],
-              ),
-              SideMenuButtons(wordModel: word),
-            ],
+          body: MediaQuery(
+            data: MediaQuery.of(context).copyWith(textScaleFactor: 1, boldText: false),
+            child: Stack(
+              children: [
+                ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    const DictionaryNameWidget(),
+                    SizedBox(height: 1, child: Divider(thickness: 1, color: theme.primaryColor.withOpacity(.5))),
+                    const SizedBox(height: 18),
+                    TitleWidget(word.title, word.audioUrl),
+                    const SizedBox(height: 28),
+                    StyledTextWidget(
+                      word: word,
+                      isShowingExamples: ref.watch(exampleModeProvider) == ExampleModeEnum.show,
+                    ),
+                  ],
+                ),
+                SideMenuButtons(wordModel: word),
+              ],
+            ),
           ),
         );
       },
@@ -90,7 +93,7 @@ class DictionaryNameWidget extends ConsumerWidget {
         style: theme.textTheme.bodyLarge!.copyWith(
           fontSize: 17 * zoom,
           fontWeight: FontWeight.w500,
-          fontFamily: 'Araboto',
+          fontFamily: 'HelveticaNeue',
         ),
       ),
     );
