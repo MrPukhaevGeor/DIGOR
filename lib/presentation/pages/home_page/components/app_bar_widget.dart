@@ -11,6 +11,7 @@ import '../../../providers/search_mode.dart';
 import '../../../providers/textfield_provider.dart';
 import '../../word_page/word_page_model.dart';
 import '../home_page_model.dart';
+import 'clear_history_widget.dart';
 
 class AppBarWidget extends ConsumerWidget {
   final GlobalKey<ScaffoldState>? scaffoldKey;
@@ -30,7 +31,7 @@ class AppBarWidget extends ConsumerWidget {
         dropDownValueSecond = tr('english');
         dropDownFirstValues = [
           tr('digor'),
-          // tr('iron'),
+          tr('iron'),
         ];
         dropDownSecondValues = [
           tr('english'),
@@ -74,7 +75,7 @@ class AppBarWidget extends ConsumerWidget {
         ];
         dropDownSecondValues = [
           tr('digor'),
-          // tr('iron'),
+          tr('iron'),
         ];
 
       case LanguageMode.rusDigor:
@@ -213,25 +214,25 @@ class AppBarWidget extends ConsumerWidget {
             ),
           ),
         ),
-      if (ref.watch(splitModeProvider))
-        DropdownMenuItem(
-          enabled: word?.body?.contains('[ex]') ?? false,
-          value: isShowingExamples ? tr('hide_examples') : tr('show_examples'),
-          onTap: ref.read(exampleModeProvider.notifier).toggleExampleMode,
-          child: Text(
-            isShowingExamples ? tr('hide_examples') : tr('show_examples'),
-            style: TextStyle(
-                color: theme.textTheme.bodyMedium!.color!.withOpacity(
-              word == null
-                  ? 0.2
-                  : word.body == null
-                      ? 0.2
-                      : word.body!.contains('[ex]')
-                          ? 1
-                          : .2,
-            )),
-          ),
-        ),
+      // if (ref.watch(splitModeProvider))
+      //   DropdownMenuItem(
+      //     enabled: word?.body?.contains('[ex]') ?? false,
+      //     value: isShowingExamples ? tr('hide_examples') : tr('show_examples'),
+      //     onTap: ref.read(exampleModeProvider.notifier).toggleExampleMode,
+      //     child: Text(
+      //       isShowingExamples ? tr('hide_examples') : tr('show_examples'),
+      //       style: TextStyle(
+      //           color: theme.textTheme.bodyMedium!.color!.withOpacity(
+      //         word == null
+      //             ? 0.2
+      //             : word.body == null
+      //                 ? 0.2
+      //                 : word.body!.contains('[ex]')
+      //                     ? 1
+      //                     : .2,
+      //       )),
+      //     ),
+      //   ),
     ];
     return AppBar(
       titleSpacing: 0,
@@ -239,27 +240,54 @@ class AppBarWidget extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Expanded(
-            child: DropdownButton(
-              underline: const DropdownButtonHideUnderline(child: SizedBox.shrink()),
-              icon: dropDownFirstValues.isEmpty
-                  ? const SizedBox.shrink()
-                  : const Icon(
-                      Icons.arrow_drop_down_rounded,
-                      color: Colors.white,
-                    ),
-              hint: Center(
-                child: Text(
-                  dropDownValueFirst,
-                  maxLines: 1,
-                  style: theme.textTheme.bodyMedium!.copyWith(color: Colors.white, fontSize: 14),
-                ),
-              ),
-              items: dropDownFirstValues.map((value) => DropdownMenuItem(value: value, child: Text(value))).toList(),
-              onChanged: (value) {
-                ref.read(searchModeProvider.notifier).onDropDownFirstChange(value!);
+            child: PopupMenuButton<String>(
+              onSelected: (value) {
+                ref.read(searchModeProvider.notifier).onDropDownFirstChange(value);
                 ref.read(textFieldValueProvider.notifier).focusNode.requestFocus();
               },
-              isExpanded: true,
+              itemBuilder: (context) => dropDownFirstValues
+                  .map(
+                    (value) => PopupMenuItem<String>(
+                      padding: EdgeInsets.symmetric(vertical: dropDownFirstValues.length == 1 ? 2 : 14, horizontal: 8),
+
+                      value: value,
+                      height: 30, // Высота элемента (можно настроить)
+                      child: Text(
+                        value,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  )
+                  .toList(),
+              offset: const Offset(0, -32), // Смещение меню относительно кнопки
+              constraints: BoxConstraints(
+                minWidth: MediaQuery.sizeOf(context).width * 0.55,
+              ),
+              child: Container(
+                alignment: Alignment.center,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        dropDownValueFirst,
+                        // maxLines: 1,
+                        style: theme.textTheme.bodyMedium!.copyWith(
+                          color: Colors.white,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                    if (dropDownFirstValues.isNotEmpty)
+                      const Icon(
+                        Icons.arrow_drop_down_rounded,
+                        color: Colors.white,
+                      ),
+                  ],
+                ),
+              ),
             ),
           ),
           IconButton(
@@ -271,67 +299,61 @@ class AppBarWidget extends ConsumerWidget {
             ),
           ),
           Expanded(
-            child: DropdownButton(
-              underline: const DropdownButtonHideUnderline(child: SizedBox.shrink()),
-              icon: dropDownSecondValues.isEmpty
-                  ? const SizedBox.shrink()
-                  : const Icon(
-                      Icons.arrow_drop_down_rounded,
-                      color: Colors.white,
-                    ),
-              hint: Center(
-                child: Text(
-                  dropDownValueSecond,
-                  maxLines: 1,
-                  style: theme.textTheme.bodyMedium!.copyWith(color: Colors.white, fontSize: 14),
-                ),
-              ),
-              items: dropDownSecondValues.map((String value) {
-                return DropdownMenuItem(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (value) {
-                ref.read(searchModeProvider.notifier).onDropDownSecondChange(value!);
+            child: PopupMenuButton<String>(
+              onSelected: (value) {
+                ref.read(searchModeProvider.notifier).onDropDownSecondChange(value);
                 ref.read(textFieldValueProvider.notifier).focusNode.requestFocus();
               },
-              isExpanded: true,
+              itemBuilder: (context) => dropDownSecondValues
+                  .map(
+                    (value) => PopupMenuItem<String>(
+                      padding: EdgeInsets.symmetric(vertical: dropDownSecondValues.length == 1 ? 2 : 14, horizontal: 8),
+
+                      value: value,
+                      height: 30, // Высота элемента (можно настроить)
+                      child: Text(
+                        value,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  )
+                  .toList(),
+              offset: const Offset(40, -32), // Смещение меню относительно кнопки
+              constraints: BoxConstraints(
+                minWidth: MediaQuery.sizeOf(context).width * 0.5,
+                maxHeight: MediaQuery.sizeOf(context).width * 0.6,
+              ),
+              child: Container(
+                alignment: Alignment.center,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        dropDownValueSecond,
+                        maxLines: 1,
+                        // overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodyMedium!.copyWith(
+                          color: Colors.white,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                    if (dropDownSecondValues.isNotEmpty)
+                      const Icon(
+                        Icons.arrow_drop_down_rounded,
+                        color: Colors.white,
+                      ),
+                  ],
+                ),
+              ),
             ),
           ),
         ],
       ),
-      actions: [
-        SizedBox(
-          width: 45,
-          child: dropDawnItems.isEmpty
-              ? const SizedBox.shrink()
-              : DropdownButtonHideUnderline(
-                  child: DropdownButton2(
-                    customButton: const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10),
-                      child: Icon(Icons.more_vert),
-                    ),
-                    items: dropDawnItems,
-                    onChanged: (_) {
-                      if (_ == tr('clear_history')) {
-                        OutsideFunctions.showClearHistoryDialog(
-                                context, ref.read(historyProvider.notifier).clearHistory, tr('del_full_history'))
-                            .whenComplete(() => ref.read(textFieldValueProvider.notifier).focusNode.requestFocus());
-                      }
-                    },
-                    dropdownStyleData: DropdownStyleData(
-                        width: 180,
-                        padding: EdgeInsets.zero,
-                        elevation: 1,
-                        isOverButton: true,
-                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(2)),
-                        offset: const Offset(-140, -4),
-                        openInterval: const Interval(0.25, 0.5)),
-                  ),
-                ),
-        )
-      ],
+      actions: const [ClearHistoryButton()],
     );
   }
 }

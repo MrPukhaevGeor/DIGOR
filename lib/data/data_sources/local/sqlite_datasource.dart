@@ -19,10 +19,22 @@ final class SQLiteDataSourceImpl implements SQLiteDataSource {
 
   SQLiteDataSourceImpl(this._database);
 
-  String _getTableName(String from, String to) {
+  String _getTableNameForGetById(String from, String to) {
     return switch ((from, to)) {
-      ('iron', _) => 'ir2_ru2_dict',
+      ('iron', _) => 'ir1_ru1_dict',
       (_, 'iron') => 'ru2_ir2_dict',
+      ('dig', _) => 'dig_${to}_dict',
+      (_, 'dig') => 'dig_${from}_dict',
+      _ => '${from}_${to}_dict',
+    };
+  }
+
+  String _getTableNameForSearch(String from, String to) {
+    return switch ((from, to)) {
+      ('iron', _) => 'ir1_ru1_dict',
+      (_, 'iron') => 'ru2_ir2_dict',
+      ('dig', _) => 'dig_${to}_dict',
+      (_, 'dig') => '${from}_dig_dict',
       _ => '${from}_${to}_dict',
     };
   }
@@ -30,7 +42,8 @@ final class SQLiteDataSourceImpl implements SQLiteDataSource {
   String _getRefTableName(String from, String to) {
     return switch ((from, to)) {
       ('dig', _) => 'dig_${to}_refs',
-      ('iron', _) || (_, 'iron') => 'ru2_ir2_refs',
+      ('iron', _) => 'ir1_ru1_refs',
+      (_, 'iron') => 'ru2_ir2_refs',
       _ => 'dig_${from}_refs',
     };
   }
@@ -47,7 +60,7 @@ final class SQLiteDataSourceImpl implements SQLiteDataSource {
 
     final from = parts[0];
     final to = parts[1];
-    final dictTable = _getTableName(from, to);
+    String dictTable = _getTableNameForGetById(from, to);
     final refTable = _getRefTableName(from, to);
 
     final results = await Future.wait([
@@ -87,7 +100,7 @@ final class SQLiteDataSourceImpl implements SQLiteDataSource {
     final parts = lang.split("=");
     if (parts.length != 2) return [];
 
-    final table = _getTableName(parts[0], parts[1]);
+    final table = _getTableNameForSearch(parts[0], parts[1]);
     final placeholders = List.filled(ids.length, '?').join(',');
 
     final result = await _database.rawQuery(
@@ -100,19 +113,20 @@ final class SQLiteDataSourceImpl implements SQLiteDataSource {
 
   @override
   Future<List<WordModel>> search(String text, String fromLang, String toLang) async {
-    final input = text.toLowerCase();
-    final tableKey = '${fromLang}_$toLang';
+    String input = text.toLowerCase().replaceAll("æ", "ӕ").replaceAll("Æ", "Ӕ");
+    String tableKey = '${fromLang}_$toLang';
 
     // Кешируем загруженные данные
     if (!_cache.containsKey(tableKey)) {
-      final table = _getTableName(fromLang, toLang);
+      String table = _getTableNameForSearch(fromLang, toLang);
       final candidatesRaw = await _database.query(
         table,
         columns: [
           'id',
           'title',
           'translation',
-          if (fromLang != 'dig' && !(fromLang == 'ru' && toLang == 'iron')) 'trn_id'
+          if (fromLang != 'dig' && !(fromLang == 'ru' && toLang == 'iron') && !(fromLang == 'iron' && toLang == 'ru'))
+            'trn_id'
         ],
       );
       _cache[tableKey] = candidatesRaw.map(WordModel.fromJson).toList();

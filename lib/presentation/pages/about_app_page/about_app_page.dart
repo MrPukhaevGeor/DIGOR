@@ -30,7 +30,10 @@ class _AboutAppPageState extends State<AboutAppPage> {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(tr('about_app')),
+        title: Text(
+          tr('about_app'),
+          style: theme.textTheme.bodyMedium!.copyWith(color: Colors.white, fontSize: 18),
+        ),
         backgroundColor: theme.primaryColor,
       ),
       body: Padding(
@@ -38,12 +41,41 @@ class _AboutAppPageState extends State<AboutAppPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (context.locale == const Locale('uz', 'UZ')) ...[
+              Text(
+                'Дзырдуӕттӕ Digor®',
+                style: theme.textTheme.headlineSmall!.copyWith(
+                  fontSize: 21,
+                  fontFamily: 'HelveticaNeue',
+                ),
+              ),
+              Text(
+                '''
+
+Хуыз $appVersion
+
+Нымӕц# 2025/25.
+
+© 2023 «Digor»
+Проекты автор ӕмӕ разамонӕг Будайты Мурат 
+
+Проект «Digor» нысангонд у алкӕмӕн дӕр, кӕцы цымыдис кӕны дыгурон ӕвзагмӕ - куыд мадӕлон кӕнӕ фӕсарӕйнаг ӕвзаг, астӕуккаг ӕмӕ уӕлдӕр ахуыргӕнӕндӕтты студенттӕн, афтӕ ма профессионалон ӕгъдауӕй лингвистикӕйы чи архайы, кӕнӕ дыгурон ӕвзаг ӕмӕ литературӕ чи амоны, уыцы специалисттӕн. Ацы ӕмхасӕны бакӕсӕн ис алыхуызы ӕвзагзонынады информаци.
+''',
+                textAlign: TextAlign.justify,
+                style: theme.textTheme.bodySmall!.copyWith(
+                    fontSize: 14,
+                    height: 1.3,
+                    color: theme.textTheme.bodyMedium!.color,
+                    fontFamily: 'HelveticaNeue',
+                    fontWeight: FontWeight.w500),
+              ),
+            ],
             if (context.locale == const Locale('ru', 'RU')) ...[
               Text(
                 'Словари Digor®',
                 style: theme.textTheme.headlineSmall!.copyWith(
                   fontSize: 21,
-                  fontFamily: 'SamsungOne',
+                  fontFamily: 'HelveticaNeue',
                 ),
               ),
               Text(
@@ -51,10 +83,10 @@ class _AboutAppPageState extends State<AboutAppPage> {
 
 Версия $appVersion
 
-Артикул 1777/25.
+Артикул# 2025/25.
 
-© 2023 АНО СКИКИ.
-Автор и руководитель проекта Будайти Мурат Олегович
+© 2023 «Digor»
+Автор и руководитель проекта Будаев Мурат Олегович
 
 Проект «Digor» предназначен для всех, кто интересуется дигорским языком - как родным или как иностранным, для учащихся средней и высшей школы, а также для специалистов, профессионально занимающихся лингвистикой или преподаванием дигорского языка и литературы. Приложение содержит общедоступную лингвистическую информацию разного типа.
 ''',
@@ -63,7 +95,7 @@ class _AboutAppPageState extends State<AboutAppPage> {
                     fontSize: 14,
                     height: 1.3,
                     color: theme.textTheme.bodyMedium!.color,
-                    fontFamily: 'SamsungOne',
+                    fontFamily: 'HelveticaNeue',
                     fontWeight: FontWeight.w500),
               ),
             ],
@@ -72,7 +104,7 @@ class _AboutAppPageState extends State<AboutAppPage> {
                 'Digor® Dictionaries',
                 style: theme.textTheme.headlineSmall!.copyWith(
                   fontSize: 21,
-                  fontFamily: 'SamsungOne',
+                  fontFamily: 'HelveticaNeue',
                 ),
               ),
               Text(
@@ -80,29 +112,29 @@ class _AboutAppPageState extends State<AboutAppPage> {
 
 Version $appVersion
 
-Part# 1777/25.
+Part# 2025/25.
 
-© 2023 ANO SKIKI.
+© 2023 «Digor»
 
-Author and project manager Murat Budaiti
+Author and project manager Murat Budaev
 
-The «Digor» project is intended for everyone who is interested in the Digor language - as a native language or as a foreign language, for students of secondary and higher schools, as well as for specialists professionally engaged in linguistics or teaching the Digor language and literature. The application contains various types of publicly available linguistic information.
+The "Digor" project is intended for everyone who is interested in the Digor language - as a native or as a foreign language, for students of secondary and higher education, as well as for specialists who are professionally engaged in linguistics or teaching the Digor language and literature. The application contains publicly available linguistic information of various types.
 ''',
                 textAlign: TextAlign.justify,
                 style: theme.textTheme.bodySmall!.copyWith(
                     fontSize: 14,
                     height: 1.3,
                     color: theme.textTheme.bodyMedium!.color,
-                    fontFamily: 'SamsungOne',
+                    fontFamily: 'HelveticaNeue',
                     fontWeight: FontWeight.w500),
               ),
             ],
             if (context.locale == const Locale('tr', 'TR')) ...[
               Text(
-                'Digor® Sözlükleri',
+                'Digor® Sözlükler',
                 style: theme.textTheme.headlineSmall!.copyWith(
                   fontSize: 21,
-                  fontFamily: 'SamsungOne',
+                  fontFamily: 'HelveticaNeue',
                 ),
               ),
               Text(
@@ -110,19 +142,19 @@ The «Digor» project is intended for everyone who is interested in the Digor la
 
 Sürüm $appVersion
 
-Parça No. 1777/25.
+Ürün kodu# 2025/25.
 
-© 2023 ANO SKIKI.
-Yazar ve proje yöneticisi Murat Budaiti
+© 2023 «Digor»
+Yazar ve proje yöneticisi Murat Budayev
 
-«Digor» projesi, Digor diliyle ana dil veya yabancı dil olarak ilgilenen herkes, orta ve yüksek okul öğrencileri ve ayrıca dilbilim veya Digor dilini öğreten profesyonel olarak çalışan uzmanlar için tasarlanmıştır. edebiyat. Uygulama, halka açık çeşitli dil bilgisi türlerini içerir.
+«Digor» projesi, ana dili veya yabancı dili olarak Digor diliyle ilgilenen herkese, ortaöğretim ve yükseköğretim öğrencilerine ve profesyonel olarak dilbilim alanında çalışan veya Digor dili ve edebiyatı öğreten uzmanlara yöneliktir. Uygulama, çeşitli türlerde kamuya açık dil bilgisi içermektedir.
 ''',
                 textAlign: TextAlign.justify,
                 style: theme.textTheme.bodySmall!.copyWith(
                     fontSize: 14,
                     height: 1.3,
                     color: theme.textTheme.bodyMedium!.color,
-                    fontFamily: 'SamsungOne',
+                    fontFamily: 'HelveticaNeue',
                     fontWeight: FontWeight.w500),
               ),
             ],
@@ -131,7 +163,7 @@ Yazar ve proje yöneticisi Murat Budaiti
                 'Дзурдуӕттӕ Digor®',
                 style: theme.textTheme.headlineSmall!.copyWith(
                   fontSize: 21,
-                  fontFamily: 'SamsungOne',
+                  fontFamily: 'HelveticaNeue',
                 ),
               ),
               Text(
@@ -139,19 +171,19 @@ Yazar ve proje yöneticisi Murat Budaiti
 
 Хузӕ $appVersion
 
-Артикул 1777/25.
+Нимӕдзӕ# 2025/25.
 
-© 2023 АНО ЦКИКИ.
+© 2023 «Digor»
 Проекти автор ӕма разамонӕг Будайти Мурат 
 
-Проект «Digor» арӕзт ӕй, дигорон ӕвзаг цӕмӕдесаг кӕмӕн ӕй, уонӕй алке туххӕн дӕр – ӕвзаг ин хеуон уа, ӕви фӕсарӕйнаг, уӕдта астӕуккаг ӕма уӕлдӕр ахургӕнӕндӕнтти ахурдзаутӕн, никки ба ма, лингвистикӕ ӕ професси кӕмӕн ӕй, кенӕ дигорон ӕвзаг ӕма литератури ахургӕнӕг ка ӕй, уонӕн. Аци уӕлӕнхасӕни бакӕсӕн ес аллихузи лингвистикон информаци.
+Проект «Digor» арӕзт ӕй, дигорон ӕвзаг цӕмӕдесаг кӕмӕн ӕй, уонӕй алке туххӕн дӕр – ӕвзаг ин хеуон уа, ӕви фӕсарӕйнаг, уӕдта астӕуккаг ӕма уӕлдӕр ахургӕнӕндӕнтти ахурдзаутӕн, никки ба ма, лингвистикӕ ӕ професси кӕмӕн ӕй, кенӕ дигорон ӕвзаг ӕма литератури ахургӕнӕг ка ӕй, уонӕн. Аци ӕнхасӕни бакӕсӕн ес аллихузи ӕвзагзонуйнади информаци.
 ''',
                 textAlign: TextAlign.justify,
                 style: theme.textTheme.bodySmall!.copyWith(
                     fontSize: 14,
                     height: 1.3,
                     color: theme.textTheme.bodyMedium!.color,
-                    fontFamily: 'SamsungOne',
+                    fontFamily: 'HelveticaNeue',
                     fontWeight: FontWeight.w500),
               ),
             ],

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -56,12 +57,13 @@ class _StyledTextWidgetState extends State<StyledTextWidget> {
                     child: Consumer(builder: (context, ref, child) {
                       final zoom = ref.watch(articleZoomProvider);
                       return StyledText(
+                        key: ValueKey(e),
                         text: e,
                         style: theme.textTheme.bodySmall!.copyWith(
                             fontSize: 17 * zoom,
                             height: 1.3,
                             color: theme.textTheme.bodyMedium!.color,
-                            fontFamily: 'Araboto',
+                            fontFamily: 'HelveticaNeue',
                             fontWeight: FontWeight.w500),
                         maxLines: widget.maxLines,
                         tags: {
@@ -100,6 +102,9 @@ class _StyledTextWidgetState extends State<StyledTextWidget> {
                                       : const Color.fromARGB(255, 0, 0, 97))),
                           'm2': StyledTextTag(style: TextStyle(fontSize: 15 * zoom)),
                           'm3': StyledTextTag(style: TextStyle(fontSize: 15 * zoom)),
+                          "'": StyledTextTag(
+                              style:
+                                  const TextStyle(fontStyle: FontStyle.italic, decoration: TextDecoration.lineThrough)),
                         },
                       );
                     }),

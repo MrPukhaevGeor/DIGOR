@@ -19,6 +19,7 @@ class DrawerWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Drawer(
+      width: 280,
       backgroundColor: theme.scaffoldBackgroundColor,
       child: Column(
         children: [
@@ -38,6 +39,8 @@ class DrawerWidget extends StatelessWidget {
             contentPadding: const EdgeInsets.symmetric(horizontal: 16),
             leading: Icon(Icons.book_outlined, color: theme.textTheme.bodyMedium!.color),
             title: Text(tr('dictionaries'),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
                 style: theme.textTheme.bodyMedium!.copyWith(fontSize: 14, fontWeight: FontWeight.w500)),
             onTap: () {
               Navigator.of(context).push(NavigateEffects.fadeTransitionToPage(const DictionariesPage()));
@@ -49,6 +52,8 @@ class DrawerWidget extends StatelessWidget {
             contentPadding: const EdgeInsets.symmetric(horizontal: 16),
             horizontalTitleGap: 10,
             title: Text(tr('gratitudes'),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
                 style: theme.textTheme.bodyMedium!.copyWith(fontSize: 14, fontWeight: FontWeight.w500)),
             leading: Icon(Icons.star_outline, color: theme.textTheme.bodyMedium!.color),
             onTap: () {
@@ -61,9 +66,12 @@ class DrawerWidget extends StatelessWidget {
             contentPadding: const EdgeInsets.symmetric(horizontal: 16),
             horizontalTitleGap: 10,
             title: Text(tr('settings'),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
                 style: theme.textTheme.bodyMedium!.copyWith(fontSize: 14, fontWeight: FontWeight.w500)),
             leading: Icon(Icons.settings, color: theme.textTheme.bodyMedium!.color),
             onTap: () {
+              homePageKey.currentState?.closeDrawer();
               Navigator.of(context).push(NavigateEffects.fadeTransitionToPage(const SettingsPage()));
             },
           ),
@@ -72,6 +80,8 @@ class DrawerWidget extends StatelessWidget {
             contentPadding: const EdgeInsets.symmetric(horizontal: 16),
             horizontalTitleGap: 10,
             title: Text(tr('about_app'),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
                 style: theme.textTheme.bodyMedium!.copyWith(fontSize: 14, fontWeight: FontWeight.w500)),
             leading: Icon(Icons.info_outline, color: theme.textTheme.bodyMedium!.color),
             onTap: () {
@@ -84,6 +94,8 @@ class DrawerWidget extends StatelessWidget {
             contentPadding: const EdgeInsets.symmetric(horizontal: 16),
             horizontalTitleGap: 10,
             title: Text(tr('write_to_support'),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
                 style: theme.textTheme.bodyMedium!.copyWith(fontSize: 14, fontWeight: FontWeight.w500)),
             leading: Icon(Icons.mail_outlined, color: theme.textTheme.bodyMedium!.color),
             onTap: () {
@@ -96,6 +108,8 @@ class DrawerWidget extends StatelessWidget {
             contentPadding: const EdgeInsets.symmetric(horizontal: 16),
             horizontalTitleGap: 10,
             title: Text(tr('rate_app'),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
                 style: theme.textTheme.bodyMedium!.copyWith(fontSize: 14, fontWeight: FontWeight.w500)),
             leading: Icon(Icons.star_half, color: theme.textTheme.bodyMedium!.color),
             onTap: () {
@@ -108,6 +122,8 @@ class DrawerWidget extends StatelessWidget {
             contentPadding: const EdgeInsets.symmetric(horizontal: 16),
             horizontalTitleGap: 10,
             title: Text(tr('share'),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
                 style: theme.textTheme.bodyMedium!.copyWith(fontSize: 14, fontWeight: FontWeight.w500)),
             leading: Icon(Icons.share_outlined, color: theme.textTheme.bodyMedium!.color),
             onTap: () {

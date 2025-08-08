@@ -20,15 +20,15 @@ class SideMenuButtons extends ConsumerWidget {
       right: 8,
       child: Column(
         children: [
-          IconButton(
-            onPressed: () => OutsideFunctions.showCopiedSnackBar(context, wordModel.title.trim()),
-            icon: SvgPicture.asset('assets/svg_icons/ico-copy.svg',
-                color: theme.brightness == Brightness.dark
-                    ? theme.textTheme.bodyMedium!.color!.withOpacity(.6)
-                    : theme.textTheme.bodyMedium!.color!.withOpacity(.4)),
-            splashRadius: 20,
-          ),
-          const SizedBox(height: 4),
+          // IconButton(
+          //   onPressed: () => OutsideFunctions.showCopiedSnackBar(context, wordModel),
+          //   icon: SvgPicture.asset('assets/svg_icons/ico-copy.svg',
+          //       color: theme.brightness == Brightness.dark
+          //           ? theme.textTheme.bodyMedium!.color!.withOpacity(.6)
+          //           : theme.textTheme.bodyMedium!.color!.withOpacity(.4)),
+          //   splashRadius: 20,
+          // ),
+          const SizedBox(height: 40),
           IconButton(
             onPressed: () {
               ref.read(articleZoomProvider.notifier).incrementZoom();

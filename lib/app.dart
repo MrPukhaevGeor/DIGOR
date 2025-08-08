@@ -14,7 +14,7 @@ import 'presentation/providers/search_mode.dart';
 
 const primaryColor = Color.fromARGB(255, 35, 73, 118);
 
-const fontFamilyName = 'SamsungOne'; //'Araboto';
+const fontFamilyName = 'HelveticaNeue'; //'Araboto';
 
 class MyApp extends StatelessWidget {
   const MyApp(this.savedThemeMode, {super.key});
@@ -23,7 +23,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AdaptiveTheme(
+      key: const Key('adaptive_theme'),
       light: ThemeData.light(useMaterial3: false).copyWith(
+        visualDensity: VisualDensity.standard,
         textTheme: TextTheme(
           displaySmall: ThemeData.light().textTheme.displaySmall!.copyWith(fontFamily: fontFamilyName),
           displayMedium: ThemeData.light().textTheme.displayMedium!.copyWith(fontFamily: fontFamilyName),
@@ -58,10 +60,15 @@ class MyApp extends StatelessWidget {
         dialogTheme: DialogThemeData(
           backgroundColor: Colors.white,
         ),
+        radioTheme: RadioThemeData(
+          // fillColor: MaterialStateProperty.all(Colors.blue),
+          overlayColor: MaterialStateProperty.all(Colors.black),
+        ),
         iconTheme: IconThemeData(color: Colors.white),
         scaffoldBackgroundColor: const Color.fromARGB(255, 255, 255, 255),
       ),
-      dark: ThemeData.dark().copyWith(
+      dark: ThemeData.dark(useMaterial3: false).copyWith(
+        visualDensity: VisualDensity.standard,
         textTheme: TextTheme(
           displaySmall: ThemeData.dark().textTheme.displaySmall!.copyWith(fontFamily: fontFamilyName),
           displayMedium: ThemeData.dark().textTheme.displayMedium!.copyWith(fontFamily: fontFamilyName),
@@ -81,8 +88,25 @@ class MyApp extends StatelessWidget {
         ),
         brightness: Brightness.dark,
         drawerTheme: const DrawerThemeData(backgroundColor: Color.fromARGB(255, 0, 0, 0)),
-        appBarTheme: const AppBarTheme(backgroundColor: primaryColor),
+        appBarTheme: const AppBarTheme(
+            backgroundColor: primaryColor,
+            titleTextStyle: TextStyle(fontSize: 20, color: Colors.white),
+            iconTheme: IconThemeData(
+              color: Colors.white,
+            )),
+        buttonTheme: ButtonThemeData(
+          buttonColor: primaryColor,
+          textTheme: ButtonTextTheme.primary,
+        ),
         primaryColor: primaryColor,
+        indicatorColor: primaryColor,
+        hoverColor: primaryColor,
+        iconTheme: const IconThemeData(color: Colors.white),
+        radioTheme: RadioThemeData(
+          fillColor: MaterialStateProperty.all(Colors.blue),
+        ),
+        textSelectionTheme: TextSelectionThemeData(
+            selectionColor: Colors.blue.withOpacity(0.3), selectionHandleColor: Colors.blue, cursorColor: Colors.blue),
         scaffoldBackgroundColor: const Color.fromARGB(255, 0, 0, 0),
         dialogTheme: DialogThemeData(
           backgroundColor: const Color.fromARGB(255, 0, 0, 0),
