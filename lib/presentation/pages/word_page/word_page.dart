@@ -92,7 +92,6 @@ class DictionaryNameWidget extends ConsumerWidget {
         'Essential ($dicName)',
         style: theme.textTheme.bodyLarge!.copyWith(
           fontSize: 17 * zoom,
-          fontWeight: FontWeight.w500,
           fontFamily: 'HelveticaNeue',
         ),
       ),

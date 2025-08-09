@@ -41,7 +41,9 @@ class DrawerWidget extends StatelessWidget {
             title: Text(tr('dictionaries'),
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
-                style: theme.textTheme.bodyMedium!.copyWith(fontSize: 14, fontWeight: FontWeight.w500)),
+                style: theme.textTheme.bodyMedium!.copyWith(
+                  fontSize: 14,
+                )),
             onTap: () {
               Navigator.of(context).push(NavigateEffects.fadeTransitionToPage(const DictionariesPage()));
             },
@@ -54,7 +56,9 @@ class DrawerWidget extends StatelessWidget {
             title: Text(tr('gratitudes'),
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
-                style: theme.textTheme.bodyMedium!.copyWith(fontSize: 14, fontWeight: FontWeight.w500)),
+                style: theme.textTheme.bodyMedium!.copyWith(
+                  fontSize: 14,
+                )),
             leading: Icon(Icons.star_outline, color: theme.textTheme.bodyMedium!.color),
             onTap: () {
               Navigator.of(context).push(NavigateEffects.fadeTransitionToPage(const GratitudesPage()));
@@ -68,7 +72,9 @@ class DrawerWidget extends StatelessWidget {
             title: Text(tr('settings'),
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
-                style: theme.textTheme.bodyMedium!.copyWith(fontSize: 14, fontWeight: FontWeight.w500)),
+                style: theme.textTheme.bodyMedium!.copyWith(
+                  fontSize: 14,
+                )),
             leading: Icon(Icons.settings, color: theme.textTheme.bodyMedium!.color),
             onTap: () {
               homePageKey.currentState?.closeDrawer();
@@ -82,7 +88,9 @@ class DrawerWidget extends StatelessWidget {
             title: Text(tr('about_app'),
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
-                style: theme.textTheme.bodyMedium!.copyWith(fontSize: 14, fontWeight: FontWeight.w500)),
+                style: theme.textTheme.bodyMedium!.copyWith(
+                  fontSize: 14,
+                )),
             leading: Icon(Icons.info_outline, color: theme.textTheme.bodyMedium!.color),
             onTap: () {
               Navigator.of(context).push(NavigateEffects.fadeTransitionToPage(const AboutAppPage()));
@@ -96,7 +104,9 @@ class DrawerWidget extends StatelessWidget {
             title: Text(tr('write_to_support'),
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
-                style: theme.textTheme.bodyMedium!.copyWith(fontSize: 14, fontWeight: FontWeight.w500)),
+                style: theme.textTheme.bodyMedium!.copyWith(
+                  fontSize: 14,
+                )),
             leading: Icon(Icons.mail_outlined, color: theme.textTheme.bodyMedium!.color),
             onTap: () {
               homePageKey.currentState?.closeDrawer();
@@ -110,7 +120,9 @@ class DrawerWidget extends StatelessWidget {
             title: Text(tr('rate_app'),
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
-                style: theme.textTheme.bodyMedium!.copyWith(fontSize: 14, fontWeight: FontWeight.w500)),
+                style: theme.textTheme.bodyMedium!.copyWith(
+                  fontSize: 14,
+                )),
             leading: Icon(Icons.star_half, color: theme.textTheme.bodyMedium!.color),
             onTap: () {
               homePageKey.currentState?.closeDrawer();
@@ -124,7 +136,9 @@ class DrawerWidget extends StatelessWidget {
             title: Text(tr('share'),
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
-                style: theme.textTheme.bodyMedium!.copyWith(fontSize: 14, fontWeight: FontWeight.w500)),
+                style: theme.textTheme.bodyMedium!.copyWith(
+                  fontSize: 14,
+                )),
             leading: Icon(Icons.share_outlined, color: theme.textTheme.bodyMedium!.color),
             onTap: () {
               homePageKey.currentState?.closeDrawer();
