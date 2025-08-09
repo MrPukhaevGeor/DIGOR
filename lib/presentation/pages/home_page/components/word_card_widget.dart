@@ -51,9 +51,10 @@ class WordCardWidget extends ConsumerWidget {
                 Text(
                   word.title.trim(),
                   style: theme.brightness == Brightness.light
-                      ? theme.textTheme.bodyMedium!.copyWith(fontSize: 18.5 * glossaryZoom, fontWeight: FontWeight.w600)
-                      : theme.textTheme.bodyMedium!
-                          .copyWith(fontSize: 18.5 * glossaryZoom, fontWeight: FontWeight.w600, color: Colors.white),
+                      ? theme.textTheme.bodyMedium!.copyWith(
+                          fontSize: 18.5 * glossaryZoom,
+                        )
+                      : theme.textTheme.bodyMedium!.copyWith(fontSize: 18.5 * glossaryZoom, color: Colors.white),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -79,9 +80,9 @@ class WordCardWidget extends ConsumerWidget {
                   onPressed: () => OutsideFunctions.showClearHistoryDialog(
                       context, () => ref.read(historyProvider.notifier).deleteFromHistory(word), tr('del_this_word')),
                   icon: Icon(Icons.close,
-                      color: theme.brightness == Brightness.dark
-                          ? theme.textTheme.bodySmall!.color!.withOpacity(.5)
-                          : theme.textTheme.bodySmall!.color!.withOpacity(.3))),
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Theme.of(context).textTheme.bodySmall!.color!.withOpacity(.6)
+                          : Theme.of(context).textTheme.bodySmall!.color!.withOpacity(.5))),
             ),
         ],
       ),

@@ -13,7 +13,7 @@ class GratitudesPage extends StatelessWidget {
         appBar: AppBar(
           title: Text(
             tr('gratitudes'),
-            style: theme.textTheme.bodyMedium!.copyWith(color: Colors.white, fontSize: 18),
+            style: theme.textTheme.bodyMedium!.copyWith(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
           ),
           backgroundColor: theme.primaryColor,
         ),

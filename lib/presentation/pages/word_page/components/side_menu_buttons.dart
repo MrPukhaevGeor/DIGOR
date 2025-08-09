@@ -35,9 +35,10 @@ class SideMenuButtons extends ConsumerWidget {
               OutsideFunctions.showZoomSnackBar(context, ref.read(articleZoomProvider));
             },
             icon: Icon(Icons.zoom_in,
-                color: theme.brightness == Brightness.dark
-                    ? theme.textTheme.bodyMedium!.color!.withOpacity(.6)
-                    : theme.textTheme.bodyMedium!.color!.withOpacity(.4)),
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Theme.of(context).textTheme.bodySmall!.color!.withOpacity(.6)
+                    : Theme.of(context).textTheme.bodySmall!.color!.withOpacity(.5),
+                size: 28),
             splashRadius: 20,
           ),
           if (zoom > 0.3) ...[
@@ -48,9 +49,10 @@ class SideMenuButtons extends ConsumerWidget {
                 OutsideFunctions.showZoomSnackBar(context, ref.read(articleZoomProvider));
               },
               icon: Icon(Icons.zoom_out,
-                  color: theme.brightness == Brightness.dark
-                      ? theme.textTheme.bodyMedium!.color!.withOpacity(.6)
-                      : theme.textTheme.bodyMedium!.color!.withOpacity(.4)),
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Theme.of(context).textTheme.bodySmall!.color!.withOpacity(.6)
+                      : Theme.of(context).textTheme.bodySmall!.color!.withOpacity(.5),
+                  size: 28),
               splashRadius: 20,
             ),
           ],

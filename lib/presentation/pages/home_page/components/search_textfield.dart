@@ -89,10 +89,14 @@ class SearchTextfield extends ConsumerWidget {
                 contentPadding: const EdgeInsets.only(top: 10),
                 hintText: tr('enter_the_word'),
                 hintStyle: theme.brightness == Brightness.dark
-                    ? theme.textTheme.bodyMedium!
-                        .copyWith(color: theme.textTheme.bodySmall!.color!.withOpacity(0.6), fontSize: 18)
-                    : theme.textTheme.bodyMedium!
-                        .copyWith(color: theme.textTheme.bodySmall!.color!.withOpacity(0.5), fontSize: 18),
+                    ? theme.textTheme.bodyMedium!.copyWith(
+                        color: theme.textTheme.bodySmall!.color!.withOpacity(0.6),
+                        fontSize: 18,
+                        fontWeight: FontWeight.w300)
+                    : theme.textTheme.bodyMedium!.copyWith(
+                        color: theme.textTheme.bodySmall!.color!.withOpacity(0.7),
+                        fontSize: 18,
+                        fontWeight: FontWeight.w300),
                 suffixIconConstraints: const BoxConstraints(maxHeight: 24),
                 suffixIcon: (ref.watch(translateModeProvider))
                     ? SizedBox(

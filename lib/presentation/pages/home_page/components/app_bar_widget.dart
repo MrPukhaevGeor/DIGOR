@@ -256,6 +256,9 @@ class AppBarWidget extends ConsumerWidget {
                         value,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodyMedium!.copyWith(
+                          fontWeight: FontWeight.w300,
+                        ),
                       ),
                     ),
                   )
@@ -274,10 +277,8 @@ class AppBarWidget extends ConsumerWidget {
                       child: Text(
                         dropDownValueFirst,
                         // maxLines: 1,
-                        style: theme.textTheme.bodyMedium!.copyWith(
-                          color: Colors.white,
-                          fontSize: 14,
-                        ),
+                        style: theme.textTheme.bodyMedium!
+                            .copyWith(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w300),
                       ),
                     ),
                     if (dropDownFirstValues.isNotEmpty)
@@ -315,6 +316,9 @@ class AppBarWidget extends ConsumerWidget {
                         value,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodyMedium!.copyWith(
+                          fontWeight: FontWeight.w300,
+                        ),
                       ),
                     ),
                   )
@@ -338,6 +342,7 @@ class AppBarWidget extends ConsumerWidget {
                         style: theme.textTheme.bodyMedium!.copyWith(
                           color: Colors.white,
                           fontSize: 14,
+                          fontWeight: FontWeight.w300,
                         ),
                       ),
                     ),
