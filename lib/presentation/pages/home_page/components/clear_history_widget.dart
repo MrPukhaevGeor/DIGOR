@@ -1,4 +1,3 @@
-import 'dart:ffi' as MediQuery;
 import 'dart:math';
 
 import 'package:flutter/material.dart';

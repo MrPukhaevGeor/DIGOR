@@ -56,7 +56,7 @@ class _StyledTextWidgetState extends State<StyledTextWidget> {
                     ),
                     child: Consumer(builder: (context, ref, child) {
                       final zoom = ref.watch(articleZoomProvider);
-                      return StyledText(
+                      return StyledText.selectable(
                         key: ValueKey(e),
                         text: e,
                         style: theme.textTheme.bodySmall!.copyWith(
