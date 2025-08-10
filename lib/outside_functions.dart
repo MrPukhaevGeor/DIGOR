@@ -224,7 +224,11 @@ class OutsideFunctions {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const SizedBox(width: double.infinity),
-                Text(content, style: theme.textTheme.bodyMedium!.copyWith(fontSize: 16)),
+                Text(content,
+                    style: theme.textTheme.bodyMedium!.copyWith(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                    )),
                 const SizedBox(height: 20),
                 SizedBox(
                   height: 30,
@@ -235,11 +239,12 @@ class OutsideFunctions {
                         onPressed: Navigator.of(context).pop,
                         child: Text(
                           tr('no').toUpperCase(),
-                          style: TextStyle(fontWeight: FontWeight.w600),
                         ),
                       ),
                       TextButton(
-                        child: Text(tr('yes').toUpperCase(), style: TextStyle(fontWeight: FontWeight.w600)),
+                        child: Text(
+                          tr('yes').toUpperCase(),
+                        ),
                         onPressed: () {
                           callback();
                           Navigator.of(context).pop();

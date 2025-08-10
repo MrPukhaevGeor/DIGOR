@@ -17,7 +17,7 @@ class TitleWidget extends ConsumerWidget {
     return SelectableText.rich(
       TextSpan(
         style: theme.textTheme.headlineSmall!.copyWith(
-          fontSize: 30 * zoom,
+          fontSize: 28 * zoom,
           fontFamily: 'HelveticaNeue',
         ),
         children: [

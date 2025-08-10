@@ -70,6 +70,7 @@ class _ClearHistoryButtonState extends ConsumerState<ClearHistoryButton> with Si
   void _showOverlay(bool isEmpty, {double minWidth = 200}) {
     _overlayEntry = OverlayEntry(
       builder: (context) {
+        final theme = Theme.of(context);
         return SafeArea(
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
@@ -99,20 +100,24 @@ class _ClearHistoryButtonState extends ConsumerState<ClearHistoryButton> with Si
                               minWidth: minWidth,
                             ),
                             child: Container(
+                              alignment: Alignment.centerLeft,
                               height: kToolbarHeight - 8,
                               // width: 180,
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
                                 vertical: 8,
                               ),
-                              child: Center(
-                                child: Text(
-                                  'clear_history'.tr(),
-                                  maxLines: 1,
-                                  style: isEmpty
-                                      ? Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.grey)
-                                      : Theme.of(context).textTheme.bodyMedium,
-                                ),
+                              child: Text(
+                                'clear_history'.tr(),
+                                maxLines: 1,
+                                style: isEmpty
+                                    ? theme.textTheme.bodyMedium!.copyWith(
+                                        color: Colors.grey,
+                                        fontSize: 14,
+                                      )
+                                    : theme.textTheme.bodyMedium!.copyWith(
+                                        fontSize: 14,
+                                      ),
                               ),
                             ),
                           ),

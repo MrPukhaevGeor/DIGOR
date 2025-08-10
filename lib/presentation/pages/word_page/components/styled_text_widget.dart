@@ -60,11 +60,12 @@ class _StyledTextWidgetState extends State<StyledTextWidget> {
                         key: ValueKey(e),
                         text: e,
                         style: theme.textTheme.bodySmall!.copyWith(
-                            fontSize: 17 * zoom,
-                            height: 1.3,
-                            color: theme.textTheme.bodyMedium!.color,
-                            fontFamily: 'HelveticaNeue',
-                            fontWeight: FontWeight.w500),
+                          fontSize: 17 * zoom,
+                          height: 1.3,
+                          color: theme.textTheme.bodyMedium!.color,
+                          fontFamily: 'HelveticaNeue',
+                          fontWeight: FontWeight.w300,
+                        ),
                         maxLines: widget.maxLines,
                         tags: {
                           'ref': StyledTextActionTag(
