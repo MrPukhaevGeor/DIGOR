@@ -18,7 +18,6 @@ class TitleWidget extends ConsumerWidget {
       TextSpan(
         style: theme.textTheme.headlineSmall!.copyWith(
           fontSize: 28 * zoom,
-          fontFamily: 'HelveticaNeue',
         ),
         children: [
           TextSpan(text: title.trim()),

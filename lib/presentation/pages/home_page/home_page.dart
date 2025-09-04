@@ -33,14 +33,11 @@ class HomePage extends ConsumerWidget {
           key: homePageKey,
           resizeToAvoidBottomInset: false,
           drawer: const DrawerWidget(),
-          appBar: PreferredSize(
-            preferredSize: const Size.fromHeight(kToolbarHeight),
-            child: AppBarWidget(
-              scaffoldKey: homePageKey,
-            ),
-          ),
           body: Column(
             children: [
+              AppBarWidget(
+                scaffoldKey: homePageKey,
+              ),
               const Expanded(
                 child: Column(
                   children: [

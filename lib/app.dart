@@ -14,7 +14,7 @@ import 'presentation/providers/search_mode.dart';
 
 const primaryColor = Color.fromARGB(255, 35, 73, 118);
 
-const fontFamilyName = 'HelveticaNeue'; //'Araboto';
+const fontFamilyName = 'BrisaSans'; //'Araboto';
 
 class MyApp extends StatelessWidget {
   const MyApp(this.savedThemeMode, {super.key});
@@ -43,6 +43,7 @@ class MyApp extends StatelessWidget {
           headlineMedium: ThemeData.light().textTheme.headlineMedium!.copyWith(fontFamily: fontFamilyName),
           headlineLarge: ThemeData.light().textTheme.headlineLarge!.copyWith(fontFamily: fontFamilyName),
         ),
+
         indicatorColor: primaryColor,
         hoverColor: primaryColor,
         textSelectionTheme: TextSelectionThemeData(

@@ -401,6 +401,9 @@ class SettingsPage extends ConsumerWidget {
                       })),
             ),
             ListTile(
+              onTap: (){
+                ref.read(splitModeProvider.notifier).newState = !ref.read(splitModeProvider.notifier).state;
+              },
               visualDensity: const VisualDensity(vertical: 3),
               title: Text(
                 tr('split_screen'),
@@ -418,6 +421,11 @@ class SettingsPage extends ConsumerWidget {
                 maxLines: 3,
               ),
               trailing: Checkbox(
+                overlayColor: WidgetStateProperty.all(Colors.white),
+                side: BorderSide(
+                  color: Colors.black,
+                  width: 2
+                ),
                 value: ref.watch(splitModeProvider),
                 onChanged: (value) => ref.read(splitModeProvider.notifier).newState = value!,
               ),

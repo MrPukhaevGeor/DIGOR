@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:styled_text/styled_text.dart';
@@ -8,119 +9,202 @@ import 'package:styled_text/styled_text.dart';
 import '../../../../domain/models/word_model.dart';
 import '../../../../navigator/navigate_effect.dart';
 import '../../../../outside_functions.dart';
+import '../../../providers/search_mode.dart';
 import '../../home_page/home_page_model.dart';
 import '../word_page.dart';
 import '../word_page_model.dart';
 
-class StyledTextWidget extends StatefulWidget {
-  const StyledTextWidget({super.key, required this.word, this.maxLines, this.isShowingExamples = true});
-
+class StyledTextWidget extends ConsumerWidget {
+  final bool isShowingExamples;
   final WordModel word;
   final int? maxLines;
-  final bool isShowingExamples;
+
+  const  StyledTextWidget({
+    super.key,
+    this.isShowingExamples = true,
+    required this.word,
+    this.maxLines,
+  });
 
   @override
-  State<StyledTextWidget> createState() => _StyledTextWidgetState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final textLines = splitStringByTab(word.body ?? '');
 
-class _StyledTextWidgetState extends State<StyledTextWidget> {
-  List<String> textLines = [];
-  @override
-  void initState() {
-    textLines = splitStringByTab(widget.word.body ?? '');
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     const mPadding = 10;
-    return textLines.isEmpty
-        ? const SizedBox.shrink()
-        : Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: (widget.isShowingExamples
-                    ? textLines
-                    : textLines.where((element) => !element.contains('<m2>') && !element.contains('<m3>')))
-                .map(
-                  (e) => Padding(
-                    padding: EdgeInsets.only(
-                      left: e.contains('m1')
-                          ? mPadding * 1
-                          : e.contains('m2')
-                              ? mPadding * 2
-                              : e.contains('m3')
-                                  ? mPadding * 3
-                                  : mPadding * 0,
-                      right: 32,
-                    ),
-                    child: Consumer(builder: (context, ref, child) {
-                      final zoom = ref.watch(articleZoomProvider);
-                      return StyledText.selectable(
-                        key: ValueKey(e),
-                        text: e,
-                        style: theme.textTheme.bodySmall!.copyWith(
-                          fontSize: 17 * zoom,
-                          height: 1.3,
-                          color: theme.textTheme.bodyMedium!.color,
-                          fontFamily: 'HelveticaNeue',
-                          fontWeight: FontWeight.w300,
-                        ),
-                        maxLines: widget.maxLines,
-                        tags: {
-                          'ref': StyledTextActionTag(
-                            (String? text, Map<String?, String?> attrs) {
-                              if (widget.word.refs!.containsKey(text)) {
-                                try {
-                                  ref.read(splitModeProvider)
-                                      ? ref.read(selectedBottomPanelWordIdProvider.notifier).id =
-                                          widget.word.refs![text]!
-                                      : Navigator.of(context).push(
-                                          NavigateEffects.fadeTransitionToPage(WordPage(widget.word.refs![text]!)));
-                                } catch (e) {
-                                  print(e);
-                                }
-                              } else {
-                                OutsideFunctions.showRefSnackBar(context, text ?? '');
-                              }
-                            },
-                            style: TextStyle(
-                                color: theme.brightness == Brightness.dark
-                                    ? const Color.fromARGB(255, 0, 129, 255)
-                                    : const Color.fromARGB(255, 0, 0, 238)),
+    final dicName = ref.read(searchModeProvider.notifier).getFullLanguageMode();
+    final zoom = ref.watch(articleZoomProvider);
+
+    return SizedBox(
+      width: MediaQuery.sizeOf(context).width,
+      child: Stack(
+        children: [
+          if (word.audioUrl == null)
+            Positioned(
+              top: 30 * zoom,
+              left: 0,
+              right: 0,
+              child: SizedBox(
+                  height: 1,
+                  child: Divider(
+                      thickness: 1,
+                      endIndent: 10,
+                      color: theme.primaryColor.withOpacity(.5))),
+            ),
+          textLines.isEmpty
+              ? const SizedBox.shrink()
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: (isShowingExamples
+                          ? textLines
+                          : textLines.where((element) =>
+                              !element.contains('<m2>') &&
+                              !element.contains('<m3>')))
+                      .map(
+                        (e) => Padding(
+                          padding: EdgeInsets.only(
+                            /*left: e.contains('m1')
+                                ? mPadding * 1
+                                : e.contains('m2')
+                                    ? mPadding * 2
+                                    : e.contains('m3')
+                                        ? mPadding * 3
+                                        : mPadding * 0,*/
+                            right: 32,
                           ),
-                          'b': StyledTextTag(
-                              style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                          )),
-                          'u': StyledTextTag(style: const TextStyle(decoration: TextDecoration.underline)),
-                          'c': StyledTextTag(style: const TextStyle(color: Color.fromRGBO(0, 127, 0, 1))),
-                          'i': StyledTextTag(style: const TextStyle(fontStyle: FontStyle.italic)),
-                          'ex': StyledTextTag(
-                              style: TextStyle(
-                                  color: theme.brightness == Brightness.dark
-                                      ? const Color.fromARGB(255, 206, 207, 255)
-                                      : const Color.fromARGB(255, 0, 0, 97))),
-                          'm2': StyledTextTag(style: TextStyle(fontSize: 15 * zoom)),
-                          'm3': StyledTextTag(style: TextStyle(fontSize: 15 * zoom)),
-                          "'": StyledTextTag(
-                              style:
-                                  const TextStyle(fontStyle: FontStyle.italic, decoration: TextDecoration.lineThrough)),
-                        },
-                      );
-                    }),
-                  ),
-                )
-                .toList(),
-          );
+                          child: Consumer(builder: (context, ref, child) {
+                            return StyledText.selectable(
+                              newLineAsBreaks: true,
+                              key: ValueKey(e),
+                              selectionHeightStyle: BoxHeightStyle.includeLineSpacingMiddle,
+                              text:
+                                  '${word.audioUrl == null ? '<dict>Essential ($dicName)\n\n\n</dict>><title>${word.title}</title>\n\n' : null}${e}',
+                              style: theme.textTheme.bodySmall!.copyWith(
+                                fontSize: 17 * zoom,
+                                height: 1,
+
+
+
+                                color: theme.textTheme.bodyMedium!.color,
+                                fontFamily: 'Araboto',
+                                fontWeight: FontWeight.w300,
+                              ),
+                              magnifierConfiguration: TextMagnifierConfiguration(
+                                shouldDisplayHandlesInMagnifier: false
+                              ),
+                              maxLines: maxLines,
+
+
+                              tags: {
+                                'ref': StyledTextActionTag(
+                                  (String? text, Map<String?, String?> attrs) {
+                                    if (word.refs!.containsKey(text)) {
+                                      try {
+                                        ref.read(splitModeProvider)
+                                            ? ref
+                                                .read(
+                                                    selectedBottomPanelWordIdProvider
+                                                        .notifier)
+                                                .id = word.refs![text]!
+                                            : Navigator.of(context).push(
+                                                NavigateEffects
+                                                    .fadeTransitionToPage(
+                                                        WordPage(
+                                                            word.refs![text]!)));
+                                      } catch (e) {
+                                        print(e);
+                                      }
+                                    } else {
+                                      OutsideFunctions.showRefSnackBar(
+                                          context, text ?? '');
+                                    }
+                                  },
+                                  style: TextStyle(
+                                      fontFamily: 'Araboto',
+                                      color: theme.brightness == Brightness.dark
+                                          ? const Color.fromARGB(255, 0, 129, 255)
+                                          : const Color.fromARGB(255, 0, 0, 238)),
+                                ),
+                                'b': StyledTextTag(
+                                    style: const TextStyle(
+                                      fontFamily: 'Araboto',
+                                      height: 1,
+                                  fontWeight: FontWeight.bold,
+                                )),
+                                'u': StyledTextTag(
+                                    style: const TextStyle(
+                                        fontFamily: 'Araboto',
+                                      height: 1,
+                                        decoration: TextDecoration.underline)),
+                                'c': StyledTextTag(
+                                    style: const TextStyle(
+                                        fontFamily: 'Araboto',
+                                      height: 1,
+                                        color: Color.fromRGBO(0, 127, 0, 1))),
+                                'i': StyledTextTag(
+                                    style: const TextStyle(
+                                        fontFamily: 'Araboto',
+                                        fontStyle: FontStyle.italic,height: 1)),
+                                'ex': StyledTextTag(
+                                    style: TextStyle(
+                                        fontFamily: 'Araboto',
+                                        color: theme.brightness == Brightness.dark
+                                            ? const Color.fromARGB(
+                                                255, 206, 207, 255)
+                                            : const Color.fromARGB(
+                                                255, 0, 0, 97),height: 1)),
+                                'm2': StyledTextTag(
+
+                                    style: TextStyle(
+                                        fontFamily: 'Araboto',fontSize: 15 * zoom,height: 1)),
+                                'm3': StyledTextTag(
+                                    style: TextStyle(
+                                        fontFamily: 'Araboto',fontSize: 15 * zoom,height: 1
+                                    )),
+                                'title': StyledTextTag(
+                                  style: theme.textTheme.headlineSmall!.copyWith(
+                                    fontSize: 28 * zoom,
+                                    fontFamily: 'Araboto',
+
+                                  ),
+                                ),
+                                'dict': StyledTextTag(
+                                    style: theme.textTheme.bodyLarge!.copyWith(
+                                  fontSize: 17 * zoom,
+                                  fontFamily: 'Araboto',
+                                )),
+                                "'": StyledTextTag(
+                                    style: const TextStyle(
+                                        fontFamily: 'Araboto',
+                                      height: 1,
+                                        fontStyle: FontStyle.italic,
+                                        decoration: TextDecoration.lineThrough)),
+                              },
+                            );
+                          }),
+                        ),
+                      )
+                      .toList(),
+                ),
+        ],
+      ),
+    );
   }
 
   List<String> splitStringByTab(String textToSplit) {
-    return textToSplit
+    final list = textToSplit
         .split(utf8.decode([10]))
         .where((element) => element.trim().isNotEmpty)
         .map((e) => formatText(e).trim())
         .toList();
+
+    print(list);
+    return [
+      List.generate(list.length, (index) {
+        final e = list[index];
+        return '${index > 0 ? '\n' : ''}${e.contains('m1') ? '' : e.contains('m2') ? '   ' : e.contains('m3') ? '      ' : ''}$e';
+      }).join('')
+    ];
   }
 
   String formatText(String textToFormat) {

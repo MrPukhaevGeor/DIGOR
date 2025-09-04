@@ -27,7 +27,7 @@ class LastTranslationsWidget extends ConsumerWidget {
                   ),
                 ),
               )
-            : const SizedBox.shrink(),
+            : const SizedBox(),
         error: (error, stacktrace) => const SizedBox.shrink(),
         loading: () => const SizedBox.shrink());
   }

@@ -28,7 +28,7 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 android {
-    compileSdkVersion 35
+    compileSdkVersion 36
     ndkVersion android.ndkVersion
 
     compileOptions {
@@ -66,6 +66,8 @@ android {
     }
     buildTypes {
         release {
+            minifyEnabled false
+            shrinkResources false
            signingConfig signingConfigs.release
         }
     }

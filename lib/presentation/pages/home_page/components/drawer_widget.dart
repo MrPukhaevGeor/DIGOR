@@ -32,11 +32,10 @@ class DrawerWidget extends StatelessWidget {
               fit: BoxFit.cover,
             ),
           ),
-          const SizedBox(height: 10),
           ListTile(
             dense: true,
             horizontalTitleGap: 10,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
             leading: Icon(Icons.book_outlined, color: theme.textTheme.bodyMedium!.color),
             title: Text(tr('dictionaries'),
                 overflow: TextOverflow.ellipsis,
@@ -48,7 +47,7 @@ class DrawerWidget extends StatelessWidget {
               Navigator.of(context).push(NavigateEffects.fadeTransitionToPage(const DictionariesPage()));
             },
           ),
-          const Divider(thickness: 1),
+          Container(width: double.infinity, height: 1, color: Colors.black12,),
           ListTile(
             dense: true,
             contentPadding: const EdgeInsets.symmetric(horizontal: 16),
@@ -64,7 +63,7 @@ class DrawerWidget extends StatelessWidget {
               Navigator.of(context).push(NavigateEffects.fadeTransitionToPage(const GratitudesPage()));
             },
           ),
-          const Divider(thickness: 1),
+          Container(width: double.infinity, height: 1, color: Colors.black12,),
           ListTile(
             dense: true,
             contentPadding: const EdgeInsets.symmetric(horizontal: 16),
@@ -96,7 +95,7 @@ class DrawerWidget extends StatelessWidget {
               Navigator.of(context).push(NavigateEffects.fadeTransitionToPage(const AboutAppPage()));
             },
           ),
-          const Divider(thickness: 1),
+          Container(width: double.infinity, height: 1, color: Colors.black12,),
           ListTile(
             dense: true,
             contentPadding: const EdgeInsets.symmetric(horizontal: 16),

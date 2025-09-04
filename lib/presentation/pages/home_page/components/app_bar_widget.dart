@@ -1,20 +1,19 @@
-import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../domain/models/word_model.dart';
-import '../../../../outside_functions.dart';
 import '../../../providers/history.dart';
-import '../../../providers/search.dart';
 import '../../../providers/search_mode.dart';
 import '../../../providers/textfield_provider.dart';
 import '../../word_page/word_page_model.dart';
 import '../home_page_model.dart';
 import 'clear_history_widget.dart';
+import 'custom_popup_menu_button.dart';
 
 class AppBarWidget extends ConsumerWidget {
   final GlobalKey<ScaffoldState>? scaffoldKey;
+
   const AppBarWidget({super.key, this.scaffoldKey});
 
   @override
@@ -195,9 +194,12 @@ class AppBarWidget extends ConsumerWidget {
     }
     final history = ref.watch(historyProvider).value;
 
-    final isShowingExamples = ref.watch(exampleModeProvider) == ExampleModeEnum.show;
+    final isShowingExamples =
+        ref.watch(exampleModeProvider) == ExampleModeEnum.show;
     final selectedId = ref.watch(selectedBottomPanelWordIdProvider);
-    final WordModel? word = selectedId == -1 ? null : ref.watch(fetchWordProvider(selectedId)).value;
+    final WordModel? word = selectedId == -1
+        ? null
+        : ref.watch(fetchWordProvider(selectedId)).value;
 
     final dropDawnItems = [
       if (!ref.watch(translateModeProvider))
@@ -208,6 +210,7 @@ class AppBarWidget extends ConsumerWidget {
           child: Text(
             tr('clear_history'),
             style: TextStyle(
+              fontFamily: 'BrisaSans',
               color: theme.textTheme.bodyMedium!.color!.withOpacity(
                 history != null && history.isNotEmpty ? 1 : .2,
               ),
@@ -236,127 +239,147 @@ class AppBarWidget extends ConsumerWidget {
     ];
     return AppBar(
       titleSpacing: 0,
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Expanded(
-            child: PopupMenuButton<String>(
-              onSelected: (value) {
-                ref.read(searchModeProvider.notifier).onDropDownFirstChange(value);
-                ref.read(textFieldValueProvider.notifier).focusNode.requestFocus();
-              },
-              itemBuilder: (context) => dropDownFirstValues
-                  .map(
-                    (value) => PopupMenuItem<String>(
-                      padding: EdgeInsets.symmetric(vertical: dropDownFirstValues.length == 1 ? 2 : 14, horizontal: 8),
 
-                      value: value,
-                      height: 30, // Высота элемента (можно настроить)
-                      child: Text(
-                        value,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.bodyMedium!.copyWith(
-                          fontWeight: FontWeight.w300,
+      title: SafeArea(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+              child: CustomPopupMenuButton<String>(
+
+
+
+                onSelected: (value) {
+                  ref
+                      .read(searchModeProvider.notifier)
+                      .onDropDownFirstChange(value!);
+                  ref
+                      .read(textFieldValueProvider.notifier)
+                      .focusNode
+                      .requestFocus();
+                },
+
+                items: dropDownFirstValues
+                    .map(
+                      (value) => PopupMenuItem<String>(
+                        padding: EdgeInsets.zero,
+
+                        value: value,
+                        height:  kToolbarHeight - 8, // Высота элемента (можно настроить)
+                        child: Text(
+                          value,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodyMedium!.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black
+                          ),
                         ),
                       ),
-                    ),
-                  )
-                  .toList(),
-              offset: const Offset(0, -32), // Смещение меню относительно кнопки
-              constraints: BoxConstraints(
-                minWidth: MediaQuery.sizeOf(context).width * 0.55,
-              ),
-              child: Container(
-                alignment: Alignment.center,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        dropDownValueFirst,
-                        // maxLines: 1,
-                        style: theme.textTheme.bodyMedium!
-                            .copyWith(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w300),
-                      ),
-                    ),
-                    if (dropDownFirstValues.isNotEmpty)
-                      const Icon(
-                        Icons.arrow_drop_down_rounded,
-                        color: Colors.white,
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          IconButton(
-            splashRadius: 20,
-            onPressed: ref.read(searchModeProvider.notifier).onSwitchLanguageTap,
-            icon: const Icon(
-              Icons.compare_arrows_outlined,
-              color: Colors.white,
-            ),
-          ),
-          Expanded(
-            child: PopupMenuButton<String>(
-              onSelected: (value) {
-                ref.read(searchModeProvider.notifier).onDropDownSecondChange(value);
-                ref.read(textFieldValueProvider.notifier).focusNode.requestFocus();
-              },
-              itemBuilder: (context) => dropDownSecondValues
-                  .map(
-                    (value) => PopupMenuItem<String>(
-                      padding: EdgeInsets.symmetric(vertical: dropDownSecondValues.length == 1 ? 2 : 14, horizontal: 8),
+                    )
+                    .toList(),
 
-                      value: value,
-                      height: 30, // Высота элемента (можно настроить)
-                      child: Text(
-                        value,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.bodyMedium!.copyWith(
-                          fontWeight: FontWeight.w300,
+                right: false,
+                child: Container(
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          dropDownValueFirst,
+                          // maxLines: 1,
+                          style: theme.textTheme.bodyMedium!.copyWith(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w300),
                         ),
                       ),
-                    ),
-                  )
-                  .toList(),
-              offset: const Offset(40, -32), // Смещение меню относительно кнопки
-              constraints: BoxConstraints(
-                minWidth: MediaQuery.sizeOf(context).width * 0.5,
-                maxHeight: MediaQuery.sizeOf(context).width * 0.6,
-              ),
-              child: Container(
-                alignment: Alignment.center,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        dropDownValueSecond,
-                        maxLines: 1,
-                        // overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.bodyMedium!.copyWith(
+                      if (dropDownFirstValues.isNotEmpty)
+                        const Icon(
+                          Icons.arrow_drop_down_rounded,
                           color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w300,
                         ),
-                      ),
-                    ),
-                    if (dropDownSecondValues.isNotEmpty)
-                      const Icon(
-                        Icons.arrow_drop_down_rounded,
-                        color: Colors.white,
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+            IconButton(
+              splashRadius: 20,
+              onPressed:
+                  ref.read(searchModeProvider.notifier).onSwitchLanguageTap,
+              icon: const Icon(
+                Icons.compare_arrows_outlined,
+                color: Colors.white,
+              ),
+            ),
+            Expanded(
+              child: CustomPopupMenuButton<String>(
+                onSelected: (value) {
+                  print(value);
+                  ref
+                      .read(searchModeProvider.notifier)
+                      .onDropDownSecondChange(value!);
+                  ref
+                      .read(textFieldValueProvider.notifier)
+                      .focusNode
+                      .requestFocus();
+                },
+                items: dropDownSecondValues
+                    .map(
+                      (value) => PopupMenuItem<String>(
+                        padding: EdgeInsets.zero,
+
+                        value: value,
+                        height:  kToolbarHeight - 8, // Высота элемента (можно настроить)
+                        child: SizedBox(
+
+                          child: Text(
+                            value,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.bodyMedium!.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                    .toList(),
+
+                right: true,
+                child: Container(
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          dropDownValueSecond,
+                          maxLines: 1,
+                          // overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodyMedium!.copyWith(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w300,
+                          ),
+                        ),
+                      ),
+                      if (dropDownSecondValues.isNotEmpty)
+                        const Icon(
+                          Icons.arrow_drop_down_rounded,
+                          color: Colors.white,
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
       actions: const [ClearHistoryButton()],
     );

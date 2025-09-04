@@ -615,7 +615,6 @@ Bu uygulamayı mümkün kılan herkese özellikle vurgulamak ve teşekkür etmek
               // textAlign: TextAlign.justify,
               style: theme.textTheme.headlineSmall!.copyWith(
                 fontSize: 14,
-                fontFamily: 'HelveticaNeue',
               ),
               textAlign: TextAlign.justify,
               tags: {

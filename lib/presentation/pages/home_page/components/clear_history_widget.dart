@@ -79,8 +79,8 @@ class _ClearHistoryButtonState extends ConsumerState<ClearHistoryButton> with Si
               children: [
                 Container(color: Colors.black.withOpacity(0.01)),
                 Positioned(
-                  right: 8,
-                  top: 6,
+                  right: 4,
+                  top: 4,
                   child: SlideTransition(
                     position: _slideAnimation,
                     child: FadeTransition(
@@ -102,7 +102,9 @@ class _ClearHistoryButtonState extends ConsumerState<ClearHistoryButton> with Si
                             child: Container(
                               alignment: Alignment.centerLeft,
                               height: kToolbarHeight - 8,
-                              // width: 180,
+                              constraints: BoxConstraints(
+                                minWidth: 220
+                              ),
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
                                 vertical: 8,

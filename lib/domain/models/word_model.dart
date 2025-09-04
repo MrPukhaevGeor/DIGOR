@@ -29,7 +29,7 @@ class WordModel extends Equatable {
   });
 
   @override
-  List<Object> get props => [id, title, translate];
+  List<Object> get props => [id, title, translate, body ?? ''];
 
   factory WordModel.fromJson(Map<String, dynamic> json) {
     // if (json['body'] != null) {

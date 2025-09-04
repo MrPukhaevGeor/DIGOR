@@ -31,10 +31,9 @@ class _HistoryList extends ConsumerWidget {
     final wordList = ref.watch(historyProvider);
     return wordList.when(
       data: (data) {
-        return ListView.separated(
+        return ListView.builder(
           padding: const EdgeInsets.only(top: 4),
           itemBuilder: (context, index) => WordCardWidget(key: ValueKey(data[index].id), word: data[index]),
-          separatorBuilder: (context, index) => const SizedBox(height: 1, child: Divider(thickness: 1)),
           itemCount: data.length,
           physics: const BouncingScrollPhysics(),
         );
@@ -65,10 +64,10 @@ class _SearchList extends ConsumerWidget {
             ),
           );
         }
-        return ListView.separated(
+        return ListView.builder(
           itemBuilder: (context, index) => WordCardWidget(word: data[index]),
-          separatorBuilder: (context, index) => const SizedBox(height: 1, child: Divider(thickness: 1)),
           itemCount: data.length,
+          padding: EdgeInsets.zero,
           physics: const BouncingScrollPhysics(),
         );
       },

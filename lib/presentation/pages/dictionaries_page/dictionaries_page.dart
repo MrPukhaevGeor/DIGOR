@@ -234,7 +234,6 @@ class _dictionaryWidget extends StatelessWidget {
           title,
           style: theme.textTheme.headlineSmall!.copyWith(
             fontSize: 21,
-            fontFamily: 'HelveticaNeue',
           ),
         ),
         const SizedBox(height: 20),
@@ -244,7 +243,6 @@ class _dictionaryWidget extends StatelessWidget {
             fontSize: 16,
             height: 1.3,
             color: theme.textTheme.bodyMedium!.color,
-            fontFamily: 'HelveticaNeue',
           ),
           tags: {
             'a': StyledTextActionTag((String? text, Map<String?, String?> attrs) {},
@@ -269,7 +267,6 @@ class _dictionaryWidget extends StatelessWidget {
             fontSize: 16,
             height: 1.3,
             color: theme.textTheme.bodyMedium!.color,
-            fontFamily: 'HelveticaNeue',
           ),
           tags: {
             'ref': StyledTextActionTag(

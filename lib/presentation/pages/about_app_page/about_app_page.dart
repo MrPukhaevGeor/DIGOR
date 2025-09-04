@@ -46,7 +46,6 @@ class _AboutAppPageState extends State<AboutAppPage> {
                 'Дзырдуӕттӕ Digor®',
                 style: theme.textTheme.headlineSmall!.copyWith(
                   fontSize: 21,
-                  fontFamily: 'HelveticaNeue',
                 ),
               ),
               Text(
@@ -66,7 +65,6 @@ class _AboutAppPageState extends State<AboutAppPage> {
                   fontSize: 14,
                   height: 1.3,
                   color: theme.textTheme.bodyMedium!.color,
-                  fontFamily: 'HelveticaNeue',
                 ),
               ),
             ],
@@ -75,7 +73,6 @@ class _AboutAppPageState extends State<AboutAppPage> {
                 'Словари Digor®',
                 style: theme.textTheme.headlineSmall!.copyWith(
                   fontSize: 21,
-                  fontFamily: 'HelveticaNeue',
                 ),
               ),
               Text(
@@ -95,7 +92,6 @@ class _AboutAppPageState extends State<AboutAppPage> {
                   fontSize: 14,
                   height: 1.3,
                   color: theme.textTheme.bodyMedium!.color,
-                  fontFamily: 'HelveticaNeue',
                 ),
               ),
             ],
@@ -104,7 +100,6 @@ class _AboutAppPageState extends State<AboutAppPage> {
                 'Digor® Dictionaries',
                 style: theme.textTheme.headlineSmall!.copyWith(
                   fontSize: 21,
-                  fontFamily: 'HelveticaNeue',
                 ),
               ),
               Text(
@@ -125,7 +120,6 @@ The "Digor" project is intended for everyone who is interested in the Digor lang
                   fontSize: 14,
                   height: 1.3,
                   color: theme.textTheme.bodyMedium!.color,
-                  fontFamily: 'HelveticaNeue',
                 ),
               ),
             ],
@@ -134,7 +128,6 @@ The "Digor" project is intended for everyone who is interested in the Digor lang
                 'Digor® Sözlükler',
                 style: theme.textTheme.headlineSmall!.copyWith(
                   fontSize: 21,
-                  fontFamily: 'HelveticaNeue',
                 ),
               ),
               Text(
@@ -154,7 +147,6 @@ Yazar ve proje yöneticisi Murat Budayev
                   fontSize: 14,
                   height: 1.3,
                   color: theme.textTheme.bodyMedium!.color,
-                  fontFamily: 'HelveticaNeue',
                 ),
               ),
             ],
@@ -163,7 +155,6 @@ Yazar ve proje yöneticisi Murat Budayev
                 'Дзурдуӕттӕ Digor®',
                 style: theme.textTheme.headlineSmall!.copyWith(
                   fontSize: 21,
-                  fontFamily: 'HelveticaNeue',
                 ),
               ),
               Text(
@@ -183,7 +174,6 @@ Yazar ve proje yöneticisi Murat Budayev
                   fontSize: 14,
                   height: 1.3,
                   color: theme.textTheme.bodyMedium!.color,
-                  fontFamily: 'HelveticaNeue',
                 ),
               ),
             ],
