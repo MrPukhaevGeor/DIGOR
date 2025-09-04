@@ -239,46 +239,44 @@ class AppBarWidget extends ConsumerWidget {
     ];
     return AppBar(
       titleSpacing: 0,
-
       title: SafeArea(
+        bottom: false,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Expanded(
               child: CustomPopupMenuButton<String>(
-
-
-
                 onSelected: (value) {
-                  ref
-                      .read(searchModeProvider.notifier)
-                      .onDropDownFirstChange(value!);
+                  if (value != null) {
+                    ref
+                        .read(searchModeProvider.notifier)
+                        .onDropDownSecondChange(value);
+                  }
                   ref
                       .read(textFieldValueProvider.notifier)
                       .focusNode
                       .requestFocus();
                 },
-
                 items: dropDownFirstValues
                     .map(
                       (value) => PopupMenuItem<String>(
                         padding: EdgeInsets.zero,
 
                         value: value,
-                        height:  kToolbarHeight - 8, // Высота элемента (можно настроить)
+                        height: kToolbarHeight -
+                            8, // Высота элемента (можно настроить)
                         child: Text(
                           value,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: theme.textTheme.bodyMedium!.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black
-                          ),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black),
                         ),
                       ),
                     )
                     .toList(),
-
                 right: false,
                 child: Container(
                   alignment: Alignment.center,
@@ -293,7 +291,7 @@ class AppBarWidget extends ConsumerWidget {
                           style: theme.textTheme.bodyMedium!.copyWith(
                               color: Colors.white,
                               fontSize: 14,
-                              fontWeight: FontWeight.w300),
+                              fontWeight: FontWeight.w400),
                         ),
                       ),
                       if (dropDownFirstValues.isNotEmpty)
@@ -319,9 +317,12 @@ class AppBarWidget extends ConsumerWidget {
               child: CustomPopupMenuButton<String>(
                 onSelected: (value) {
                   print(value);
-                  ref
-                      .read(searchModeProvider.notifier)
-                      .onDropDownSecondChange(value!);
+                  if (value != null) {
+                    ref
+                        .read(searchModeProvider.notifier)
+                        .onDropDownSecondChange(value);
+                  }
+
                   ref
                       .read(textFieldValueProvider.notifier)
                       .focusNode
@@ -333,22 +334,22 @@ class AppBarWidget extends ConsumerWidget {
                         padding: EdgeInsets.zero,
 
                         value: value,
-                        height:  kToolbarHeight - 8, // Высота элемента (можно настроить)
+                        height: kToolbarHeight -
+                            8, // Высота элемента (можно настроить)
                         child: SizedBox(
-
                           child: Text(
                             value,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: theme.textTheme.bodyMedium!.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black                            ),
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black),
                           ),
                         ),
                       ),
                     )
                     .toList(),
-
                 right: true,
                 child: Container(
                   alignment: Alignment.center,
@@ -364,7 +365,7 @@ class AppBarWidget extends ConsumerWidget {
                           style: theme.textTheme.bodyMedium!.copyWith(
                             color: Colors.white,
                             fontSize: 14,
-                            fontWeight: FontWeight.w300,
+                            fontWeight: FontWeight.w400,
                           ),
                         ),
                       ),

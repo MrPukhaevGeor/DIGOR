@@ -14,7 +14,7 @@ import 'presentation/providers/search_mode.dart';
 
 const primaryColor = Color.fromARGB(255, 35, 73, 118);
 
-const fontFamilyName = 'BrisaSans'; //'Araboto';
+const fontFamilyName = 'BrisaSans';
 
 class MyApp extends StatelessWidget {
   const MyApp(this.savedThemeMode, {super.key});

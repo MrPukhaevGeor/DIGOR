@@ -55,27 +55,33 @@ flutter:
     - assets/
     - assets/db/exported_digor.db
   fonts:
-    - family: Araboto
-      fonts:
-        - asset: assets/fonts/Araboto/araboto_normal.ttf
-        - asset: assets/fonts/Araboto/araboto_light.ttf
-          weight: 300
-        - asset: assets/fonts/Araboto/araboto_bold.ttf
-          weight: 700
-        - asset: assets/fonts/Araboto/roboto_italic.ttf
-          style: italic
     - family: BrisaSans
       fonts:
-        - asset: assets/fonts/Sans/BrisaSans-Regular.otf
-        - asset: assets/fonts/Sans/BrisaSans-Bold.otf
-        - asset: assets/fonts/Sans/BrisaSans-Italic.otf
-        - asset: assets/fonts/Sans/BrisaSans-BoldItalic.otf
-        - asset: assets/fonts/Sans/BrisaSans-Light.otf
         - asset: assets/fonts/Sans/BrisaSans-Thin.otf
-        - asset: assets/fonts/Sans/BrisaSans-Medium.otf
+          weight: 100
         - asset: assets/fonts/Sans/BrisaSans-ThinItalic.otf
+          weight: 100
+          style: italic
+        - asset: assets/fonts/Sans/BrisaSans-Light.otf
+          weight: 300
         - asset: assets/fonts/Sans/BrisaSans-LightItalic.otf
+          weight: 300
+          style: italic
+        - asset: assets/fonts/Sans/BrisaSans-Regular.otf
+          weight: 400
+        - asset: assets/fonts/Sans/BrisaSans-Italic.otf
+          weight: 400
+          style: italic
+        - asset: assets/fonts/Sans/BrisaSans-Medium.otf
+          weight: 500
         - asset: assets/fonts/Sans/BrisaSans-MediumItalic.otf
+          weight: 500
+          style: italic
+        - asset: assets/fonts/Sans/BrisaSans-Bold.otf
+          weight: 700
+        - asset: assets/fonts/Sans/BrisaSans-BoldItalic.otf
+          weight: 700
+          style: italic
     - family: SamsungOne
       fonts:
         - asset: assets/fonts/SamsungOne/SamsungOne-500.ttf

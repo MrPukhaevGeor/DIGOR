@@ -15,7 +15,8 @@ class ClearHistoryButton extends ConsumerStatefulWidget {
   ConsumerState<ClearHistoryButton> createState() => _ClearHistoryButtonState();
 }
 
-class _ClearHistoryButtonState extends ConsumerState<ClearHistoryButton> with SingleTickerProviderStateMixin {
+class _ClearHistoryButtonState extends ConsumerState<ClearHistoryButton>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _opacityAnimation;
   late Animation<Offset> _slideAnimation;
@@ -102,9 +103,7 @@ class _ClearHistoryButtonState extends ConsumerState<ClearHistoryButton> with Si
                             child: Container(
                               alignment: Alignment.centerLeft,
                               height: kToolbarHeight - 8,
-                              constraints: BoxConstraints(
-                                minWidth: 220
-                              ),
+                              constraints: BoxConstraints(minWidth: 150),
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
                                 vertical: 8,
@@ -115,10 +114,12 @@ class _ClearHistoryButtonState extends ConsumerState<ClearHistoryButton> with Si
                                 style: isEmpty
                                     ? theme.textTheme.bodyMedium!.copyWith(
                                         color: Colors.grey,
-                                        fontSize: 14,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
                                       )
                                     : theme.textTheme.bodyMedium!.copyWith(
-                                        fontSize: 14,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
                                       ),
                               ),
                             ),
@@ -145,8 +146,11 @@ class _ClearHistoryButtonState extends ConsumerState<ClearHistoryButton> with Si
 
   void _clearHistory() {
     OutsideFunctions.showClearHistoryDialog(
-            context, ref.read(historyProvider.notifier).clearHistory, tr('del_full_history'))
-        .whenComplete(() => ref.read(textFieldValueProvider.notifier).focusNode.requestFocus());
+            context,
+            ref.read(historyProvider.notifier).clearHistory,
+            tr('del_full_history'))
+        .whenComplete(() =>
+            ref.read(textFieldValueProvider.notifier).focusNode.requestFocus());
   }
 
   @override

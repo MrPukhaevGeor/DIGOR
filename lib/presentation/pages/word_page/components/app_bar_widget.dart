@@ -17,7 +17,7 @@ class WordPageAppBar extends ConsumerWidget {
       backgroundColor: theme.primaryColor,
       title: Text(
         tr('translation'),
-        style: theme.textTheme.bodyMedium!.copyWith(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
+        style: theme.textTheme.bodyMedium!.copyWith(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600),
       ),
       actions: [
         // DropdownButtonHideUnderline(

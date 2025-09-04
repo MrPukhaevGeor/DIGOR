@@ -95,11 +95,11 @@ class SearchTextfield extends ConsumerWidget {
                     ? theme.textTheme.bodyMedium!.copyWith(
                         color: theme.textTheme.bodySmall!.color!.withOpacity(0.6),
                         fontSize: 18,
-                        fontWeight: FontWeight.w300)
+                        fontWeight: FontWeight.w500)
                     : theme.textTheme.bodyMedium!.copyWith(
                         color: theme.textTheme.bodySmall!.color!.withOpacity(0.7),
                         fontSize: 18,
-                        fontWeight: FontWeight.w300),
+                        fontWeight: FontWeight.w500),
                 suffixIconConstraints: const BoxConstraints(maxHeight: 24),
                 suffixIcon: (ref.watch(translateModeProvider))
                     ? SizedBox(

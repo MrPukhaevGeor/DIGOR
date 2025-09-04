@@ -86,7 +86,7 @@ class StyledTextWidget extends ConsumerWidget {
 
 
                                 color: theme.textTheme.bodyMedium!.color,
-                                fontFamily: 'Araboto',
+                                fontFamily: 'BrisaSans',
                                 fontWeight: FontWeight.w300,
                               ),
                               magnifierConfiguration: TextMagnifierConfiguration(
@@ -120,34 +120,34 @@ class StyledTextWidget extends ConsumerWidget {
                                     }
                                   },
                                   style: TextStyle(
-                                      fontFamily: 'Araboto',
+                                      fontFamily: 'BrisaSans',
                                       color: theme.brightness == Brightness.dark
                                           ? const Color.fromARGB(255, 0, 129, 255)
                                           : const Color.fromARGB(255, 0, 0, 238)),
                                 ),
                                 'b': StyledTextTag(
                                     style: const TextStyle(
-                                      fontFamily: 'Araboto',
+                                      fontFamily: 'BrisaSans',
                                       height: 1,
                                   fontWeight: FontWeight.bold,
                                 )),
                                 'u': StyledTextTag(
                                     style: const TextStyle(
-                                        fontFamily: 'Araboto',
+                                        fontFamily: 'BrisaSans',
                                       height: 1,
                                         decoration: TextDecoration.underline)),
                                 'c': StyledTextTag(
                                     style: const TextStyle(
-                                        fontFamily: 'Araboto',
+                                        fontFamily: 'BrisaSans',
                                       height: 1,
                                         color: Color.fromRGBO(0, 127, 0, 1))),
                                 'i': StyledTextTag(
                                     style: const TextStyle(
-                                        fontFamily: 'Araboto',
+                                        fontFamily: 'BrisaSans',
                                         fontStyle: FontStyle.italic,height: 1)),
                                 'ex': StyledTextTag(
                                     style: TextStyle(
-                                        fontFamily: 'Araboto',
+                                        fontFamily: 'BrisaSans',
                                         color: theme.brightness == Brightness.dark
                                             ? const Color.fromARGB(
                                                 255, 206, 207, 255)
@@ -156,26 +156,26 @@ class StyledTextWidget extends ConsumerWidget {
                                 'm2': StyledTextTag(
 
                                     style: TextStyle(
-                                        fontFamily: 'Araboto',fontSize: 15 * zoom,height: 1)),
+                                        fontFamily: 'BrisaSans',fontSize: 15 * zoom,height: 1)),
                                 'm3': StyledTextTag(
                                     style: TextStyle(
-                                        fontFamily: 'Araboto',fontSize: 15 * zoom,height: 1
+                                        fontFamily: 'BrisaSans',fontSize: 15 * zoom,height: 1
                                     )),
                                 'title': StyledTextTag(
                                   style: theme.textTheme.headlineSmall!.copyWith(
                                     fontSize: 28 * zoom,
-                                    fontFamily: 'Araboto',
+                                    fontFamily: 'BrisaSans',
 
                                   ),
                                 ),
                                 'dict': StyledTextTag(
                                     style: theme.textTheme.bodyLarge!.copyWith(
                                   fontSize: 17 * zoom,
-                                  fontFamily: 'Araboto',
+                                  fontFamily: 'BrisaSans',
                                 )),
                                 "'": StyledTextTag(
                                     style: const TextStyle(
-                                        fontFamily: 'Araboto',
+                                        fontFamily: 'BrisaSans',
                                       height: 1,
                                         fontStyle: FontStyle.italic,
                                         decoration: TextDecoration.lineThrough)),

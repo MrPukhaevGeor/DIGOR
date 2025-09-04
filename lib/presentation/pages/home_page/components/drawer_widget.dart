@@ -40,9 +40,13 @@ class DrawerWidget extends StatelessWidget {
             title: Text(tr('dictionaries'),
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
+                
                 style: theme.textTheme.bodyMedium!.copyWith(
                   fontSize: 14,
+                  fontWeight: FontWeight.w500
                 )),
+                
+                
             onTap: () {
               Navigator.of(context).push(NavigateEffects.fadeTransitionToPage(const DictionariesPage()));
             },
