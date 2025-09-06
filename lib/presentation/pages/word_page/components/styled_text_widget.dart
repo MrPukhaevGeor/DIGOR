@@ -19,7 +19,7 @@ class StyledTextWidget extends ConsumerWidget {
   final WordModel word;
   final int? maxLines;
 
-  const  StyledTextWidget({
+  const StyledTextWidget({
     super.key,
     this.isShowingExamples = true,
     required this.word,
@@ -76,25 +76,21 @@ class StyledTextWidget extends ConsumerWidget {
                             return StyledText.selectable(
                               newLineAsBreaks: true,
                               key: ValueKey(e),
-                              selectionHeightStyle: BoxHeightStyle.includeLineSpacingMiddle,
+                              selectionHeightStyle:
+                                  BoxHeightStyle.includeLineSpacingMiddle,
                               text:
-                                  '${word.audioUrl == null ? '<dict>Essential ($dicName)\n\n\n</dict>><title>${word.title}</title>\n\n' : null}${e}',
+                                  '${word.audioUrl == null ? '<dict>Language ($dicName)\n\n\n</dict>><title>${word.title}</title>\n\n' : null}${e}',
                               style: theme.textTheme.bodySmall!.copyWith(
                                 fontSize: 17 * zoom,
                                 height: 1,
-
-
-
                                 color: theme.textTheme.bodyMedium!.color,
                                 fontFamily: 'BrisaSans',
                                 fontWeight: FontWeight.w300,
                               ),
-                              magnifierConfiguration: TextMagnifierConfiguration(
-                                shouldDisplayHandlesInMagnifier: false
-                              ),
+                              magnifierConfiguration:
+                                  TextMagnifierConfiguration(
+                                      shouldDisplayHandlesInMagnifier: false),
                               maxLines: maxLines,
-
-
                               tags: {
                                 'ref': StyledTextActionTag(
                                   (String? text, Map<String?, String?> attrs) {
@@ -109,8 +105,8 @@ class StyledTextWidget extends ConsumerWidget {
                                             : Navigator.of(context).push(
                                                 NavigateEffects
                                                     .fadeTransitionToPage(
-                                                        WordPage(
-                                                            word.refs![text]!)));
+                                                        WordPage(word
+                                                            .refs![text]!)));
                                       } catch (e) {
                                         print(e);
                                       }
@@ -122,50 +118,72 @@ class StyledTextWidget extends ConsumerWidget {
                                   style: TextStyle(
                                       fontFamily: 'BrisaSans',
                                       color: theme.brightness == Brightness.dark
-                                          ? const Color.fromARGB(255, 0, 129, 255)
-                                          : const Color.fromARGB(255, 0, 0, 238)),
+                                          ? const Color.fromARGB(
+                                              255, 0, 129, 255)
+                                          : const Color.fromARGB(
+                                              255, 0, 0, 238)),
                                 ),
                                 'b': StyledTextTag(
                                     style: const TextStyle(
-                                      fontFamily: 'BrisaSans',
-                                      height: 1,
+                                  fontFamily: 'BrisaSans',
+                                  height: 1,
                                   fontWeight: FontWeight.bold,
                                 )),
+                                'trn': StyledTextTag(
+                                  style: TextStyle(
+                                    fontFamily: 'BrisaSans',
+                                    fontSize: 15 * zoom,
+                                    fontWeight: FontWeight.w500,
+                                    color: theme.textTheme.bodyMedium!.color,
+                                    height: 1,
+                                  ),
+                                ),
                                 'u': StyledTextTag(
                                     style: const TextStyle(
                                         fontFamily: 'BrisaSans',
-                                      height: 1,
+                                        height: 1,
+                                        fontSize: 14,
                                         decoration: TextDecoration.underline)),
                                 'c': StyledTextTag(
                                     style: const TextStyle(
                                         fontFamily: 'BrisaSans',
-                                      height: 1,
-                                        color: Color.fromRGBO(0, 127, 0, 1))),
+                                        height: 1,
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w500,
+                                        color: Color.fromRGBO(1, 127, 1, 1))),
                                 'i': StyledTextTag(
                                     style: const TextStyle(
                                         fontFamily: 'BrisaSans',
-                                        fontStyle: FontStyle.italic,height: 1)),
+                                        fontSize: 14,
+                                        fontStyle: FontStyle.italic,
+                                        height: 1)),
                                 'ex': StyledTextTag(
                                     style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w300,
                                         fontFamily: 'BrisaSans',
-                                        color: theme.brightness == Brightness.dark
-                                            ? const Color.fromARGB(
-                                                255, 206, 207, 255)
-                                            : const Color.fromARGB(
-                                                255, 0, 0, 97),height: 1)),
+                                        color:
+                                            theme.brightness == Brightness.dark
+                                                ? const Color.fromARGB(
+                                                    255, 206, 207, 255)
+                                                : const Color.fromARGB(
+                                                    255, 0, 0, 97),
+                                        height: 1)),
                                 'm2': StyledTextTag(
-
                                     style: TextStyle(
-                                        fontFamily: 'BrisaSans',fontSize: 15 * zoom,height: 1)),
+                                        fontFamily: 'BrisaSans',
+                                        fontSize: 14 * zoom,
+                                        height: 1)),
                                 'm3': StyledTextTag(
                                     style: TextStyle(
-                                        fontFamily: 'BrisaSans',fontSize: 15 * zoom,height: 1
-                                    )),
+                                        fontFamily: 'BrisaSans',
+                                        fontSize: 14 * zoom,
+                                        height: 1)),
                                 'title': StyledTextTag(
-                                  style: theme.textTheme.headlineSmall!.copyWith(
+                                  style:
+                                      theme.textTheme.headlineSmall!.copyWith(
                                     fontSize: 28 * zoom,
                                     fontFamily: 'BrisaSans',
-
                                   ),
                                 ),
                                 'dict': StyledTextTag(
@@ -176,9 +194,10 @@ class StyledTextWidget extends ConsumerWidget {
                                 "'": StyledTextTag(
                                     style: const TextStyle(
                                         fontFamily: 'BrisaSans',
-                                      height: 1,
+                                        height: 1,
                                         fontStyle: FontStyle.italic,
-                                        decoration: TextDecoration.lineThrough)),
+                                        decoration:
+                                            TextDecoration.lineThrough)),
                               },
                             );
                           }),

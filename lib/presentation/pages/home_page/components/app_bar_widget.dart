@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../domain/models/word_model.dart';
+import '../../../../outside_functions.dart';
 import '../../../providers/history.dart';
 import '../../../providers/search_mode.dart';
 import '../../../providers/textfield_provider.dart';
@@ -19,6 +20,10 @@ class AppBarWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final textScaler = MediaQuery.of(context).textScaler;
+    final adjustedScaler = textScaler.scale(1.0) > 1.5
+    ? textScaler
+    : TextScaler.linear(textScaler.scale(1.0) * 1.1);
     String dropDownValueFirst = '';
     String dropDownValueSecond = '';
     List<String> dropDownFirstValues = [];
@@ -238,6 +243,12 @@ class AppBarWidget extends ConsumerWidget {
       //   ),
     ];
     return AppBar(
+      leading: IconButton(
+        icon: const Icon(Icons.menu),
+        onPressed: () {
+          scaffoldKey?.currentState?.openDrawer();
+        },
+      ),
       titleSpacing: 0,
       title: SafeArea(
         bottom: false,
@@ -250,7 +261,7 @@ class AppBarWidget extends ConsumerWidget {
                   if (value != null) {
                     ref
                         .read(searchModeProvider.notifier)
-                        .onDropDownSecondChange(value);
+                        .onDropDownFirstChange(value);
                   }
                   ref
                       .read(textFieldValueProvider.notifier)
@@ -265,14 +276,17 @@ class AppBarWidget extends ConsumerWidget {
                         value: value,
                         height: kToolbarHeight -
                             8, // Высота элемента (можно настроить)
-                        child: Text(
-                          value,
+                        child: TwoDotEllipsis(
+                          text: value,
+                          textScaler:
+                           adjustedScaler,
                           maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+
                           style: theme.textTheme.bodyMedium!.copyWith(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
-                              color: Colors.black),
+                              color: Colors.black,
+                              letterSpacing: 0.4),
                         ),
                       ),
                     )
@@ -280,23 +294,26 @@ class AppBarWidget extends ConsumerWidget {
                 right: false,
                 child: Container(
                   alignment: Alignment.center,
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  padding: const EdgeInsets.only(left: 12),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        child: Text(
-                          dropDownValueFirst,
+                        child: TwoDotEllipsis(
+                          text: dropDownValueFirst,
                           // maxLines: 1,
+                          textScaler:
+                            adjustedScaler,
                           style: theme.textTheme.bodyMedium!.copyWith(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400),
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                       if (dropDownFirstValues.isNotEmpty)
                         const Icon(
-                          Icons.arrow_drop_down_rounded,
+                          Icons.arrow_drop_down_sharp,
                           color: Colors.white,
                         ),
                     ],
@@ -305,7 +322,9 @@ class AppBarWidget extends ConsumerWidget {
               ),
             ),
             IconButton(
+              padding: EdgeInsets.zero,
               splashRadius: 20,
+              constraints: const BoxConstraints(),
               onPressed:
                   ref.read(searchModeProvider.notifier).onSwitchLanguageTap,
               icon: const Icon(
@@ -335,16 +354,19 @@ class AppBarWidget extends ConsumerWidget {
 
                         value: value,
                         height: kToolbarHeight -
-                            8, // Высота элемента (можно настроить)
+                            4, // Высота элемента (можно настроить)
                         child: SizedBox(
-                          child: Text(
-                            value,
+                          child: TwoDotEllipsis(
+                            textScaler:
+                             adjustedScaler,
+                            text: value,
                             maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+
                             style: theme.textTheme.bodyMedium!.copyWith(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
-                                color: Colors.black),
+                                color: Colors.black,
+                                letterSpacing: 0.4),
                           ),
                         ),
                       ),
@@ -358,20 +380,22 @@ class AppBarWidget extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        child: Text(
-                          dropDownValueSecond,
+                        child: TwoDotEllipsis(
+                           textScaler:
+                             adjustedScaler,
+                          text: dropDownValueSecond,
                           maxLines: 1,
-                          // overflow: TextOverflow.ellipsis,
+
                           style: theme.textTheme.bodyMedium!.copyWith(
                             color: Colors.white,
                             fontSize: 14,
-                            fontWeight: FontWeight.w400,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
                       if (dropDownSecondValues.isNotEmpty)
                         const Icon(
-                          Icons.arrow_drop_down_rounded,
+                          Icons.arrow_drop_down_sharp,
                           color: Colors.white,
                         ),
                     ],

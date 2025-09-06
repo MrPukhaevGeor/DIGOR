@@ -10,13 +10,16 @@ class DictionariesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return MediaQuery(
-      data: MediaQuery.of(context).copyWith(textScaleFactor: 1, boldText: false),
+      data:
+          MediaQuery.of(context).copyWith(textScaleFactor: 1, boldText: false),
       child: Scaffold(
           appBar: AppBar(
             title: Text(
               tr('dictionaries'),
-              style:
-                  theme.textTheme.bodyMedium!.copyWith(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
+              style: theme.textTheme.bodyMedium!.copyWith(
+                  color: Colors.white,
+                  fontSize: 21,
+                  fontWeight: FontWeight.w600),
             ),
           ),
           body: SingleChildScrollView(
@@ -45,7 +48,8 @@ class DictionariesPage extends StatelessWidget {
                       title: 'Ossetian (Iron)-Russian dictionary',
                       description:
                           'Entry count     26775\nFile size          4,64 MB\nState              active <a>✅</a>\nSound            planned',
-                      author: 'Bigulaev B., Gagkaev K., Guriev T., Kulaev N., Tuaeva O., 5th ed. - Vladikavkaz, 2004.',
+                      author:
+                          'Bigulaev B., Gagkaev K., Guriev T., Kulaev N., Tuaeva O., 5th ed. - Vladikavkaz, 2004.',
                     ),
                     const SizedBox(height: 40),
                     const _dictionaryWidget(
@@ -62,7 +66,8 @@ class DictionariesPage extends StatelessWidget {
                           'Файлы ас                          53,47 MB\n'
                           'Ӕууӕл                              кусы ✅\n'
                           'Зӕлгонд                           уыдзӕн',
-                      author: 'Тахъазты Федар. 2-аг рауагъд - Дзӕуджыхъӕу, 2015.',
+                      author:
+                          'Тахъазты Федар. 2-аг рауагъд - Дзӕуджыхъӕу, 2015.',
                     ),
                     const SizedBox(height: 40),
                     const _dictionaryWidget(
@@ -149,7 +154,8 @@ class DictionariesPage extends StatelessWidget {
                           'Dosya boyutu            3,85 MB\n'
                           'Durum                       aktif <a>✅</a>\n'
                           'Ses                            planlandı',
-                      author: 'Digor dil külliyatının sözlüğü. <ref>http://corpus-digor.ossetic-studies.org</ref>',
+                      author:
+                          'Digor dil külliyatının sözlüğü. <ref>http://corpus-digor.ossetic-studies.org</ref>',
                     ),
                     const SizedBox(height: 40),
                     const _dictionaryWidget(
@@ -188,7 +194,8 @@ class DictionariesPage extends StatelessWidget {
                           'Файли асӕ                         3,85 MB\n'
                           'Ӕууӕл                                косуй ✅\n'
                           'Зӕлгонд                             уодзӕнӕй',
-                      author: 'Дигорон ӕвзагон къорпусӕй ист дзурдуат. http://corpus-digor.ossetic-studies.org',
+                      author:
+                          'Дигорон ӕвзагон къорпусӕй ист дзурдуат. http://corpus-digor.ossetic-studies.org',
                     ),
                     const SizedBox(height: 40),
                     const _dictionaryWidget(
@@ -222,7 +229,8 @@ class _dictionaryWidget extends StatelessWidget {
   final String title;
   final String description;
   final String author;
-  const _dictionaryWidget({required this.title, required this.description, required this.author});
+  const _dictionaryWidget(
+      {required this.title, required this.description, required this.author});
 
   @override
   Widget build(BuildContext context) {
@@ -240,15 +248,17 @@ class _dictionaryWidget extends StatelessWidget {
         StyledText(
           text: description,
           style: theme.textTheme.bodySmall!.copyWith(
-            fontSize: 16,
+            fontSize: 15,
             height: 1.3,
             color: theme.textTheme.bodyMedium!.color,
           ),
           tags: {
-            'a': StyledTextActionTag((String? text, Map<String?, String?> attrs) {},
-                style: const TextStyle(fontSize: 15, color: Colors.green)),
-            'e': StyledTextActionTag((String? text, Map<String?, String?> attrs) {},
-                style: const TextStyle(fontSize: 12)),
+            'a': StyledTextActionTag(
+                (String? text, Map<String?, String?> attrs) {},
+                style: const TextStyle(fontSize: 16, color: Colors.green)),
+            'e': StyledTextActionTag(
+                (String? text, Map<String?, String?> attrs) {},
+                style: const TextStyle(fontSize: 13)),
             'ref': StyledTextActionTag(
               (String? text, Map<String?, String?> attrs) {
                 _launchUrl(Uri.parse(text!));
@@ -264,7 +274,7 @@ class _dictionaryWidget extends StatelessWidget {
         StyledText(
           text: author,
           style: theme.textTheme.bodySmall!.copyWith(
-            fontSize: 16,
+            fontSize: 15,
             height: 1.3,
             color: theme.textTheme.bodyMedium!.color,
           ),

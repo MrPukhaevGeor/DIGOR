@@ -1,4 +1,4 @@
-import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart'as l;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,6 +11,136 @@ import 'presentation/providers/api_provider.dart';
 import 'presentation/providers/localization.dart';
 import 'presentation/providers/search.dart';
 import 'presentation/providers/search_mode.dart';
+import 'package:flutter/material.dart';
+
+/// Виджет: обрезает строку по ширине и добавляет ".." вместо стандартного "…"
+import 'package:flutter/material.dart';
+
+/// Виджет: обрезает строку по ширине и добавляет ".." вместо стандартного "…"
+class TwoDotEllipsis extends StatelessWidget {
+  final String text;
+  final TextStyle? style;
+  final int maxLines;
+  final TextAlign textAlign;
+  final TextDirection? textDirection;
+  final Locale? locale;
+  final double? maxWidthOverride; // если заранее знаешь ширину
+  final TextScaler? textScaler; // <- новый параметр
+
+  const TwoDotEllipsis({
+    Key? key,
+    required this.text,
+    this.style,
+    this.maxLines = 1,
+    this.textAlign = TextAlign.start,
+    this.textDirection,
+    this.locale,
+    this.maxWidthOverride,
+    this.textScaler,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    // Определяем effective TextScaler: либо переданный, либо системный.
+    final effectiveTextScaler =
+        textScaler ?? MediaQuery.of(context).textScaler;
+
+    // textScaleFactor, который передаём в TextPainter
+    final double textScaleFactor = effectiveTextScaler.scale(1.0);
+
+    return LayoutBuilder(builder: (context, constraints) {
+      final double maxWidth = maxWidthOverride ?? constraints.maxWidth;
+
+      // Если ширина бесконечна, просто рисуем текст — нет ограничений.
+      if (maxWidth.isInfinite) {
+        return Text(
+          text,
+          style: style,
+          maxLines: maxLines,
+          overflow: TextOverflow.clip,
+          textAlign: textAlign,
+          textScaler: effectiveTextScaler,
+        );
+      }
+
+      final effectiveDirection = textDirection ?? Directionality.of(context);
+
+      // Быстрая проверка: помещается ли весь текст
+      final TextPainter fullTp = TextPainter(
+        text: TextSpan(text: text, style: style),
+        textDirection: effectiveDirection,
+        maxLines: maxLines,
+        textScaleFactor: textScaleFactor,
+        locale: locale,
+      )..layout(maxWidth: maxWidth);
+
+      if (!fullTp.didExceedMaxLines) {
+        return Text(
+          text,
+          style: style,
+          maxLines: maxLines,
+          overflow: TextOverflow.clip,
+          textAlign: textAlign,
+          textScaler: effectiveTextScaler,
+        );
+      }
+
+      // Проверяем, помещается ли вообще ".."
+      final TextPainter dotsTp = TextPainter(
+        text: TextSpan(text: '..', style: style),
+        textDirection: effectiveDirection,
+        maxLines: maxLines,
+        textScaleFactor: textScaleFactor,
+        locale: locale,
+      )..layout(maxWidth: maxWidth);
+
+      if (dotsTp.didExceedMaxLines) {
+        // Даже две точки не помещаются — вернём только '..'
+        return Text(
+          '..',
+          style: style,
+          maxLines: maxLines,
+          overflow: TextOverflow.clip,
+          textAlign: textAlign,
+          textScaler: effectiveTextScaler,
+        );
+      }
+
+      // Бинарный поиск максимальной подстроки, которая поместится с двумя точками
+      int low = 0;
+      int high = text.length;
+      while (low < high) {
+        final mid = (low + high + 1) >> 1;
+        final candidate = text.substring(0, mid) + '..';
+        final tp = TextPainter(
+          text: TextSpan(text: candidate, style: style),
+          textDirection: effectiveDirection,
+          maxLines: maxLines,
+          textScaleFactor: textScaleFactor,
+          locale: locale,
+        )..layout(maxWidth: maxWidth);
+
+        if (tp.didExceedMaxLines) {
+          high = mid - 1;
+        } else {
+          low = mid;
+        }
+      }
+
+      final result = low > 0 ? text.substring(0, low) + '..' : '..';
+
+      return Text(
+        result,
+        style: style,
+        maxLines: maxLines,
+        overflow: TextOverflow.clip,
+        textAlign: textAlign,
+        textScaler: effectiveTextScaler,
+      );
+    });
+  }
+}
+
 
 class OutsideFunctions {
   static Future<void> sendMail(BuildContext context) async {
@@ -24,17 +154,21 @@ class OutsideFunctions {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15.0),
           ),
-          backgroundColor: const Color.fromARGB(255, 45, 32, 65).withOpacity(.9),
-          content: Text('${tr('could_not_open_the_mail')}...'),
+          backgroundColor:
+              const Color.fromARGB(255, 45, 32, 65).withOpacity(.9),
+          content: Text('${l.tr('could_not_open_the_mail')}...'),
         ),
       );
     }
   }
 
-  static Future<void> showCopiedSnackBar(BuildContext context, WordModel word) async {
+  static Future<void> showCopiedSnackBar(
+      BuildContext context, WordModel word) async {
     final theme = Theme.of(context);
     ScaffoldMessenger.of(context).clearSnackBars();
-    await Clipboard.setData(ClipboardData(text: '${word.title.trim()}\n${word.translate}\n${word.body?.trim() ?? ''}'))
+    await Clipboard.setData(ClipboardData(
+            text:
+                '${word.title.trim()}\n${word.translate}\n${word.body?.trim() ?? ''}'))
         .whenComplete(
       () => ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -45,15 +179,17 @@ class OutsideFunctions {
           ),
           behavior: SnackBarBehavior.floating,
           content: Text(
-            '"${word.title}" - ${tr('copied')}',
-            style: theme.textTheme.bodySmall!.copyWith(color: Colors.white, fontSize: 15),
+            '"${word.title}" - ${l.tr('copied')}',
+            style: theme.textTheme.bodySmall!
+                .copyWith(color: Colors.white, fontSize: 15),
           ),
         ),
       ),
     );
   }
 
-  static Future<void> showZoomSnackBar(BuildContext context, double zoom) async {
+  static Future<void> showZoomSnackBar(
+      BuildContext context, double zoom) async {
     final theme = Theme.of(context);
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
@@ -76,9 +212,12 @@ class OutsideFunctions {
               ),
               const SizedBox(width: 10),
               MediaQuery(
-                data: MediaQuery.of(context).copyWith(textScaleFactor: 1, boldText: false),
-                child: Text('${tr('zoom')} ${(zoom * 100).toStringAsFixed(0)}%',
-                    maxLines: 1, style: theme.textTheme.bodySmall!.copyWith(color: Colors.white, fontSize: 15)),
+                data: MediaQuery.of(context)
+                    .copyWith(textScaleFactor: 1, boldText: false),
+                child: Text('${l.tr('zoom')} ${(zoom * 100).toStringAsFixed(0)}%',
+                    maxLines: 1,
+                    style: theme.textTheme.bodySmall!
+                        .copyWith(color: Colors.white, fontSize: 15)),
               ),
             ],
           ),
@@ -98,7 +237,7 @@ class OutsideFunctions {
           borderRadius: BorderRadius.circular(15.0),
         ),
         behavior: SnackBarBehavior.floating,
-        content: Text('${tr('word')} $word ${tr('not_found')}',
+        content: Text('${l.tr('word')} $word ${l.tr('not_found')}',
             style: theme.textTheme.bodySmall!.copyWith(color: Colors.white)),
       ),
     );
@@ -112,7 +251,8 @@ class OutsideFunctions {
     );
   }
 
-  static void showWriteToDeveloperDialog(BuildContext context, String title, WidgetRef ref) {
+  static void showWriteToDeveloperDialog(
+      BuildContext context, String title, WidgetRef ref) {
     final theme = Theme.of(context);
     final TextEditingController controller = TextEditingController();
     showDialog(
@@ -121,7 +261,7 @@ class OutsideFunctions {
         backgroundColor: Colors.transparent,
         body: Center(
           child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 20),
+            margin: const EdgeInsets.symmetric(horizontal: 26),
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
             decoration: BoxDecoration(
               color: theme.cardColor,
@@ -132,8 +272,10 @@ class OutsideFunctions {
               children: [
                 Text(
                   title,
-                  style: theme.textTheme.bodyMedium!
-                      .copyWith(fontSize: 20, fontWeight: FontWeight.w500, fontFamily: 'SamsungOne'),
+                  style: theme.textTheme.bodyMedium!.copyWith(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'SamsungOne'),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 12),
@@ -145,17 +287,19 @@ class OutsideFunctions {
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   height: 200,
                   child: TextField(
-                    style: theme.textTheme.bodyMedium!.copyWith(fontSize: 14, decoration: TextDecoration.none),
+                    style: theme.textTheme.bodyMedium!.copyWith(
+                        fontSize: 14, decoration: TextDecoration.none),
                     controller: controller,
                     textInputAction: TextInputAction.newline,
                     keyboardType: TextInputType.multiline,
                     maxLines: null,
                     decoration: InputDecoration(
                         border: InputBorder.none,
-                        hintText: tr('message_text'),
+                        hintText: l.tr('message_text'),
                         hintStyle: theme.textTheme.bodyMedium!.copyWith(
                             fontSize: 14,
-                            color: theme.textTheme.bodySmall!.color!.withOpacity(0.3),
+                            color: theme.textTheme.bodySmall!.color!
+                                .withOpacity(0.3),
                             fontFamily: 'SamsungOne')),
                   ),
                 ),
@@ -167,12 +311,12 @@ class OutsideFunctions {
                     children: [
                       TextButton(
                         onPressed: Navigator.of(context).pop,
-                        child: Text(tr(
+                        child: Text(l.tr(
                           'cancel',
                         ).toUpperCase()),
                       ),
                       TextButton(
-                        child: Text(tr('send').toUpperCase()),
+                        child: Text(l.tr('send').toUpperCase()),
                         onPressed: () {
                           Navigator.of(context).pop();
                           if (controller.text.trim().isNotEmpty) {
@@ -206,7 +350,9 @@ class OutsideFunctions {
     final theme = Theme.of(context);
   }
 
-  static Future<void> showClearHistoryDialog(BuildContext context, Function callback, String content) async {
+  static Future<void> showClearHistoryDialog(
+      BuildContext context, Function callback, String content) async {
+
     final theme = Theme.of(context);
     showDialog(
       context: context,
@@ -238,12 +384,12 @@ class OutsideFunctions {
                       TextButton(
                         onPressed: Navigator.of(context).pop,
                         child: Text(
-                          tr('no').toUpperCase(),
+                          l.tr('no').toUpperCase(),
                         ),
                       ),
                       TextButton(
                         child: Text(
-                          tr('yes').toUpperCase(),
+                          l.tr('yes').toUpperCase(),
                         ),
                         onPressed: () {
                           callback();

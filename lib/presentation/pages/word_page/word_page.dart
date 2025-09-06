@@ -88,7 +88,7 @@ class WordPage extends ConsumerWidget {
                                   constraints: BoxConstraints(
                                       minHeight: MediaQuery
                                           .sizeOf(context)
-                                          .height - 180,
+                                          .height - 195,
                                       maxHeight: double.infinity
                                   ),
 

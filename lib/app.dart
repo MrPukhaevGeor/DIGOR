@@ -27,27 +27,73 @@ class MyApp extends StatelessWidget {
       light: ThemeData.light(useMaterial3: false).copyWith(
         visualDensity: VisualDensity.standard,
         textTheme: TextTheme(
-          displaySmall: ThemeData.light().textTheme.displaySmall!.copyWith(fontFamily: fontFamilyName),
-          displayMedium: ThemeData.light().textTheme.displayMedium!.copyWith(fontFamily: fontFamilyName),
-          displayLarge: ThemeData.light().textTheme.displayLarge!.copyWith(fontFamily: fontFamilyName),
-          bodySmall: ThemeData.light().textTheme.bodySmall!.copyWith(fontFamily: fontFamilyName),
-          bodyMedium: ThemeData.light().textTheme.bodyMedium!.copyWith(fontFamily: fontFamilyName),
-          bodyLarge: ThemeData.light().textTheme.bodyLarge!.copyWith(fontFamily: fontFamilyName),
-          titleSmall: ThemeData.light().textTheme.titleSmall!.copyWith(fontFamily: fontFamilyName),
-          titleMedium: ThemeData.light().textTheme.titleMedium!.copyWith(fontFamily: fontFamilyName),
-          titleLarge: ThemeData.light().textTheme.titleLarge!.copyWith(fontFamily: fontFamilyName),
-          labelSmall: ThemeData.light().textTheme.labelSmall!.copyWith(fontFamily: fontFamilyName),
-          labelMedium: ThemeData.light().textTheme.labelMedium!.copyWith(fontFamily: fontFamilyName),
-          labelLarge: ThemeData.light().textTheme.labelLarge!.copyWith(fontFamily: fontFamilyName),
-          headlineSmall: ThemeData.light().textTheme.headlineSmall!.copyWith(fontFamily: fontFamilyName),
-          headlineMedium: ThemeData.light().textTheme.headlineMedium!.copyWith(fontFamily: fontFamilyName),
-          headlineLarge: ThemeData.light().textTheme.headlineLarge!.copyWith(fontFamily: fontFamilyName),
+          displaySmall: ThemeData.light()
+              .textTheme
+              .displaySmall!
+              .copyWith(fontFamily: fontFamilyName),
+          displayMedium: ThemeData.light()
+              .textTheme
+              .displayMedium!
+              .copyWith(fontFamily: fontFamilyName),
+          displayLarge: ThemeData.light()
+              .textTheme
+              .displayLarge!
+              .copyWith(fontFamily: fontFamilyName),
+          bodySmall: ThemeData.light()
+              .textTheme
+              .bodySmall!
+              .copyWith(fontFamily: fontFamilyName),
+          bodyMedium: ThemeData.light()
+              .textTheme
+              .bodyMedium!
+              .copyWith(fontFamily: fontFamilyName),
+          bodyLarge: ThemeData.light()
+              .textTheme
+              .bodyLarge!
+              .copyWith(fontFamily: fontFamilyName),
+          titleSmall: ThemeData.light()
+              .textTheme
+              .titleSmall!
+              .copyWith(fontFamily: fontFamilyName),
+          titleMedium: ThemeData.light()
+              .textTheme
+              .titleMedium!
+              .copyWith(fontFamily: fontFamilyName),
+          titleLarge: ThemeData.light()
+              .textTheme
+              .titleLarge!
+              .copyWith(fontFamily: fontFamilyName),
+          labelSmall: ThemeData.light()
+              .textTheme
+              .labelSmall!
+              .copyWith(fontFamily: fontFamilyName),
+          labelMedium: ThemeData.light()
+              .textTheme
+              .labelMedium!
+              .copyWith(fontFamily: fontFamilyName),
+          labelLarge: ThemeData.light()
+              .textTheme
+              .labelLarge!
+              .copyWith(fontFamily: fontFamilyName),
+          headlineSmall: ThemeData.light()
+              .textTheme
+              .headlineSmall!
+              .copyWith(fontFamily: fontFamilyName),
+          headlineMedium: ThemeData.light()
+              .textTheme
+              .headlineMedium!
+              .copyWith(fontFamily: fontFamilyName),
+          headlineLarge: ThemeData.light()
+              .textTheme
+              .headlineLarge!
+              .copyWith(fontFamily: fontFamilyName),
         ),
-
         indicatorColor: primaryColor,
         hoverColor: primaryColor,
         textSelectionTheme: TextSelectionThemeData(
-            selectionColor: Colors.blue.withOpacity(0.3), selectionHandleColor: Colors.blue, cursorColor: Colors.blue),
+            selectionColor: Colors.blue.withOpacity(0.3),
+            selectionHandleColor: Colors.blue,
+            cursorColor: Colors.blue),
         brightness: Brightness.light,
         appBarTheme: const AppBarTheme(
             backgroundColor: primaryColor,
@@ -59,6 +105,7 @@ class MyApp extends StatelessWidget {
         primaryColor: primaryColor,
         dialogBackgroundColor: Colors.white,
         dialogTheme: DialogThemeData(
+       
           backgroundColor: Colors.white,
         ),
         radioTheme: RadioThemeData(
@@ -71,24 +118,70 @@ class MyApp extends StatelessWidget {
       dark: ThemeData.dark(useMaterial3: false).copyWith(
         visualDensity: VisualDensity.standard,
         textTheme: TextTheme(
-          displaySmall: ThemeData.dark().textTheme.displaySmall!.copyWith(fontFamily: fontFamilyName),
-          displayMedium: ThemeData.dark().textTheme.displayMedium!.copyWith(fontFamily: fontFamilyName),
-          displayLarge: ThemeData.dark().textTheme.displayLarge!.copyWith(fontFamily: fontFamilyName),
-          bodySmall: ThemeData.dark().textTheme.bodySmall!.copyWith(fontFamily: fontFamilyName),
-          bodyMedium: ThemeData.dark().textTheme.bodyMedium!.copyWith(fontFamily: fontFamilyName),
-          bodyLarge: ThemeData.dark().textTheme.bodyLarge!.copyWith(fontFamily: fontFamilyName),
-          titleSmall: ThemeData.dark().textTheme.titleSmall!.copyWith(fontFamily: fontFamilyName),
-          titleMedium: ThemeData.dark().textTheme.titleMedium!.copyWith(fontFamily: fontFamilyName),
-          titleLarge: ThemeData.dark().textTheme.titleLarge!.copyWith(fontFamily: fontFamilyName),
-          labelSmall: ThemeData.dark().textTheme.labelSmall!.copyWith(fontFamily: fontFamilyName),
-          labelMedium: ThemeData.dark().textTheme.labelMedium!.copyWith(fontFamily: fontFamilyName),
-          labelLarge: ThemeData.dark().textTheme.labelLarge!.copyWith(fontFamily: fontFamilyName),
-          headlineSmall: ThemeData.dark().textTheme.headlineSmall!.copyWith(fontFamily: fontFamilyName),
-          headlineMedium: ThemeData.dark().textTheme.headlineMedium!.copyWith(fontFamily: fontFamilyName),
-          headlineLarge: ThemeData.dark().textTheme.headlineLarge!.copyWith(fontFamily: fontFamilyName),
+          displaySmall: ThemeData.dark()
+              .textTheme
+              .displaySmall!
+              .copyWith(fontFamily: fontFamilyName),
+          displayMedium: ThemeData.dark()
+              .textTheme
+              .displayMedium!
+              .copyWith(fontFamily: fontFamilyName),
+          displayLarge: ThemeData.dark()
+              .textTheme
+              .displayLarge!
+              .copyWith(fontFamily: fontFamilyName),
+          bodySmall: ThemeData.dark()
+              .textTheme
+              .bodySmall!
+              .copyWith(fontFamily: fontFamilyName),
+          bodyMedium: ThemeData.dark()
+              .textTheme
+              .bodyMedium!
+              .copyWith(fontFamily: fontFamilyName),
+          bodyLarge: ThemeData.dark()
+              .textTheme
+              .bodyLarge!
+              .copyWith(fontFamily: fontFamilyName),
+          titleSmall: ThemeData.dark()
+              .textTheme
+              .titleSmall!
+              .copyWith(fontFamily: fontFamilyName),
+          titleMedium: ThemeData.dark()
+              .textTheme
+              .titleMedium!
+              .copyWith(fontFamily: fontFamilyName),
+          titleLarge: ThemeData.dark()
+              .textTheme
+              .titleLarge!
+              .copyWith(fontFamily: fontFamilyName),
+          labelSmall: ThemeData.dark()
+              .textTheme
+              .labelSmall!
+              .copyWith(fontFamily: fontFamilyName),
+          labelMedium: ThemeData.dark()
+              .textTheme
+              .labelMedium!
+              .copyWith(fontFamily: fontFamilyName),
+          labelLarge: ThemeData.dark()
+              .textTheme
+              .labelLarge!
+              .copyWith(fontFamily: fontFamilyName),
+          headlineSmall: ThemeData.dark()
+              .textTheme
+              .headlineSmall!
+              .copyWith(fontFamily: fontFamilyName),
+          headlineMedium: ThemeData.dark()
+              .textTheme
+              .headlineMedium!
+              .copyWith(fontFamily: fontFamilyName),
+          headlineLarge: ThemeData.dark()
+              .textTheme
+              .headlineLarge!
+              .copyWith(fontFamily: fontFamilyName),
         ),
         brightness: Brightness.dark,
-        drawerTheme: const DrawerThemeData(backgroundColor: Color.fromARGB(255, 0, 0, 0)),
+        drawerTheme: const DrawerThemeData(
+            backgroundColor: Color.fromARGB(255, 0, 0, 0)),
         appBarTheme: const AppBarTheme(
             backgroundColor: primaryColor,
             titleTextStyle: TextStyle(fontSize: 20, color: Colors.white),
@@ -107,9 +200,12 @@ class MyApp extends StatelessWidget {
           fillColor: MaterialStateProperty.all(Colors.blue),
         ),
         textSelectionTheme: TextSelectionThemeData(
-            selectionColor: Colors.blue.withOpacity(0.3), selectionHandleColor: Colors.blue, cursorColor: Colors.blue),
+            selectionColor: Colors.blue.withOpacity(0.3),
+            selectionHandleColor: Colors.blue,
+            cursorColor: Colors.blue),
         scaffoldBackgroundColor: const Color.fromARGB(255, 0, 0, 0),
         dialogTheme: DialogThemeData(
+          
           backgroundColor: const Color.fromARGB(255, 0, 0, 0),
         ),
       ),
@@ -153,7 +249,8 @@ class _AppInitState extends ConsumerState<AppInit> {
       ref.read(articleZoomProvider.notifier).init(),
       ref.read(glossaryZoomProvider.notifier).init(),
     ]);
-    Navigator.of(context).pushReplacement(NavigateEffects.fadeTransitionToPage(const HomePage()));
+    Navigator.of(context).pushReplacement(
+        NavigateEffects.fadeTransitionToPage(const HomePage()));
   }
 
   @override

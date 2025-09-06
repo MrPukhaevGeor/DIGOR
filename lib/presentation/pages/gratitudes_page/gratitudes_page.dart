@@ -9,20 +9,26 @@ class GratitudesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Scaffold(
-        appBar: AppBar(
-          title: Text(
-            tr('gratitudes'),
-            style: theme.textTheme.bodyMedium!.copyWith(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
+    return MediaQuery(
+      data: MediaQuery.of(context)
+          .copyWith(boldText: false, textScaler: const TextScaler.linear(1)),
+      child: Scaffold(
+          appBar: AppBar(
+            title: Text(
+              tr('gratitudes'),
+              style: theme.textTheme.bodyMedium!.copyWith(
+                  color: Colors.white,
+                  fontSize: 21,
+                  fontWeight: FontWeight.w600),
+            ),
+            backgroundColor: theme.primaryColor,
           ),
-          backgroundColor: theme.primaryColor,
-        ),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-          child: SingleChildScrollView(
-            child: StyledText(
-              text: context.locale == const Locale('ru', 'RU')
-                  ? '''
+          body: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+            child: SingleChildScrollView(
+              child: StyledText(
+                text: context.locale == const Locale('ru', 'RU')
+      ? '''
 Данное приложение появилось благодаря поддержке людей, неравнодушных к положению и судьбе дигорского языка.
 
 От имени руководителя проекта хотелось бы выразить огромную благодарность людям, внесшим вклад в создание мобильного приложения:
@@ -612,29 +618,30 @@ Bu uygulamayı mümkün kılan herkese özellikle vurgulamak ve teşekkür etmek
 114	Елена Александровна Г. 
 115	Лида Александровна З.
 ''',
-              // textAlign: TextAlign.justify,
-              style: theme.textTheme.headlineSmall!.copyWith(
-                fontSize: 14,
+                // textAlign: TextAlign.justify,
+                style: theme.textTheme.headlineSmall!.copyWith(
+                  fontSize: 14,
+                ),
+                textAlign: TextAlign.justify,
+                tags: {
+                  'b': StyledTextActionTag(
+                    (String? text, Map<String?, String?> attrs) {},
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  'ref': StyledTextActionTag(
+                    (String? text, Map<String?, String?> attrs) {
+                      _launchUrl(Uri.parse(text!));
+                    },
+                    style: TextStyle(
+                        color: theme.brightness == Brightness.dark
+                            ? const Color.fromARGB(255, 0, 129, 255)
+                            : const Color.fromARGB(255, 0, 0, 238)),
+                  ),
+                },
               ),
-              textAlign: TextAlign.justify,
-              tags: {
-                'b': StyledTextActionTag(
-                  (String? text, Map<String?, String?> attrs) {},
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                'ref': StyledTextActionTag(
-                  (String? text, Map<String?, String?> attrs) {
-                    _launchUrl(Uri.parse(text!));
-                  },
-                  style: TextStyle(
-                      color: theme.brightness == Brightness.dark
-                          ? const Color.fromARGB(255, 0, 129, 255)
-                          : const Color.fromARGB(255, 0, 0, 238)),
-                ),
-              },
             ),
-          ),
-        ));
+          )),
+    );
   }
 }
 

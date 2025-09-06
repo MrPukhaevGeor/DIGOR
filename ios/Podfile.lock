@@ -86,7 +86,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   audio_session: 9bb7f6c970f21241b19f5a3658097ae459681ba0
   device_info_plus: 21fcca2080fbcd348be798aa36c3e5ed849eefbe
-  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   flutter_inappwebview_ios: b89ba3482b96fb25e00c967aae065701b66e9b99
   just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
   launch_review_latest: 28e236fc255d91ec1430c39f951c4db1398c79c1
@@ -99,6 +99,6 @@ SPEC CHECKSUMS:
   url_launcher_ios: 694010445543906933d732453a59da0a173ae33d
   webview_flutter_wkwebview: 1821ceac936eba6f7984d89a9f3bcb4dea99ebb2
 
-PODFILE CHECKSUM: 30f8ec3cb135c39a41dbdc3f40009442f2639040
+PODFILE CHECKSUM: 1849596bfb2d89f9dcbe11448dfd654551944b2b
 
 COCOAPODS: 1.16.2

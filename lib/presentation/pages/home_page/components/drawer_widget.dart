@@ -35,39 +35,50 @@ class DrawerWidget extends StatelessWidget {
           ListTile(
             dense: true,
             horizontalTitleGap: 10,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
-            leading: Icon(Icons.book_outlined, color: theme.textTheme.bodyMedium!.color),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+            leading: Icon(Icons.book_outlined,
+                color: theme.textTheme.bodyMedium!.color),
             title: Text(tr('dictionaries'),
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
-                
-                style: theme.textTheme.bodyMedium!.copyWith(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500
-                )),
-                
-                
+                style: theme.textTheme.bodyMedium!
+                    .copyWith(fontSize: 14, fontWeight: FontWeight.w500)),
             onTap: () {
-              Navigator.of(context).push(NavigateEffects.fadeTransitionToPage(const DictionariesPage()));
+              Navigator.of(context).push(NavigateEffects.fadeTransitionToPage(
+                  const DictionariesPage()));
             },
           ),
-          Container(width: double.infinity, height: 1, color: Colors.black12,),
+          Container(
+            width: double.infinity,
+            height: 1,
+            color: Colors.black12,
+          ),
           ListTile(
             dense: true,
             contentPadding: const EdgeInsets.symmetric(horizontal: 16),
             horizontalTitleGap: 10,
-            title: Text(tr('gratitudes'),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-                style: theme.textTheme.bodyMedium!.copyWith(
-                  fontSize: 14,
-                )),
-            leading: Icon(Icons.star_outline, color: theme.textTheme.bodyMedium!.color),
+            title: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Text(tr('gratitudes'),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  style: theme.textTheme.bodyMedium!.copyWith(
+                    fontSize: 14,
+                  )),
+            ),
+            leading: Icon(Icons.star_outline,
+                color: theme.textTheme.bodyMedium!.color),
             onTap: () {
-              Navigator.of(context).push(NavigateEffects.fadeTransitionToPage(const GratitudesPage()));
+              Navigator.of(context).push(
+                  NavigateEffects.fadeTransitionToPage(const GratitudesPage()));
             },
           ),
-          Container(width: double.infinity, height: 1, color: Colors.black12,),
+          Container(
+            width: double.infinity,
+            height: 1,
+            color: Colors.black12,
+          ),
           ListTile(
             dense: true,
             contentPadding: const EdgeInsets.symmetric(horizontal: 16),
@@ -78,39 +89,54 @@ class DrawerWidget extends StatelessWidget {
                 style: theme.textTheme.bodyMedium!.copyWith(
                   fontSize: 14,
                 )),
-            leading: Icon(Icons.settings, color: theme.textTheme.bodyMedium!.color),
+            leading:
+                Icon(Icons.settings, color: theme.textTheme.bodyMedium!.color),
             onTap: () {
               homePageKey.currentState?.closeDrawer();
-              Navigator.of(context).push(NavigateEffects.fadeTransitionToPage(const SettingsPage()));
+              Navigator.of(context).push(
+                  NavigateEffects.fadeTransitionToPage(const SettingsPage()));
             },
           ),
           ListTile(
             dense: true,
             contentPadding: const EdgeInsets.symmetric(horizontal: 16),
             horizontalTitleGap: 10,
-            title: Text(tr('about_app'),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-                style: theme.textTheme.bodyMedium!.copyWith(
-                  fontSize: 14,
-                )),
-            leading: Icon(Icons.info_outline, color: theme.textTheme.bodyMedium!.color),
+            title: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Text(tr('about_app'),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  style: theme.textTheme.bodyMedium!.copyWith(
+                    fontSize: 14,
+                  )),
+            ),
+            leading: Icon(Icons.info_outline,
+                color: theme.textTheme.bodyMedium!.color),
             onTap: () {
-              Navigator.of(context).push(NavigateEffects.fadeTransitionToPage(const AboutAppPage()));
+              Navigator.of(context).push(
+                  NavigateEffects.fadeTransitionToPage(const AboutAppPage()));
             },
           ),
-          Container(width: double.infinity, height: 1, color: Colors.black12,),
+          Container(
+            width: double.infinity,
+            height: 1,
+            color: Colors.black12,
+          ),
           ListTile(
             dense: true,
             contentPadding: const EdgeInsets.symmetric(horizontal: 16),
             horizontalTitleGap: 10,
-            title: Text(tr('write_to_support'),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-                style: theme.textTheme.bodyMedium!.copyWith(
-                  fontSize: 14,
-                )),
-            leading: Icon(Icons.mail_outlined, color: theme.textTheme.bodyMedium!.color),
+            title: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Text(tr('write_to_support'),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  style: theme.textTheme.bodyMedium!.copyWith(
+                    fontSize: 14,
+                  )),
+            ),
+            leading: Icon(Icons.mail_outlined,
+                color: theme.textTheme.bodyMedium!.color),
             onTap: () {
               homePageKey.currentState?.closeDrawer();
               OutsideFunctions.sendMail(context);
@@ -120,13 +146,17 @@ class DrawerWidget extends StatelessWidget {
             dense: true,
             contentPadding: const EdgeInsets.symmetric(horizontal: 16),
             horizontalTitleGap: 10,
-            title: Text(tr('rate_app'),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-                style: theme.textTheme.bodyMedium!.copyWith(
-                  fontSize: 14,
-                )),
-            leading: Icon(Icons.star_half, color: theme.textTheme.bodyMedium!.color),
+            title: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Text(tr('rate_app'),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  style: theme.textTheme.bodyMedium!.copyWith(
+                    fontSize: 14,
+                  )),
+            ),
+            leading:
+                Icon(Icons.star_half, color: theme.textTheme.bodyMedium!.color),
             onTap: () {
               homePageKey.currentState?.closeDrawer();
               LaunchReviewLatest.launch();
@@ -136,13 +166,17 @@ class DrawerWidget extends StatelessWidget {
             dense: true,
             contentPadding: const EdgeInsets.symmetric(horizontal: 16),
             horizontalTitleGap: 10,
-            title: Text(tr('share'),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-                style: theme.textTheme.bodyMedium!.copyWith(
-                  fontSize: 14,
-                )),
-            leading: Icon(Icons.share_outlined, color: theme.textTheme.bodyMedium!.color),
+            title: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Text(tr('share'),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  style: theme.textTheme.bodyMedium!.copyWith(
+                    fontSize: 14,
+                  )),
+            ),
+            leading: Icon(Icons.share_outlined,
+                color: theme.textTheme.bodyMedium!.color),
             onTap: () {
               homePageKey.currentState?.closeDrawer();
               OutsideFunctions.share(Platform.isIOS);
