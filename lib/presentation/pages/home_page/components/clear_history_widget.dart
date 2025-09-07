@@ -152,8 +152,23 @@ class _ClearHistoryButtonState extends ConsumerState<ClearHistoryButton>
     Overlay.of(context).insert(_overlayEntry!);
   }
 
-  void _removeOverlay() {
-    _overlayEntry?.remove();
+  Future<void> _removeOverlay({bool immediately = false}) async {
+    if (_overlayEntry == null) return;
+    if (immediately) {
+      try {
+        _overlayEntry?.remove();
+        setState(() => _isMenuOpen = false);
+      } catch (_) {}
+      _overlayEntry = null;
+      return;
+    }
+
+    try {
+      await _animationController.reverse();
+    } catch (_) {}
+    try {
+      _overlayEntry?.remove();
+    } catch (_) {}
     _overlayEntry = null;
   }
 
@@ -168,15 +183,16 @@ class _ClearHistoryButtonState extends ConsumerState<ClearHistoryButton>
 
   @override
   Widget build(BuildContext context) {
-    return ref.watch(historyProvider).maybeWhen(
-          orElse: () => const SizedBox.shrink(),
-          data: (data) => IconButton(
-            padding: EdgeInsets.only(right: 8),
-            constraints: BoxConstraints(),
-            key: _iconKey,
-            icon: const Icon(Icons.more_vert),
-            onPressed: () => _toggleMenu(data.isEmpty),
-          ),
-        );
+    return  ref.watch(historyProvider).maybeWhen(
+            orElse: () => const SizedBox.shrink(),
+            data: (data) => IconButton(
+              padding: EdgeInsets.only(right: 8),
+              constraints: BoxConstraints(),
+              key: _iconKey,
+              icon: const Icon(Icons.more_vert),
+              onPressed: () => _toggleMenu(data.isEmpty),
+            ),
+          
+    );
   }
 }

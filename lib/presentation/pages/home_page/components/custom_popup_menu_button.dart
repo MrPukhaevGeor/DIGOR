@@ -191,18 +191,20 @@ class _CustomPopupMenuButtonState<T> extends State<CustomPopupMenuButton<T>>
 
   @override
   Widget build(BuildContext context) {
-    return Builder(builder: (ctx) {
-      return GestureDetector(
-        onTap: () {
-          // Toggle: если уже открыт — закроем, иначе откроем
-          if (_entry != null) {
-            _removeOverlay();
-          } else {
-            _showOverlay(ctx);
-          }
-        },
-        child: widget.child,
-      );
-    });
+    return 
+      Builder(builder: (ctx) {
+        return GestureDetector(
+          onTap: () {
+            // Toggle: если уже открыт — закроем, иначе откроем
+            if (_entry != null) {
+              _removeOverlay();
+            } else {
+              _showOverlay(ctx);
+            }
+          },
+          child: widget.child,
+        );
+      }
+    );
   }
 }
