@@ -25,7 +25,7 @@ class SearchTextfield extends ConsumerWidget {
           children: [
             TextField(
               onTapUpOutside: (_) {
-                FocusScope.of(context).unfocus();
+                //FocusScope.of(context).unfocus();
               },
               contextMenuBuilder: (context, editableTextState) {
                 return AdaptiveTextSelectionToolbar(

@@ -111,7 +111,7 @@ class _ClearHistoryButtonState extends ConsumerState<ClearHistoryButton>
                                   height: kToolbarHeight - 8,
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 16,
-                                    vertical: 8,
+                                    vertical: 2,
                                   ),
                                   child: Text(
                                     'clear_history'.tr(),

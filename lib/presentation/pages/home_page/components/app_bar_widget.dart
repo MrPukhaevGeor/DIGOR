@@ -15,15 +15,15 @@ import 'custom_popup_menu_button.dart';
 class AppBarWidget extends ConsumerWidget {
   final GlobalKey<ScaffoldState>? scaffoldKey;
 
-  const AppBarWidget({super.key, this.scaffoldKey});
-
+   AppBarWidget({super.key, this.scaffoldKey});
+ final FocusNode _noFocus = FocusNode(canRequestFocus: false);
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final textScaler = MediaQuery.of(context).textScaler;
     final adjustedScaler = textScaler.scale(1.0) > 1.5
-    ? textScaler
-    : TextScaler.linear(textScaler.scale(1.0) * 1.1);
+        ? textScaler
+        : TextScaler.linear(textScaler.scale(1.0) * 1.1);
     String dropDownValueFirst = '';
     String dropDownValueSecond = '';
     List<String> dropDownFirstValues = [];
@@ -272,18 +272,16 @@ class AppBarWidget extends ConsumerWidget {
                     .map(
                       (value) => PopupMenuItem<String>(
                         padding: EdgeInsets.zero,
-
+      
                         value: value,
                         height: kToolbarHeight -
                             8, // Высота элемента (можно настроить)
                         child: TwoDotEllipsis(
                           text: value,
-                          textScaler:
-                           adjustedScaler,
+                          textScaler: adjustedScaler,
                           maxLines: 1,
-
                           style: theme.textTheme.bodyMedium!.copyWith(
-                              fontSize: 16,
+                              fontSize: 14,
                               fontWeight: FontWeight.w500,
                               color: Colors.black,
                               letterSpacing: 0.4),
@@ -302,11 +300,10 @@ class AppBarWidget extends ConsumerWidget {
                         child: TwoDotEllipsis(
                           text: dropDownValueFirst,
                           // maxLines: 1,
-                          textScaler:
-                            adjustedScaler,
+                          textScaler: adjustedScaler,
                           style: theme.textTheme.bodyMedium!.copyWith(
                             color: Colors.white,
-                            fontSize: 14,
+                            fontSize: 12,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -341,7 +338,7 @@ class AppBarWidget extends ConsumerWidget {
                         .read(searchModeProvider.notifier)
                         .onDropDownSecondChange(value);
                   }
-
+      
                   ref
                       .read(textFieldValueProvider.notifier)
                       .focusNode
@@ -351,19 +348,17 @@ class AppBarWidget extends ConsumerWidget {
                     .map(
                       (value) => PopupMenuItem<String>(
                         padding: EdgeInsets.zero,
-
+      
                         value: value,
                         height: kToolbarHeight -
                             4, // Высота элемента (можно настроить)
                         child: SizedBox(
                           child: TwoDotEllipsis(
-                            textScaler:
-                             adjustedScaler,
+                            textScaler: adjustedScaler,
                             text: value,
                             maxLines: 1,
-
                             style: theme.textTheme.bodyMedium!.copyWith(
-                                fontSize: 16,
+                                fontSize: 14,
                                 fontWeight: FontWeight.w500,
                                 color: Colors.black,
                                 letterSpacing: 0.4),
@@ -381,14 +376,12 @@ class AppBarWidget extends ConsumerWidget {
                     children: [
                       Expanded(
                         child: TwoDotEllipsis(
-                           textScaler:
-                             adjustedScaler,
+                          textScaler: adjustedScaler,
                           text: dropDownValueSecond,
                           maxLines: 1,
-
                           style: theme.textTheme.bodyMedium!.copyWith(
                             color: Colors.white,
-                            fontSize: 14,
+                            fontSize: 12,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
