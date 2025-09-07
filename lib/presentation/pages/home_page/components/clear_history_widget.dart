@@ -10,8 +10,7 @@ class ClearHistoryButton extends ConsumerStatefulWidget {
   const ClearHistoryButton({super.key});
 
   @override
-  ConsumerState<ClearHistoryButton> createState() =>
-      _ClearHistoryButtonState();
+  ConsumerState<ClearHistoryButton> createState() => _ClearHistoryButtonState();
 }
 
 class _ClearHistoryButtonState extends ConsumerState<ClearHistoryButton>
@@ -85,10 +84,10 @@ class _ClearHistoryButtonState extends ConsumerState<ClearHistoryButton>
                     builder: (context, child) {
                       // Если идёт reverse (закрытие) —фиксируем slide в Offset.zero,
                       // чтобы при закрытии не было обратного слайда, а только fade.
-                      final currentSlide = _animationController.status ==
-                              AnimationStatus.reverse
-                          ? Offset.zero
-                          : _slideAnimation.value;
+                      final currentSlide =
+                          _animationController.status == AnimationStatus.reverse
+                              ? Offset.zero
+                              : _slideAnimation.value;
 
                       return SlideTransition(
                         position: AlwaysStoppedAnimation<Offset>(currentSlide),
@@ -101,8 +100,12 @@ class _ClearHistoryButtonState extends ConsumerState<ClearHistoryButton>
                               onTap: isEmpty
                                   ? null
                                   : () {
-                                      _clearHistory();
-                                      _toggleMenu(false);
+                                      if (ref
+                                          .read(textFieldValueProvider)
+                                          .isEmpty) {
+                                        _clearHistory();
+                                        _toggleMenu(false);
+                                      }
                                     },
                               child: ConstrainedBox(
                                 constraints: BoxConstraints(minWidth: minWidth),
@@ -116,7 +119,10 @@ class _ClearHistoryButtonState extends ConsumerState<ClearHistoryButton>
                                   child: Text(
                                     'clear_history'.tr(),
                                     maxLines: 1,
-                                    style: isEmpty
+                                    style: isEmpty ||
+                                            ref
+                                                .read(textFieldValueProvider)
+                                                .isNotEmpty
                                         ? theme.textTheme.bodyMedium!.copyWith(
                                             color: Colors.grey,
                                             fontSize: 16,
