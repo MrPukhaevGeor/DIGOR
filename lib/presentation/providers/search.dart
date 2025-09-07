@@ -57,6 +57,7 @@ final searchProvider = FutureProvider.family<List<WordModel>, String>((ref, text
   }
 
   final api = ref.watch(localApiClientProvider);
+  await Future<void>.delayed(const Duration(milliseconds: 120));
   final result = await api.search(text, fromLang, toLang);
 
   return result;

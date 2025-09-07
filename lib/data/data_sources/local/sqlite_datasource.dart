@@ -1,9 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fuzzywuzzy/fuzzywuzzy.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:flutter/foundation.dart';
 
 import '../../../core/database/db_helper.dart';
+import '../../../core/utils/collation.dart' as col;
 import '../../../domain/models/word_model.dart';
 
 abstract interface class SQLiteDataSource {
@@ -16,6 +15,12 @@ abstract interface class SQLiteDataSource {
 final class SQLiteDataSourceImpl implements SQLiteDataSource {
   final Database _database;
   final Map<String, List<WordModel>> _cache = {};
+  final Set<String> _indexesEnsured = {};
+
+  static const int _FUZZY_K = 3;
+  static const int _FUZZY_MIN_INPUT = 4;
+  static const int _FUZZY_PREFIX_THRESHOLD = 5;
+  static const int _FUZZY_BUCKET_LIMIT = 5000;
 
   SQLiteDataSourceImpl(this._database);
 
@@ -48,6 +53,15 @@ final class SQLiteDataSourceImpl implements SQLiteDataSource {
     };
   }
 
+  Future<void> _ensureIndexForTable(String table, String column) async {
+    final key = '$table.$column';
+    if (_indexesEnsured.contains(key)) return;
+    try {
+      await _database.execute('CREATE INDEX IF NOT EXISTS idx_${table}_${column} ON $table($column)');
+    } catch (_) {/* ignore */}
+    _indexesEnsured.add(key);
+  }
+
   @override
   Future<void> addReport(Map<String, dynamic> body) async {
     await _database.insert('reports', body);
@@ -60,7 +74,7 @@ final class SQLiteDataSourceImpl implements SQLiteDataSource {
 
     final from = parts[0];
     final to = parts[1];
-    String dictTable = _getTableNameForGetById(from, to);
+    final dictTable = _getTableNameForGetById(from, to);
     final refTable = _getRefTableName(from, to);
 
     final results = await Future.wait([
@@ -72,7 +86,7 @@ final class SQLiteDataSourceImpl implements SQLiteDataSource {
       ),
       _database.query(
         refTable,
-        where: from == 'dig' || from == 'iron' || to == 'iron' ? 'orig_id = ?' : 'ref_id = ?',
+        where: (from == 'dig' || from == 'iron' || to == 'iron') ? 'orig_id = ?' : 'ref_id = ?',
         whereArgs: [id],
       ),
     ]);
@@ -82,9 +96,11 @@ final class SQLiteDataSourceImpl implements SQLiteDataSource {
 
     final refsResult = results[1];
     final refs = {
-      for (var row in refsResult)
+      for (final row in refsResult)
         (row['ref_title']?.toString() ?? row['orig_id']?.toString() ?? row['ref_id'].toString()):
-            (from == 'dig' || from == 'iron' || to == 'iron') ? row['ref_id'] as int : row['orig_id'] as int
+        (from == 'dig' || from == 'iron' || to == 'iron')
+            ? row['ref_id'] as int
+            : row['orig_id'] as int
     };
 
     return WordModel.fromJson({
@@ -96,10 +112,8 @@ final class SQLiteDataSourceImpl implements SQLiteDataSource {
   @override
   Future<List<WordModel>> searchByIds(List<int> ids, String lang) async {
     if (ids.isEmpty) return [];
-
     final parts = lang.split("=");
     if (parts.length != 2) return [];
-
     final table = _getTableNameForSearch(parts[0], parts[1]);
     final placeholders = List.filled(ids.length, '?').join(',');
 
@@ -107,102 +121,236 @@ final class SQLiteDataSourceImpl implements SQLiteDataSource {
       'SELECT * FROM $table WHERE id IN ($placeholders)',
       ids,
     );
-
     return result.map(WordModel.fromJson).toList();
   }
 
   @override
   Future<List<WordModel>> search(String text, String fromLang, String toLang) async {
-    String input = text.toLowerCase().replaceAll("æ", "ӕ").replaceAll("Æ", "Ӕ");
-    String tableKey = '${fromLang}_$toLang';
+    String input = text.trim();
+    if (input.isEmpty) return [];
 
-    // Кешируем загруженные данные
-    if (!_cache.containsKey(tableKey)) {
-      String table = _getTableNameForSearch(fromLang, toLang);
-      final candidatesRaw = await _database.query(
+    final bool isOsset = (fromLang == 'dig' || fromLang == 'iron');
+
+    input = _normForOsset(input, isOsset);
+
+    final isRuToDig = (fromLang == 'ru' && toLang == 'dig');
+    const searchColumn = 'title';
+    final table = _getTableNameForSearch(fromLang, toLang);
+
+    final columns = <String>[
+      'id',
+      'title',
+      'translation',
+      if (fromLang != 'dig' && !(fromLang == 'ru' && toLang == 'iron') && !(fromLang == 'iron' && toLang == 'ru'))
+        'trn_id',
+    ];
+
+    await _ensureIndexForTable(table, searchColumn);
+
+    if (input.length == 1) {
+      final patterns = _buildSingleLetterPatternsStrict(input);
+      final where = List.filled(patterns.length, '$searchColumn LIKE ?').join(' OR ');
+      final rows = await _database.query(
         table,
-        columns: [
-          'id',
-          'title',
-          'translation',
-          if (fromLang != 'dig' && !(fromLang == 'ru' && toLang == 'iron') && !(fromLang == 'iron' && toLang == 'ru'))
-            'trn_id'
-        ],
+        columns: columns,
+        where: where,
+        whereArgs: patterns,
       );
-      _cache[tableKey] = candidatesRaw.map(WordModel.fromJson).toList();
+      final mapped = rows.map((row) {
+        if (isRuToDig && row.containsKey('trn_id') && row['trn_id'] != null) {
+          final copy = Map<String, Object?>.from(row);
+          copy['id'] = row['trn_id'];
+          return WordModel.fromJson(copy);
+        }
+        return WordModel.fromJson(row);
+      }).toList()
+        ..sort((a, b) => col.compareByAlphabet(a.title, b.title, fromLang));
+      return mapped;
     }
 
-    // Используем compute для тяжелых вычислений
-    return await compute(
-      _performSearch,
-      _SearchData(
-        candidates: _cache[tableKey]!,
-        input: input,
-      ),
+    final prefixPatterns = _buildPrefixPatterns(input, isOsset);
+    final prefixWhere = List.filled(prefixPatterns.length, '$searchColumn LIKE ?').join(' OR ');
+    final prefixRows = await _database.query(
+      table,
+      columns: columns,
+      where: prefixWhere,
+      whereArgs: prefixPatterns,
+      limit: 200,
     );
-  }
-
-  static List<WordModel> _performSearch(_SearchData data) {
-    final scored = <WordModel, double>{};
-    final input = data.input;
-    final candidates = data.candidates;
-
-    for (final word in candidates) {
-      final title = word.title.toLowerCase();
-      final translation = word.translate.toLowerCase();
-
-      // Быстрая проверка точного совпадения
-      if (title == input) {
-        scored[word] = 1.0;
-        continue;
+    final prefix = prefixRows.map((row) {
+      if (isRuToDig && row.containsKey('trn_id') && row['trn_id'] != null) {
+        final copy = Map<String, Object?>.from(row);
+        copy['id'] = row['trn_id'];
+        return WordModel.fromJson(copy);
       }
+      return WordModel.fromJson(row);
+    }).toList();
 
-      if (translation == input) {
-        scored[word] = 0.9;
-        continue;
-      }
-
-      // Fuzzy-поиск только если нет точного совпадения
-      final scoreTitle = ratio(title, input) / 100;
-      final scoreTrans = ratio(translation, input) / 100;
-
-      final startsBonus = title.startsWith(input) ? 0.3 : 0.0;
-      final lengthBonus = (12 - title.length).clamp(0, 6) * 0.05;
-
-      final weighted = (scoreTitle * 3 + scoreTrans + startsBonus + lengthBonus) / 4.0;
-      if (weighted >= 0.4) {
-        scored[word] = weighted;
-      }
+    final inputLower = _norm(input);
+    final exacts = prefix.where((w) => _norm(w.title) == inputLower).toList();
+    if (exacts.isNotEmpty) {
+      exacts.sort((a, b) => col.compareByAlphabet(a.title, b.title, fromLang));
+      return exacts;
     }
 
-    // Сортировка результатов
-    final sorted = scored.entries.toList()
-      ..sort((a, b) {
-        final cmp = b.value.compareTo(a.value);
-        if (cmp != 0) return cmp;
-        final lenCmp = a.key.title.length.compareTo(b.key.title.length);
-        if (lenCmp != 0) return lenCmp;
-        return a.key.title.compareTo(b.key.title);
-      });
+    if (prefix.length >= _FUZZY_PREFIX_THRESHOLD || input.length < _FUZZY_MIN_INPUT) {
+      prefix.sort((a, b) => col.compareByAlphabet(a.title, b.title, fromLang));
+      return prefix;
+    }
 
-    return sorted.map((e) => e.key).toList();
+    final firstLetterPatterns = _buildFirstLetterBucketPatterns(input, isOsset);
+    final firstWhere = List.filled(firstLetterPatterns.length, '$searchColumn LIKE ?').join(' OR ');
+    final fuzzRows = await _database.query(
+      table,
+      columns: columns,
+      where: firstWhere,
+      whereArgs: firstLetterPatterns,
+      limit: _FUZZY_BUCKET_LIMIT,
+    );
+    final fuzzCandidates = fuzzRows.map((row) {
+      if (isRuToDig && row.containsKey('trn_id') && row['trn_id'] != null) {
+        final copy = Map<String, Object?>.from(row);
+        copy['id'] = row['trn_id'];
+        return WordModel.fromJson(copy);
+      }
+      return WordModel.fromJson(row);
+    }).toList();
+
+    final fuzzy = _rankFuzzyKLocal(
+      candidates: fuzzCandidates,
+      input: input,
+      alpha: fromLang,
+      k: _FUZZY_K,
+    );
+
+    prefix.sort((a, b) => col.compareByAlphabet(a.title, b.title, fromLang));
+    final seen = <int>{};
+    final merged = <WordModel>[];
+    for (final w in prefix) {
+      if (seen.add(w.id)) merged.add(w);
+    }
+    for (final w in fuzzy) {
+      if (seen.add(w.id)) merged.add(w);
+    }
+    return merged;
   }
-}
 
-class _SearchData {
-  final List<WordModel> candidates;
-  final String input;
+  String _norm(String s) => s.toLowerCase().replaceAll('æ', 'ӕ').replaceAll('Æ', 'Ӕ').replaceAll('a', 'а');
 
-  _SearchData({
-    required this.candidates,
-    required this.input,
-  });
+  String _normForOsset(String s, bool isOsset) {
+    s = s.replaceAll('æ', 'ӕ').replaceAll('Æ', 'Ӕ');
+    if (isOsset) s = s.replaceAll('a', 'а').replaceAll('A', 'А');
+    return s;
+  }
+
+  List<String> _buildSingleLetterPatternsStrict(String input) {
+    final ch = input[0];
+    final up = ch.toUpperCase();
+    return ['$ch%', '$up%'];
+  }
+
+  List<String> _buildPrefixPatterns(String input, bool isOsset) {
+    final first = input[0];
+    final rest = input.substring(1);
+    final upFirst = first.toUpperCase();
+    final upRest = rest.isEmpty ? '' : '${rest[0].toUpperCase()}${rest.substring(1)}';
+
+    final patterns = <String>['${first}${rest}%', '${upFirst}${upRest}%'];
+
+    if (isOsset && (first == 'а' || first == 'А' || first == 'ӕ' || first == 'Ӕ')) {
+      final alt = (first == 'а' || first == 'А') ? 'ӕ' : 'а';
+      final altUp = alt.toUpperCase();
+      patterns.add('${alt}${rest}%');
+      patterns.add('${altUp}${upRest}%');
+    }
+    return patterns;
+  }
+
+  List<String> _buildFirstLetterBucketPatterns(String input, bool isOsset) {
+    final ch = input[0];
+    final up = ch.toUpperCase();
+    return ['$ch%', '$up%'];
+  }
+
+  String _normED(String s) =>
+      s.toLowerCase()
+          .replaceAll('æ', 'ӕ')
+          .replaceAll('Æ', 'Ӕ')
+          .replaceAll('a', 'а')
+          .replaceAll('ӕ', 'а');
+
+  int _levAtMostK(String a, String b, int k) {
+    a = _normED(a);
+    b = _normED(b);
+    final la = a.length, lb = b.length;
+    if ((la - lb).abs() > 1) return k + 1;
+
+    final maxVal = k + 1;
+    List<int> prev = List<int>.generate(lb + 1, (j) => j);
+    List<int> curr = List<int>.filled(lb + 1, 0);
+
+    for (int i = 1; i <= la; i++) {
+      curr[0] = i;
+      final from = (i - k) > 1 ? (i - k) : 1;
+      final to = (i + k) < lb ? (i + k) : lb;
+
+      for (int j = 1; j < from; j++) {
+        curr[j] = maxVal;
+      }
+      for (int j = from; j <= to; j++) {
+        final cost = (a.codeUnitAt(i - 1) == b.codeUnitAt(j - 1)) ? 0 : 1;
+        final del = prev[j] + 1;
+        final ins = curr[j - 1] + 1;
+        final sub = prev[j - 1] + cost;
+        int v = del < ins ? del : ins;
+        if (sub < v) v = sub;
+        curr[j] = v;
+      }
+      for (int j = to + 1; j <= lb; j++) {
+        curr[j] = maxVal;
+      }
+      final tmp = prev;
+      prev = curr;
+      curr = tmp;
+
+      int rowMin = maxVal;
+      for (int j = 0; j <= lb; j++) {
+        if (prev[j] < rowMin) rowMin = prev[j];
+      }
+      if (rowMin > k) return k + 1;
+    }
+    return prev[lb];
+  }
+
+  List<WordModel> _rankFuzzyKLocal({
+    required List<WordModel> candidates,
+    required String input,
+    required String alpha,
+    required int k,
+  }) {
+    final inp = _normED(input);
+    final hits = <WordModel, int>{};
+    for (final w in candidates) {
+      final dlen = (_normED(w.title).length - inp.length).abs();
+      if (dlen > 1) continue;
+
+      final d = _levAtMostK(w.title, inp, k);
+      if (d <= k) hits[w] = d;
+    }
+    final list = hits.entries.toList()
+      ..sort((a, b) {
+        final c = a.value.compareTo(b.value);
+        if (c != 0) return c;
+        return col.compareByAlphabet(a.key.title, b.key.title, alpha);
+      });
+    return [for (final e in list) e.key];
+  }
 }
 
 final localApiClientProvider = Provider<SQLiteDataSource>((ref) {
   final db = ref.watch(databaseProvider).maybeWhen(
-        data: (db) => db,
-        orElse: () => throw Exception('Database is not initialized'),
-      );
+    data: (db) => db,
+    orElse: () => throw Exception('Database is not initialized'),
+  );
   return SQLiteDataSourceImpl(db);
 });
