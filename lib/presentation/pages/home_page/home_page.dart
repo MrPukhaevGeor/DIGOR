@@ -27,7 +27,7 @@ class HomePage extends ConsumerWidget {
           ref.read(textFieldValueProvider.notifier).state = '';
           ref.read(translateModeProvider.notifier).setFalse();
           textController.clear();
-          return false;
+          return true;
         },
         child: Scaffold(
           key: homePageKey,

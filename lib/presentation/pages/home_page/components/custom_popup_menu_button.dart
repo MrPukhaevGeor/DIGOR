@@ -81,9 +81,10 @@ class _CustomPopupMenuButtonState<T> extends State<CustomPopupMenuButton<T>>
                   child: AnimatedBuilder(
                     animation: _ctrl,
                     builder: (context, child) {
-                      final currentScale = _ctrl.status == AnimationStatus.reverse
-                          ? 1.0
-                          : _scale.value;
+                      final currentScale =
+                          _ctrl.status == AnimationStatus.reverse
+                              ? 1.0
+                              : _scale.value;
                       return Transform.scale(
                         scale: currentScale,
                         alignment: Alignment.topLeft,
@@ -125,6 +126,7 @@ class _CustomPopupMenuButtonState<T> extends State<CustomPopupMenuButton<T>>
                                   T? val;
                                   try {
                                     val = (e as PopupMenuItem<T>).value;
+                                    widget.onSelected?.call(val);
                                   } catch (_) {
                                     val = null;
                                   }
@@ -137,8 +139,8 @@ class _CustomPopupMenuButtonState<T> extends State<CustomPopupMenuButton<T>>
                                   child: Container(
                                     color: Colors.transparent,
                                     child: Container(
-                                      padding:
-                                          const EdgeInsets.symmetric(horizontal: 8),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8),
                                       height: widget.items.length == 1
                                           ? (kToolbarHeight - 8)
                                           : (kToolbarHeight - 2),
