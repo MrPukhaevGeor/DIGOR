@@ -8,21 +8,27 @@ class DictionariesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isBold = MediaQuery.of(context).boldText;
     final theme = Theme.of(context);
-    return MediaQuery(
-      data:
-          MediaQuery.of(context).copyWith(textScaleFactor: 1, boldText: false),
-      child: Scaffold(
-          appBar: AppBar(
-            title: Text(
+    return Scaffold(
+        appBar: AppBar(
+          title: MediaQuery(
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: TextScaler.linear(1),boldText: false),
+            child: Text(
               tr('dictionaries'),
               style: theme.textTheme.bodyMedium!.copyWith(
-                  color: Colors.white,
-                  fontSize: 21,
-                  fontWeight: FontWeight.w600),
+                color: Colors.white,
+                fontSize: 22,
+                fontWeight: isBold ? FontWeight.w600 : FontWeight.w500,
+              ),
             ),
           ),
-          body: SingleChildScrollView(
+        ),
+        body: MediaQuery(
+          data: MediaQuery.of(context)
+              .copyWith(textScaler: TextScaler.linear(1), boldText: false),
+          child: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
               child: Column(
@@ -220,8 +226,8 @@ class DictionariesPage extends StatelessWidget {
                 ],
               ),
             ),
-          )),
-    );
+          ),
+        ));
   }
 }
 

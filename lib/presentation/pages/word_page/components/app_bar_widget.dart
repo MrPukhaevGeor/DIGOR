@@ -11,13 +11,19 @@ class WordPageAppBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isShowingExamples = ref.watch(exampleModeProvider) == ExampleModeEnum.show;
+    final isShowingExamples =
+        ref.watch(exampleModeProvider) == ExampleModeEnum.show;
     final theme = Theme.of(context);
     return AppBar(
       backgroundColor: theme.primaryColor,
-      title: Text(
-        tr('translation'),
-        style: theme.textTheme.bodyMedium!.copyWith(color: Colors.white, fontSize: 21, fontWeight: FontWeight.w600),
+      title: MediaQuery(
+        data: MediaQuery.of(context)
+            .copyWith(textScaler: const TextScaler.linear(1),boldText: false),
+        child: Text(
+          tr('translation'),
+          style: theme.textTheme.bodyMedium!.copyWith(
+              color: Colors.white, fontSize: 22, fontWeight: FontWeight.w500),
+        ),
       ),
       actions: [
         // DropdownButtonHideUnderline(

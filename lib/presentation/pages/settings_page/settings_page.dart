@@ -14,13 +14,22 @@ class SettingsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isBold = MediaQuery.of(context).boldText;
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          tr('settings'),
-          style: theme.textTheme.bodyMedium!.copyWith(
-              color: Colors.white, fontSize: 21, fontWeight: FontWeight.w600),
+        title: MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            textScaler: const TextScaler.linear(1.0),boldText: false
+          ),
+          child: Text(
+            tr('settings'),
+            style: theme.textTheme.bodyMedium!.copyWith(
+              color: Colors.white,
+              fontSize: 22,
+              fontWeight: isBold ? FontWeight.w600 : FontWeight.w500,
+            ),
+          ),
         ),
       ),
       body: Column(
