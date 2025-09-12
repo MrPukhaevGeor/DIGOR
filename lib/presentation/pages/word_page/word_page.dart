@@ -76,62 +76,64 @@ class WordPage extends ConsumerWidget {
               child: Stack(
                 children: [
                   Positioned.fill(
-                    child: interactive(
-                      canScroll: false,
-                      child: Container(
-                        color: Colors.transparent,
-                        child: Builder(
-                          builder: (context,) =>
-                              Padding(padding: const EdgeInsets.all(16),
-                                child: Container(
-                                  color: Colors.transparent,
-                                  constraints: BoxConstraints(
-                                      minHeight: MediaQuery
-                                          .sizeOf(context)
-                                          .height - 195,
-                                      maxHeight: double.infinity
-                                  ),
-
-                                  width: MediaQuery
-                                      .of(context)
-                                      .size
-                                      .width - 50,
-                                  child: Align(
-                                    alignment: Alignment.topCenter,
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment
-                                                  .start,
-                                              children: [
-
-                                                /*const DictionaryNameWidget(),
-                                              SizedBox(height: 1, child: Divider(thickness: 1, color: theme.primaryColor.withOpacity(.5))),
-                                              const SizedBox(height: 18),*/
-                                                if(word.audioUrl != null)
-                                                  TitleWidget(word.title,
-                                                      word.audioUrl),
-                                                if(word.audioUrl != null)
-
-                                                  const SizedBox(height: 28),
-                                                Container(
-                                                  color: Colors.transparent,
-                                                  child: StyledTextWidget(
-                                                    word: word,
-                                                    isShowingExamples: ref
-                                                        .watch(
-                                                        exampleModeProvider) ==
-                                                        ExampleModeEnum.show,
+                    child: InteractiveViewer(
+                    
+                      child: SingleChildScrollView(
+                        child: Container(
+                          color: Colors.transparent,
+                          child: Builder(
+                            builder: (context,) =>
+                                Padding(padding: const EdgeInsets.all(16),
+                                  child: Container(
+                                    color: Colors.transparent,
+                                    constraints: BoxConstraints(
+                                        minHeight: MediaQuery
+                                            .sizeOf(context)
+                                            .height - 195,
+                                        maxHeight: double.infinity
+                                    ),
+                        
+                                    width: MediaQuery
+                                        .of(context)
+                                        .size
+                                        .width - 50,
+                                    child: Align(
+                                      alignment: Alignment.topCenter,
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment
+                                                    .start,
+                                                children: [
+                        
+                                                  /*const DictionaryNameWidget(),
+                                                SizedBox(height: 1, child: Divider(thickness: 1, color: theme.primaryColor.withOpacity(.5))),
+                                                const SizedBox(height: 18),*/
+                                                  if(word.audioUrl != null)
+                                                    TitleWidget(word.title,
+                                                        word.audioUrl),
+                                                  if(word.audioUrl != null)
+                        
+                                                    const SizedBox(height: 28),
+                                                  Container(
+                                                    color: Colors.transparent,
+                                                    child: StyledTextWidget(
+                                                      word: word,
+                                                      isShowingExamples: ref
+                                                          .watch(
+                                                          exampleModeProvider) ==
+                                                          ExampleModeEnum.show,
+                                                    ),
                                                   ),
-                                                ),
-                                              ]),
-                                        ),
-                                      ],
+                                                ]),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
+                          ),
                         ),
                       ),
                     ),

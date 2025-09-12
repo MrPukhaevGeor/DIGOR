@@ -92,7 +92,7 @@ class DrawerWidget extends StatelessWidget {
             leading:
                 Icon(Icons.settings, color: theme.textTheme.bodyMedium!.color),
             onTap: () {
-              homePageKey.currentState?.closeDrawer();
+              //homePageKey.currentState?.closeDrawer();
               Navigator.of(context).push(
                   NavigateEffects.fadeTransitionToPage(const SettingsPage()));
             },

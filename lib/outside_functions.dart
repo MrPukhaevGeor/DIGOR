@@ -1,4 +1,4 @@
-import 'package:easy_localization/easy_localization.dart'as l;
+import 'package:easy_localization/easy_localization.dart' as l;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,6 +15,136 @@ import 'package:flutter/material.dart';
 
 /// Виджет: обрезает строку по ширине и добавляет ".." вместо стандартного "…"
 import 'package:flutter/material.dart';
+import 'dart:async';
+import 'package:flutter/material.dart';
+
+// Использует глобальную локализацию 'l.tr' и assets как в твоём проекте.
+// Класс управляет единственным OverlayEntry и обновляет только число.
+import 'dart:async';
+import 'package:flutter/material.dart';
+
+class ZoomOverlay {
+  static OverlayEntry? _entry;
+  static ValueNotifier<int>? _notifier;
+  static Timer? _hideTimer;
+  static late AnimationController _controller;
+  static late Animation<double> _animation;
+
+  /// Показывает (или обновляет) overlay с процентом зума.
+  static void show(BuildContext context, double zoom,
+      {Duration duration = const Duration(seconds: 1)}) {
+    final int percent = (zoom * 100).round();
+
+    if (_notifier == null) {
+      _notifier = ValueNotifier<int>(percent);
+    } else {
+      _notifier!.value = percent;
+    }
+
+    // Если Overlay ещё не вставлен — вставляем его
+    if (_entry == null) {
+      final overlay = Overlay.of(context);
+      if (overlay == null) return;
+
+      _controller = AnimationController(
+        vsync: overlay, // OverlayState имеет TickerProvider
+        duration: const Duration(milliseconds: 200),
+        reverseDuration: const Duration(milliseconds: 200),
+      );
+
+      _animation =
+          CurvedAnimation(parent: _controller, curve: Curves.easeOutBack);
+
+      _entry = OverlayEntry(builder: (ctx) {
+        final theme = Theme.of(ctx);
+        return Positioned(
+          bottom: 70 + MediaQuery.of(ctx).viewInsets.bottom,
+          left: 0,
+          right: 0,
+          child: IgnorePointer(
+            ignoring: true,
+            child: Center(
+              child: Material(
+                color: Colors.transparent,
+                child: FadeTransition(
+                  opacity: _animation,
+                  child: Container(
+                    width: 200,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 8, horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(.5),
+                      borderRadius: BorderRadius.circular(40.0),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 32,
+                          height: 32,
+                          child: Image.asset('assets/white.png'),
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          '${l.tr('zoom')} ',
+                          style: theme.textTheme.bodySmall!
+                              .copyWith(color: Colors.white, fontSize: 15),
+                        ),
+                        ValueListenableBuilder<int>(
+                          valueListenable: _notifier!,
+                          builder: (context, value, child) {
+                            return AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 150),
+                              transitionBuilder: (child, anim) =>
+                                  FadeTransition(opacity: anim, child: child),
+                              child: Text(
+                                '$value%',
+                                key: ValueKey<int>(value),
+                                style: theme.textTheme.bodySmall!.copyWith(
+                                    color: Colors.white, fontSize: 15),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      });
+
+      overlay.insert(_entry!);
+      _controller.forward(); // анимация появления
+    }
+
+    // Обновляем таймер скрытия
+    _hideTimer?.cancel();
+    _hideTimer = Timer(duration, () {
+      hide();
+    });
+  }
+
+  /// Скрыть overlay с анимацией
+  static Future<void> hide() async {
+    _hideTimer?.cancel();
+    _hideTimer = null;
+
+    if (_entry != null) {
+      await _controller.reverse(); // плавное исчезновение
+      _entry?.remove();
+      _entry = null;
+      _controller.dispose();
+    }
+
+    _notifier?.dispose();
+    _notifier = null;
+  }
+}
+
 
 /// Виджет: обрезает строку по ширине и добавляет ".." вместо стандартного "…"
 class TwoDotEllipsis extends StatelessWidget {
@@ -42,8 +172,7 @@ class TwoDotEllipsis extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Определяем effective TextScaler: либо переданный, либо системный.
-    final effectiveTextScaler =
-        textScaler ?? MediaQuery.of(context).textScaler;
+    final effectiveTextScaler = textScaler ?? MediaQuery.of(context).textScaler;
 
     // textScaleFactor, который передаём в TextPainter
     final double textScaleFactor = effectiveTextScaler.scale(1.0);
@@ -141,7 +270,6 @@ class TwoDotEllipsis extends StatelessWidget {
   }
 }
 
-
 class OutsideFunctions {
   static Future<void> sendMail(BuildContext context) async {
     final uri = Uri.parse('mailto:digor.dict@gmail.com?subject=DigorApp');
@@ -190,40 +318,7 @@ class OutsideFunctions {
 
   static Future<void> showZoomSnackBar(
       BuildContext context, double zoom) async {
-    final theme = Theme.of(context);
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        width: 200,
-        duration: const Duration(seconds: 2),
-        backgroundColor: Colors.black.withOpacity(.5),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(40.0),
-        ),
-        behavior: SnackBarBehavior.floating,
-        content: Center(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(
-                width: 32,
-                height: 32,
-                child: Image.asset('assets/white.png'),
-              ),
-              const SizedBox(width: 10),
-              MediaQuery(
-                data: MediaQuery.of(context)
-                    .copyWith(textScaleFactor: 1, boldText: false),
-                child: Text('${l.tr('zoom')} ${(zoom * 100).toStringAsFixed(0)}%',
-                    maxLines: 1,
-                    style: theme.textTheme.bodySmall!
-                        .copyWith(color: Colors.white, fontSize: 15)),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+    ZoomOverlay.show(context, zoom, duration: const Duration(seconds: 1));
   }
 
   static Future<void> showRefSnackBar(BuildContext context, String word) async {
@@ -311,9 +406,11 @@ class OutsideFunctions {
                     children: [
                       TextButton(
                         onPressed: Navigator.of(context).pop,
-                        child: Text(l.tr(
-                          'cancel',
-                        ).toUpperCase()),
+                        child: Text(l
+                            .tr(
+                              'cancel',
+                            )
+                            .toUpperCase()),
                       ),
                       TextButton(
                         child: Text(l.tr('send').toUpperCase()),
@@ -352,7 +449,6 @@ class OutsideFunctions {
 
   static Future<void> showClearHistoryDialog(
       BuildContext context, Function callback, String content) async {
-
     final theme = Theme.of(context);
     showDialog(
       context: context,
