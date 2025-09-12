@@ -24,7 +24,8 @@ class CustomPopupMenuButton<T> extends ConsumerStatefulWidget {
       _CustomPopupMenuButtonState<T>();
 }
 
-class _CustomPopupMenuButtonState<T> extends ConsumerState<CustomPopupMenuButton<T>>
+class _CustomPopupMenuButtonState<T>
+    extends ConsumerState<CustomPopupMenuButton<T>>
     with SingleTickerProviderStateMixin {
   OverlayEntry? _entry;
   late final AnimationController _ctrl;
@@ -41,13 +42,8 @@ class _CustomPopupMenuButtonState<T> extends ConsumerState<CustomPopupMenuButton
     final curved = CurvedAnimation(parent: _ctrl, curve: Curves.fastOutSlowIn);
     _scale = Tween<double>(begin: 0.8, end: 1.0).animate(curved);
     _fade = Tween<double>(begin: 0.0, end: 1.0).animate(curved);
-    
+
     // Регистрируем callback для закрытия меню
-    closeOpenPopupMenu = () {
-      if (_entry != null) {
-        _removeOverlay();
-      }
-    };
   }
 
   @override
@@ -55,9 +51,6 @@ class _CustomPopupMenuButtonState<T> extends ConsumerState<CustomPopupMenuButton
     _removeOverlay(immediately: true);
     _ctrl.dispose();
     // Очищаем callback при уничтожении
-    if (closeOpenPopupMenu != null) {
-      closeOpenPopupMenu = null;
-    }
     super.dispose();
   }
 
@@ -183,18 +176,23 @@ class _CustomPopupMenuButtonState<T> extends ConsumerState<CustomPopupMenuButton
 
     _entry = entry;
     Overlay.of(context)!.insert(entry);
+    ref.read(popupMenuClearTextOpenProvider.notifier).state = () {
+      if (_entry != null) {
+        _removeOverlay();
+      }
+    };
     _ctrl.forward();
   }
 
   /// Закрыть оверлей. Если immediately==true — удалить без анимации (используется в dispose).
   Future<void> _removeOverlay({bool immediately = false}) async {
     if (_entry == null) return;
-    
+
     // Уведомляем, что меню закрыто
     if (mounted) {
       ref.read(popupMenuOpenProvider.notifier).state = false;
     }
-    
+
     if (immediately) {
       try {
         _entry?.remove();
@@ -214,20 +212,18 @@ class _CustomPopupMenuButtonState<T> extends ConsumerState<CustomPopupMenuButton
 
   @override
   Widget build(BuildContext context) {
-    return 
-      Builder(builder: (ctx) {
-        return GestureDetector(
-          onTap: () {
-            // Toggle: если уже открыт — закроем, иначе откроем
-            if (_entry != null) {
-              _removeOverlay();
-            } else {
-              _showOverlay(ctx);
-            }
-          },
-          child: widget.child,
-        );
-      }
-    );
+    return Builder(builder: (ctx) {
+      return GestureDetector(
+        onTap: () {
+          // Toggle: если уже открыт — закроем, иначе откроем
+          if (_entry != null) {
+            _removeOverlay();
+          } else {
+            _showOverlay(ctx);
+          }
+        },
+        child: widget.child,
+      );
+    });
   }
 }

@@ -19,7 +19,6 @@ class _ClearHistoryButtonState extends ConsumerState<ClearHistoryButton>
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
-  bool _isMenuOpen = false;
   final GlobalKey _iconKey = GlobalKey();
   OverlayEntry? _overlayEntry;
 
@@ -50,29 +49,19 @@ class _ClearHistoryButtonState extends ConsumerState<ClearHistoryButton>
   void dispose() {
     _animationController.dispose();
     _removeOverlay();
+
     super.dispose();
   }
 
-  void _toggleMenu(bool isEmpty) {
-    if (_isMenuOpen) {
-      // закрываем: только fade будет анимироваться (slide зафиксируем в позиции 0)
-      _animationController.reverse().whenComplete(_removeOverlay);
-    } else {
-      _showOverlay(isEmpty);
-      // открываем: slide + fade анимируются
-      _animationController.forward();
-    }
-    setState(() => _isMenuOpen = !_isMenuOpen);
-  }
-
   void _showOverlay(bool isEmpty, {double minWidth = 200}) {
-    _overlayEntry = OverlayEntry(
+    ref.read(popupMenuOpenProvider.notifier).state = true;
+    final overlayEntry = OverlayEntry(
       builder: (context) {
         final theme = Theme.of(context);
         return SafeArea(
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: () => _toggleMenu(false),
+            onTap: () => _removeOverlay(),
             child: Stack(
               children: [
                 Container(color: Colors.black.withOpacity(0.01)),
@@ -104,7 +93,7 @@ class _ClearHistoryButtonState extends ConsumerState<ClearHistoryButton>
                                           .read(textFieldValueProvider)
                                           .isEmpty) {
                                         _clearHistory();
-                                        _toggleMenu(false);
+                                        _removeOverlay();
                                       }
                                     },
                               child: ConstrainedBox(
@@ -148,16 +137,24 @@ class _ClearHistoryButtonState extends ConsumerState<ClearHistoryButton>
         );
       },
     );
-
-    Overlay.of(context).insert(_overlayEntry!);
+    _overlayEntry = overlayEntry;
+    Overlay.of(context).insert(overlayEntry);
+    ref.read(popupMenuClearTextOpenProvider.notifier).state = () {
+      if (_overlayEntry != null) {
+        _removeOverlay();
+      }
+    };
+    _animationController.forward();
   }
 
   Future<void> _removeOverlay({bool immediately = false}) async {
     if (_overlayEntry == null) return;
+
+    ref.read(popupMenuOpenProvider.notifier).state = false;
+
     if (immediately) {
       try {
         _overlayEntry?.remove();
-        setState(() => _isMenuOpen = false);
       } catch (_) {}
       _overlayEntry = null;
       return;
@@ -183,16 +180,15 @@ class _ClearHistoryButtonState extends ConsumerState<ClearHistoryButton>
 
   @override
   Widget build(BuildContext context) {
-    return  ref.watch(historyProvider).maybeWhen(
-            orElse: () => const SizedBox.shrink(),
-            data: (data) => IconButton(
-              padding: EdgeInsets.only(right: 8),
-              constraints: BoxConstraints(),
-              key: _iconKey,
-              icon: const Icon(Icons.more_vert),
-              onPressed: () => _toggleMenu(data.isEmpty),
-            ),
-          
-    );
+    return ref.watch(historyProvider).maybeWhen(
+          orElse: () => const SizedBox.shrink(),
+          data: (data) => IconButton(
+            padding: EdgeInsets.only(right: 8),
+            constraints: BoxConstraints(),
+            key: _iconKey,
+            icon: const Icon(Icons.more_vert),
+            onPressed: () => _showOverlay(data.isEmpty),
+          ),
+        );
   }
 }

@@ -24,9 +24,10 @@ class HomePage extends ConsumerWidget {
         onWillPop: () async {
           // Проверяем, есть ли открытое popup меню
           final isPopupOpen = ref.read(popupMenuOpenProvider);
+          print(" isPopupOpen $isPopupOpen");
           if (isPopupOpen) {
             // Закрываем popup меню
-            closeOpenPopupMenu?.call();
+            ref.read(popupMenuClearTextOpenProvider).call();
             return false; // Не выходим из приложения
           }
           

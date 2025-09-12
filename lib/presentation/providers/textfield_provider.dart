@@ -24,6 +24,7 @@ final textController = TextEditingController();
 
 // Provider для отслеживания состояния popup меню
 final popupMenuOpenProvider = StateProvider<bool>((ref) => false);
-
+final popupMenuClearTextOpenProvider = StateProvider<Function()>((ref) => (){});
 // Глобальная функция для закрытия всех открытых popup меню
-VoidCallback? closeOpenPopupMenu;
+
+
