@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'textfield_provider.g.dart';
@@ -12,6 +13,17 @@ class TextFieldValue extends _$TextFieldValue {
   FocusNode get focusNode => _focusNode;
 
   set onChangeText(String value) => state = value;
+  
+  void clearText() {
+    state = '';
+    textController.clear();
+  }
 }
 
 final textController = TextEditingController();
+
+// Provider для отслеживания состояния popup меню
+final popupMenuOpenProvider = StateProvider<bool>((ref) => false);
+
+// Глобальная функция для закрытия всех открытых popup меню
+VoidCallback? closeOpenPopupMenu;

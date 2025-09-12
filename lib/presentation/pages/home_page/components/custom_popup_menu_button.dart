@@ -1,8 +1,11 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CustomPopupMenuButton<T> extends StatefulWidget {
+import '../../../providers/textfield_provider.dart';
+
+class CustomPopupMenuButton<T> extends ConsumerStatefulWidget {
   final List<PopupMenuEntry<T>> items;
   final ValueChanged<T?>? onSelected;
   final Widget child;
@@ -17,11 +20,11 @@ class CustomPopupMenuButton<T> extends StatefulWidget {
   });
 
   @override
-  State<CustomPopupMenuButton<T>> createState() =>
+  ConsumerState<CustomPopupMenuButton<T>> createState() =>
       _CustomPopupMenuButtonState<T>();
 }
 
-class _CustomPopupMenuButtonState<T> extends State<CustomPopupMenuButton<T>>
+class _CustomPopupMenuButtonState<T> extends ConsumerState<CustomPopupMenuButton<T>>
     with SingleTickerProviderStateMixin {
   OverlayEntry? _entry;
   late final AnimationController _ctrl;
@@ -38,17 +41,31 @@ class _CustomPopupMenuButtonState<T> extends State<CustomPopupMenuButton<T>>
     final curved = CurvedAnimation(parent: _ctrl, curve: Curves.fastOutSlowIn);
     _scale = Tween<double>(begin: 0.8, end: 1.0).animate(curved);
     _fade = Tween<double>(begin: 0.0, end: 1.0).animate(curved);
+    
+    // Регистрируем callback для закрытия меню
+    closeOpenPopupMenu = () {
+      if (_entry != null) {
+        _removeOverlay();
+      }
+    };
   }
 
   @override
   void dispose() {
     _removeOverlay(immediately: true);
     _ctrl.dispose();
+    // Очищаем callback при уничтожении
+    if (closeOpenPopupMenu != null) {
+      closeOpenPopupMenu = null;
+    }
     super.dispose();
   }
 
   void _showOverlay(BuildContext ctx) {
     if (_entry != null) return;
+
+    // Уведомляем, что меню открыто
+    ref.read(popupMenuOpenProvider.notifier).state = true;
 
     final renderBox = ctx.findRenderObject() as RenderBox;
     final offset = renderBox.localToGlobal(Offset.zero);
@@ -172,6 +189,12 @@ class _CustomPopupMenuButtonState<T> extends State<CustomPopupMenuButton<T>>
   /// Закрыть оверлей. Если immediately==true — удалить без анимации (используется в dispose).
   Future<void> _removeOverlay({bool immediately = false}) async {
     if (_entry == null) return;
+    
+    // Уведомляем, что меню закрыто
+    if (mounted) {
+      ref.read(popupMenuOpenProvider.notifier).state = false;
+    }
+    
     if (immediately) {
       try {
         _entry?.remove();

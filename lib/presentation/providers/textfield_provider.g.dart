@@ -6,7 +6,7 @@ part of 'textfield_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$textFieldValueHash() => r'a7bf998486a8b58451b18a00118bcb410d93ed47';
+String _$textFieldValueHash() => r'aeaf4ba6fecec8e60fe5f4b6d8175c60835424e1';
 
 /// See also [TextFieldValue].
 @ProviderFor(TextFieldValue)

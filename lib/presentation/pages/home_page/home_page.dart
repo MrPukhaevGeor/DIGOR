@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:upgrader/upgrader.dart';
 
@@ -21,10 +22,23 @@ class HomePage extends ConsumerWidget {
     return UpgradeAlert(
       child: WillPopScope(
         onWillPop: () async {
-          if (ref.read(textFieldValueProvider).isEmpty) {
-            return true;
+          // Проверяем, есть ли открытое popup меню
+          final isPopupOpen = ref.read(popupMenuOpenProvider);
+          if (isPopupOpen) {
+            // Закрываем popup меню
+            closeOpenPopupMenu?.call();
+            return false; // Не выходим из приложения
           }
           
+          // Проверяем состояние текстового поля
+          final textFieldValue = ref.read(textFieldValueProvider);
+          if (textFieldValue.isNotEmpty) {
+            // Очищаем текстовое поле
+            ref.read(textFieldValueProvider.notifier).clearText();
+            return false; // Не выходим из приложения
+          }
+          
+          // Если всё пусто и ничего не открыто - разрешаем выход
           return true;
         },
         child: Scaffold(
