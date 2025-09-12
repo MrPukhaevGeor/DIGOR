@@ -1,0 +1,1192 @@
+diff --git a/lib/core/database/db_helper.dart b/lib/core/database/db_helper.dart
+index d65eb87..8ff41b0 100644
+--- a/lib/core/database/db_helper.dart
++++ b/lib/core/database/db_helper.dart
+@@ -10,19 +10,36 @@ class DBHelper {
+ 
+   static const String dbFileName = "exported_digor.db";
+ 
++  static const int _requiredUserVersion = 1;
++
+   static Future<Database> get database async {
+     if (_database != null) return _database!;
+ 
+-    Directory documentsDirectory = await getApplicationDocumentsDirectory();
+-    String dbPath = join(documentsDirectory.path, dbFileName);
++    final Directory documentsDirectory = await getApplicationDocumentsDirectory();
++    final String dbPath = join(documentsDirectory.path, dbFileName);
+ 
+     if (!await File(dbPath).exists()) {
+-      ByteData data = await rootBundle.load("assets/db/$dbFileName");
+-      List<int> bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
++      final ByteData data = await rootBundle.load("assets/db/$dbFileName");
++      final List<int> bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+       await File(dbPath).writeAsBytes(bytes, flush: true);
+     }
+ 
+-    _database = await openDatabase(dbPath);
++    _database = await openDatabase(
++      dbPath,
++      readOnly: false,
++      onConfigure: (db) async {
++        await _configurePragmas(db);
++      },
++      onOpen: (db) async {
++        final currentUv = await _getUserVersion(db);
++        if (currentUv < _requiredUserVersion) {
++          final changed = await _migrateTitleNormAndIndexes(db);
++          if (changed) {
++            await _setUserVersion(db, _requiredUserVersion);
++          }
++        }
++      },
++    );
+     return _database!;
+   }
+ 
+@@ -32,9 +49,109 @@ class DBHelper {
+       _database = null;
+     }
+   }
++
++  static Future<void> _configurePragmas(Database db) async {
++    await _pragmaSet(db, 'journal_mode', 'WAL');
++    await _pragmaSet(db, 'synchronous', 'NORMAL');
++    await _pragmaSet(db, 'temp_store', 'MEMORY');
++    try {
++      await _pragmaSet(db, 'mmap_size', '268435456');
++    } catch (_) {}
++  }
++
++  static Future<void> _pragmaSet(Database db, String name, String value) async {
++    await db.rawQuery('PRAGMA $name=$value');
++  }
++
++  static Future<int> _getUserVersion(Database db) async {
++    final res = await db.rawQuery('PRAGMA user_version');
++    if (res.isEmpty) return 0;
++    final m = res.first;
++    final dynamic v = m.values.isNotEmpty ? m.values.first : 0;
++    return (v is int) ? v : (int.tryParse('$v') ?? 0);
++  }
++
++  static Future<void> _setUserVersion(Database db, int v) async {
++    await db.rawQuery('PRAGMA user_version=$v');
++  }
++
++  static Future<bool> _migrateTitleNormAndIndexes(Database db) async {
++    final tables = await db.rawQuery(
++      "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE '%dict';",
++    );
++    if (tables.isEmpty) return false;
++
++    bool migratedAny = false;
++
++    for (final row in tables) {
++      final String table = (row['name'] as String);
++      if (table.startsWith('sqlite_')) continue;
++
++      await db.transaction((txn) async {
++        final bool hasTitle = await _hasColumn(txn, table, 'title');
++        if (!hasTitle) return;
++
++        final bool hasNorm = await _hasColumn(txn, table, 'title_norm');
++        final String alpha = _inferAlphaFromTable(table);
++
++        final String normExpr = (alpha == 'iron' || alpha == 'dig' || alpha == 'ru')
++            ? "LOWER(REPLACE(REPLACE(REPLACE(REPLACE(title,'æ','ӕ'),'Æ','Ӕ'),'a','а'),'A','А'))"
++            : "LOWER(title)";
++
++        final batch = txn.batch();
++
++        if (!hasNorm) {
++          migratedAny = true;
++          batch.execute('ALTER TABLE $table ADD COLUMN title_norm TEXT;');
++          batch.execute('UPDATE $table SET title_norm = $normExpr;');
++        } else {
++          batch.execute('UPDATE $table SET title_norm = $normExpr WHERE title_norm IS NULL;');
++        }
++
++        batch.execute('CREATE INDEX IF NOT EXISTS idx_${table}_title_norm ON $table(title_norm);');
++        await batch.commit(noResult: true);
++      });
++    }
++
++    if (migratedAny) {
++      await db.execute('ANALYZE;');
++    }
++
++    return migratedAny;
++  }
++
++  static String _inferAlphaFromTable(String table) {
++    if (table == 'ir1_ru1_dict') return 'iron';
++    if (table == 'ru2_ir2_dict') return 'ru';
++    if (table.startsWith('dig_') && table.endsWith('_dict')) return 'dig';
++    if (table.endsWith('_dig_dict')) {
++      final from = table.substring(0, table.length - '_dig_dict'.length);
++      return _normalizeAlphaKey(from);
++    }
++    final parts = table.split('_');
++    if (parts.length >= 3) return _normalizeAlphaKey(parts[0]);
++    return 'ru';
++  }
++
++  static String _normalizeAlphaKey(String s) {
++    if (s.startsWith('ru')) return 'ru';
++    if (s.startsWith('ir') || s.startsWith('iron')) return 'iron';
++    if (s.startsWith('dig')) return 'dig';
++    if (s.startsWith('en')) return 'en';
++    if (s.startsWith('turk')) return 'turk';
++    return s;
++  }
++
++  static Future<bool> _hasColumn(DatabaseExecutor db, String table, String column) async {
++    final rows = await db.rawQuery('PRAGMA table_info($table);');
++    for (final r in rows) {
++      if ((r['name'] as String?) == column) return true;
++    }
++    return false;
++  }
+ }
+ 
+ final databaseProvider = FutureProvider<Database>((ref) async {
+   final db = await DBHelper.database;
+   return db;
+-});
++});
+\ No newline at end of file
+diff --git a/lib/core/utils/collation.dart b/lib/core/utils/collation.dart
+new file mode 100644
+index 0000000..cf3f8f8
+--- /dev/null
++++ b/lib/core/utils/collation.dart
+@@ -0,0 +1,64 @@
++library collation;
++
++int _unknownBase = 0x10000;
++
++final Map<String, List<String>> _orders = {
++  'ru': [
++    ' ',
++    'а','б','в','г','д','е','ё','ж','з','и','й','к','л','м','н','о','п','р','с','т','у','ф','х','ц','ч','ш','щ','ъ','ы','ь','э','ю','я',
++  ],
++  'iron': [
++    ' ',
++    'а','ӕ','б','в','г','д','е','ё','ж','з','и','й','к','л','м','н','о','п','р','с','т','у','ф','х','ц','ч','ш','щ','ы','ь','э','ю','я','ъ',
++  ],
++  'dig': [
++    ' ',
++    'ӕ','а','б','в','г','д','е','ё','ж','з','и','й','к','л','м','н','о','п','р','с','т','у','ф','х','ц','ч','ш','щ','ы','ь','э','ю','я','ъ',
++  ],
++  'turk': [
++    ' ',
++    'a','b','c','ç','d','e','f','g','ğ','h','ı','i','j','k','l','m','n','o','ö','p','r','s','ş','t','u','ü','v','y','z',
++  ],
++  'en': [
++    ' ',
++    'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
++  ],
++};
++
++Map<String, Map<String, int>> _rankCache = {};
++
++int _rankOf(String ch, String alpha) {
++  final cached = _rankCache[alpha];
++  if (cached != null) {
++    return cached[ch] ?? (_unknownBase + ch.codeUnitAt(0));
++  }
++  final order = _orders[alpha] ?? _orders['ru']!;
++  final map = <String,int>{};
++  for (int i = 0; i < order.length; i++) {
++    map[order[i]] = i;
++  }
++  _rankCache[alpha] = map;
++  return map[ch] ?? (_unknownBase + ch.codeUnitAt(0));
++}
++
++String normalizeAlpha(String s, String alpha) {
++  final ossetOrRu = alpha == 'iron' || alpha == 'dig' || alpha == 'ru';
++  if (!ossetOrRu) return s;
++  return s
++      .replaceAll('æ', 'ӕ')
++      .replaceAll('Æ', 'Ӕ')
++      .replaceAll('a', 'а')
++      .replaceAll('A', 'А');
++}
++
++int compareByAlphabet(String a, String b, String alpha) {
++  a = normalizeAlpha(a, alpha).toLowerCase();
++  b = normalizeAlpha(b, alpha).toLowerCase();
++  final len = a.length < b.length ? a.length : b.length;
++  for (int i = 0; i < len; i++) {
++    final ra = _rankOf(a[i], alpha);
++    final rb = _rankOf(b[i], alpha);
++    if (ra != rb) return ra - rb;
++  }
++  return a.length - b.length;
++}
+\ No newline at end of file
+diff --git a/lib/data/data_sources/local/sqlite_datasource.dart b/lib/data/data_sources/local/sqlite_datasource.dart
+index a335caf..ba83a61 100644
+--- a/lib/data/data_sources/local/sqlite_datasource.dart
++++ b/lib/data/data_sources/local/sqlite_datasource.dart
+@@ -1,9 +1,9 @@
++import 'package:flutter/foundation.dart';
+ import 'package:flutter_riverpod/flutter_riverpod.dart';
+-import 'package:fuzzywuzzy/fuzzywuzzy.dart';
+ import 'package:sqflite/sqflite.dart';
+-import 'package:flutter/foundation.dart';
+ 
+ import '../../../core/database/db_helper.dart';
++import '../../../core/utils/collation.dart' as col;
+ import '../../../domain/models/word_model.dart';
+ 
+ abstract interface class SQLiteDataSource {
+@@ -15,7 +15,14 @@ abstract interface class SQLiteDataSource {
+ 
+ final class SQLiteDataSourceImpl implements SQLiteDataSource {
+   final Database _database;
+-  final Map<String, List<WordModel>> _cache = {};
++  final Set<String> _indexesEnsured = {};
++  final Map<String, bool> _tableHasTitleNorm = {};
++
++  static const int _SORT_IN_ISOLATE_THRESHOLD = 2000;
++
++  static const int _FUZZY_BUCKET_LIMIT = 1200;
++
++  static const int _MAX_PREFIX_VARIANTS = 48;
+ 
+   SQLiteDataSourceImpl(this._database);
+ 
+@@ -48,6 +55,31 @@ final class SQLiteDataSourceImpl implements SQLiteDataSource {
+     };
+   }
+ 
++  Future<void> _ensureIndexForTable(String table, String column) async {
++    final key = '$table.$column';
++    if (_indexesEnsured.contains(key)) return;
++    try {
++      await _database
++          .execute('CREATE INDEX IF NOT EXISTS idx_${table}_${column} ON $table($column)');
++    } catch (_) {/* ignore */}
++    _indexesEnsured.add(key);
++  }
++
++  Future<bool> _hasColumn(String table, String column) async {
++    final cacheKey = '$table::$column';
++    final cached = _tableHasTitleNorm[cacheKey];
++    if (cached != null) return cached;
++    try {
++      final rows = await _database.rawQuery('PRAGMA table_info($table)');
++      final ok = rows.any((r) => (r['name'] as String?) == column);
++      _tableHasTitleNorm[cacheKey] = ok;
++      return ok;
++    } catch (_) {
++      _tableHasTitleNorm[cacheKey] = false;
++      return false;
++    }
++  }
++
+   @override
+   Future<void> addReport(Map<String, dynamic> body) async {
+     await _database.insert('reports', body);
+@@ -60,35 +92,40 @@ final class SQLiteDataSourceImpl implements SQLiteDataSource {
+ 
+     final from = parts[0];
+     final to = parts[1];
+-    String dictTable = _getTableNameForGetById(from, to);
+-    final refTable = _getRefTableName(from, to);
++    final dictTable = _getTableNameForGetById(from, to);
++    final refTable  = _getRefTableName(from, to);
++
++    final wordRows = await _database.query(
++      dictTable,
++      where: 'id = ?',
++      whereArgs: [id],
++      limit: 1,
++    );
++    if (wordRows.isEmpty) return null;
+ 
+-    final results = await Future.wait([
+-      _database.query(
+-        dictTable,
+-        where: 'id = ?',
+-        whereArgs: [id],
+-        limit: 1,
+-      ),
+-      _database.query(
++    Map<String, int> refs = {};
++    try {
++      final refRows = await _database.query(
+         refTable,
+-        where: from == 'dig' || from == 'iron' || to == 'iron' ? 'orig_id = ?' : 'ref_id = ?',
++        where: (from == 'dig' || from == 'iron' || to == 'iron')
++            ? 'orig_id = ?'
++            : 'ref_id = ?',
+         whereArgs: [id],
+-      ),
+-    ]);
+-
+-    final wordResult = results[0];
+-    if (wordResult.isEmpty) return null;
+-
+-    final refsResult = results[1];
+-    final refs = {
+-      for (var row in refsResult)
+-        (row['ref_title']?.toString() ?? row['orig_id']?.toString() ?? row['ref_id'].toString()):
+-            (from == 'dig' || from == 'iron' || to == 'iron') ? row['ref_id'] as int : row['orig_id'] as int
+-    };
++      );
++      refs = {
++        for (final r in refRows)
++          (r['ref_title']?.toString()
++              ?? r['orig_id']?.toString()
++              ?? r['ref_id'].toString()):
++          (from == 'dig' || from == 'iron' || to == 'iron')
++              ? r['ref_id'] as int
++              : r['orig_id'] as int
++      };
++    } catch (_) {
++    }
+ 
+     return WordModel.fromJson({
+-      ...wordResult.first,
++      ...wordRows.first,
+       'refs': refs,
+     });
+   }
+@@ -96,10 +133,8 @@ final class SQLiteDataSourceImpl implements SQLiteDataSource {
+   @override
+   Future<List<WordModel>> searchByIds(List<int> ids, String lang) async {
+     if (ids.isEmpty) return [];
+-
+     final parts = lang.split("=");
+     if (parts.length != 2) return [];
+-
+     final table = _getTableNameForSearch(parts[0], parts[1]);
+     final placeholders = List.filled(ids.length, '?').join(',');
+ 
+@@ -107,102 +142,577 @@ final class SQLiteDataSourceImpl implements SQLiteDataSource {
+       'SELECT * FROM $table WHERE id IN ($placeholders)',
+       ids,
+     );
+-
+     return result.map(WordModel.fromJson).toList();
+   }
+ 
+   @override
+   Future<List<WordModel>> search(String text, String fromLang, String toLang) async {
+-    String input = text.toLowerCase().replaceAll("æ", "ӕ").replaceAll("Æ", "Ӕ");
+-    String tableKey = '${fromLang}_$toLang';
++    String input = text.trim();
++    if (input.isEmpty) return [];
++
++    final bool isOsset = (fromLang == 'dig' || fromLang == 'iron');
++
++    input = _normForOsset(input, isOsset);
++
++    final isRuToDig = (fromLang == 'ru' && toLang == 'dig');
++
++    final table = _getTableNameForSearch(fromLang, toLang);
++
++    final columns = <String>[
++      'id',
++      'title',
++      'translation',
++      if (fromLang != 'dig' &&
++          !(fromLang == 'ru' && toLang == 'iron') &&
++          !(fromLang == 'iron' && toLang == 'ru'))
++        'trn_id',
++    ];
+ 
+-    // Кешируем загруженные данные
+-    if (!_cache.containsKey(tableKey)) {
+-      String table = _getTableNameForSearch(fromLang, toLang);
+-      final candidatesRaw = await _database.query(
++    final hasNorm = await _hasColumn(table, 'title_norm');
++    if (hasNorm) {
++      await _ensureIndexForTable(table, 'title_norm');
++    } else {
++      await _ensureIndexForTable(table, 'title');
++    }
++
++    if (input.length == 1) {
++      final ch = input[0];
++      if (hasNorm) {
++        final lower = col.normalizeAlpha(ch, fromLang).toLowerCase();
++        final rows = await _queryByRanges(
++          table: table,
++          columns: columns,
++          ranges: [('$lower', '$lower\uFFFF')],
++          useNorm: true,
++        );
++        final list = rows.map((r) => _mapRow(r, isRuToDig)).toList();
++        return _sortPrefixMaybeInIsolate(list, fromLang, input);
++      } else {
++        final patterns = <String>{'$ch%', '${ch.toUpperCase()}%'} .toList(growable: false);
++        final rows = await _database.query(
++          table,
++          columns: columns,
++          where: 'title LIKE ? OR title LIKE ?',
++          whereArgs: patterns,
++        );
++        final list = rows.map((r) => _mapRow(r, isRuToDig)).toList();
++        return _sortPrefixMaybeInIsolate(list, fromLang, input);
++      }
++    }
++
++    List<WordModel> prefix;
++    if (hasNorm) {
++      final variants = _expandAeVariants(input, _MAX_PREFIX_VARIANTS, alpha: fromLang)
++          .map((v) => col.normalizeAlpha(v, fromLang).toLowerCase())
++          .toSet()
++          .toList(growable: false);
++
++      final ranges = <(String, String)>[
++        for (final v in variants) (v, '$v\uFFFF'),
++      ];
++
++      final rows = await _queryByRanges(
++        table: table,
++        columns: columns,
++        ranges: ranges,
++        useNorm: true,
++      );
++      prefix = rows.map((r) => _mapRow(r, isRuToDig)).toList();
++    } else {
++      final patterns = _buildPrefixPatternsRelaxed(input, fromLang);
++      final where = List.filled(patterns.length, 'title LIKE ?').join(' OR ');
++      final rows = await _database.query(
+         table,
+-        columns: [
+-          'id',
+-          'title',
+-          'translation',
+-          if (fromLang != 'dig' && !(fromLang == 'ru' && toLang == 'iron') && !(fromLang == 'iron' && toLang == 'ru'))
+-            'trn_id'
+-        ],
++        columns: columns,
++        where: where,
++        whereArgs: patterns,
+       );
+-      _cache[tableKey] = candidatesRaw.map(WordModel.fromJson).toList();
++      prefix = rows.map((r) => _mapRow(r, isRuToDig)).toList();
++    }
++
++    if (prefix.isNotEmpty) {
++      return _sortPrefixMaybeInIsolate(prefix, fromLang, input);
+     }
+ 
+-    // Используем compute для тяжелых вычислений
+-    return await compute(
+-      _performSearch,
+-      _SearchData(
+-        candidates: _cache[tableKey]!,
++    if (fromLang == 'dig' || fromLang == 'iron') {
++      final correctedPrefix = await _tryOssetEarlyPrefix(
+         input: input,
+-      ),
++        fromLang: fromLang,
++        table: table,
++        columns: columns,
++        useNorm: hasNorm,
++        isRuToDig: isRuToDig,
++      );
++      if (correctedPrefix.isNotEmpty) {
++        return _sortPrefixMaybeInIsolate(correctedPrefix, fromLang, input);
++      }
++    }
++
++    final bucket2 = _buildTwoLetterBucketPatterns(input, fromLang);
++    final where2 = List.filled(bucket2.length, 'title LIKE ?').join(' OR ');
++    final rows2 = await _database.query(
++      table,
++      columns: columns,
++      where: where2,
++      whereArgs: bucket2,
++      limit: _FUZZY_BUCKET_LIMIT,
++    );
++    final cand2 = rows2.map((r) => _mapRow(r, isRuToDig)).toList();
++    final k = _fuzzyK(input.length);
++    var fuzzy = _rankFuzzyKLocal(
++      candidates: cand2,
++      input: input,
++      alpha: fromLang,
++      k: k,
+     );
++
++    int bestDist = 999;
++    if (fuzzy.isNotEmpty) {
++      bestDist = _levAtMostK(fuzzy.first.title, input, 6);
++    }
++
++    if (fuzzy.isEmpty || bestDist > 1) {
++      final bucket1 = _buildFirstLetterBucketPatternsStrict(input);
++      final where1 = List.filled(bucket1.length, 'title LIKE ?').join(' OR ');
++      final rows1 = await _database.query(
++        table,
++        columns: columns,
++        where: where1,
++        whereArgs: bucket1,
++        limit: _FUZZY_BUCKET_LIMIT,
++      );
++      final map = <int, WordModel>{};
++      for (final w in cand2) map[w.id] = w;
++      for (final w in rows1.map((r) => _mapRow(r, isRuToDig))) map[w.id] = w;
++
++      fuzzy = _rankFuzzyKLocal(
++        candidates: map.values.toList(growable: false),
++        input: input,
++        alpha: fromLang,
++        k: k,
++      );
++    }
++
++    if (fuzzy.isEmpty) return [];
++
++    final anchor = fuzzy.first.title;
++
++    if (hasNorm) {
++      final variants = _expandAeVariants(anchor, _MAX_PREFIX_VARIANTS, alpha: fromLang)
++          .map((v) => col.normalizeAlpha(v, fromLang).toLowerCase())
++          .toSet()
++          .toList(growable: false);
++
++      final ranges = <(String, String)>[
++        for (final v in variants) (v, '$v\uFFFF'),
++      ];
++
++      final rows = await _queryByRanges(
++        table: table,
++        columns: columns,
++        ranges: ranges,
++        useNorm: true,
++      );
++      final correctedPrefix = rows.map((r) => _mapRow(r, isRuToDig)).toList();
++      return _sortPrefixMaybeInIsolate(correctedPrefix, fromLang, input);
++    } else {
++      final patterns = _buildPrefixPatternsRelaxed(anchor, fromLang);
++      final where = List.filled(patterns.length, 'title LIKE ?').join(' OR ');
++      final rows = await _database.query(
++        table,
++        columns: columns,
++        where: where,
++        whereArgs: patterns,
++      );
++      final correctedPrefix = rows.map((r) => _mapRow(r, isRuToDig)).toList();
++      return _sortPrefixMaybeInIsolate(correctedPrefix, fromLang, input);
++    }
+   }
+ 
+-  static List<WordModel> _performSearch(_SearchData data) {
+-    final scored = <WordModel, double>{};
+-    final input = data.input;
+-    final candidates = data.candidates;
++  Future<List<WordModel>> _tryOssetEarlyPrefix({
++    required String input,
++    required String fromLang,
++    required String table,
++    required List<String> columns,
++    required bool useNorm,
++    required bool isRuToDig,
++  }) async {
++    bool _isGeminatable(String ch) {
++      const g = {
++        'ц','т','с','н','л','к','п','м','р','б','д','ж','з','ч','ш','ф','г','х'
++      };
++      return g.contains(ch.toLowerCase());
++    }
+ 
+-    for (final word in candidates) {
+-      final title = word.title.toLowerCase();
+-      final translation = word.translate.toLowerCase();
++    List<String> _vowelAlts(String ch) {
++      switch (ch) {
++        case 'и': return ['е'];
++        case 'е': return ['и'];
++        case 'И': return ['Е'];
++        case 'Е': return ['И'];
++      }
++      return const [];
++    }
+ 
+-      // Быстрая проверка точного совпадения
+-      if (title == input) {
+-        scored[word] = 1.0;
+-        continue;
++    final vset = <String>{};
++    final vbound = input.length < 3 ? input.length : 3;
++    for (int i = 0; i < vbound; i++) {
++      final alts = _vowelAlts(input[i]);
++      for (final a in alts) {
++        vset.add(input.substring(0, i) + a + input.substring(i + 1));
+       }
++    }
+ 
+-      if (translation == input) {
+-        scored[word] = 0.9;
+-        continue;
++    final gset = <String>{};
++    final gbound = input.length < 5 ? input.length : 5;
++    for (int i = 0; i < gbound; i++) {
++      final ch = input[i];
++      if (i + 1 < input.length && input[i + 1] == ch) {
++        gset.add(input.substring(0, i) + ch + input.substring(i + 2));
++      } else if (_isGeminatable(ch)) {
++        gset.add(input.substring(0, i) + ch + ch + input.substring(i + 1));
+       }
++    }
+ 
+-      // Fuzzy-поиск только если нет точного совпадения
+-      final scoreTitle = ratio(title, input) / 100;
+-      final scoreTrans = ratio(translation, input) / 100;
++    final variants = <String>{...vset, ...gset};
++    final baseForCombo = List<String>.from(vset);
++    for (final s in baseForCombo) {
++      final n = s.length < 5 ? s.length : 5;
++      for (int i = 0; i < n; i++) {
++        final ch = s[i];
++        if (i + 1 < s.length && s[i + 1] == ch) {
++          variants.add(s.substring(0, i) + ch + s.substring(i + 2));
++        } else if (_isGeminatable(ch)) {
++          variants.add(s.substring(0, i) + ch + ch + s.substring(i + 1));
++        }
++      }
++      if (variants.length >= 24) break;
++    }
+ 
+-      final startsBonus = title.startsWith(input) ? 0.3 : 0.0;
+-      final lengthBonus = (12 - title.length).clamp(0, 6) * 0.05;
++    if (variants.isEmpty) return const [];
++
++    if (useNorm) {
++      final ranges = <(String, String)>[
++        for (final v in variants)
++          (col.normalizeAlpha(v, fromLang).toLowerCase(),
++          col.normalizeAlpha(v, fromLang).toLowerCase() + '\uFFFF'),
++      ];
++      final rows = await _queryByRanges(
++        table: table,
++        columns: columns,
++        ranges: ranges.take(24).toList(),
++        useNorm: true,
++      );
++      return rows.map((r) => _mapRow(r, isRuToDig)).toList();
++    } else {
++      final patterns = <String>{
++        for (final v in variants.take(24))
++          ...{'$v%', '${v.isNotEmpty ? v[0].toUpperCase() : ''}${v.length > 1 ? v.substring(1) : ''}%'}
++      }.toList(growable: false);
++      final where = List.filled(patterns.length, 'title LIKE ?').join(' OR ');
++      final rows = await _database.query(
++        table,
++        columns: columns,
++        where: where,
++        whereArgs: patterns,
++      );
++      return rows.map((r) => _mapRow(r, isRuToDig)).toList();
++    }
++  }
++
++  Future<List<Map<String, Object?>>> _queryByRanges({
++    required String table,
++    required List<String> columns,
++    required List<(String, String)> ranges,
++    required bool useNorm,
++  }) async {
++    final colName = useNorm ? 'title_norm' : 'title';
++    final whereParts = <String>[];
++    final args = <Object?>[];
++    for (final (l, u) in ranges) {
++      whereParts.add('($colName >= ? AND $colName < ?)');
++      args..add(l)..add(u);
++    }
++    final where = whereParts.join(' OR ');
++    return _database.query(table, columns: columns, where: where, whereArgs: args);
++  }
++
++  Future<List<WordModel>> _sortPrefixMaybeInIsolate(
++      List<WordModel> list, String alpha, String input) async {
++    if (list.length <= _SORT_IN_ISOLATE_THRESHOLD) {
++      return _sortPrefixSync(list, alpha, input);
++    }
++    final titles = List<String>.generate(list.length, (i) => list[i].title, growable: false);
++    final order = await compute<_SortPrefixArgs, List<int>>(
++      _sortIndicesByPrefix, _SortPrefixArgs(titles, alpha, input),
++    );
++    return [for (final i in order) list[i]];
++  }
+ 
+-      final weighted = (scoreTitle * 3 + scoreTrans + startsBonus + lengthBonus) / 4.0;
+-      if (weighted >= 0.4) {
+-        scored[word] = weighted;
++  List<WordModel> _sortPrefixSync(List<WordModel> list, String alpha, String input) {
++    final inp = _lowerNoConflate(input);
++    int score(String title) {
++      final t = _lowerNoConflate(title);
++      final n = inp.length <= t.length ? inp.length : t.length;
++      int s = 0;
++      for (int i = 0; i < n; i++) {
++        if (t[i] != inp[i]) s++;
+       }
++      return s;
+     }
+ 
+-    // Сортировка результатов
+-    final sorted = scored.entries.toList()
+-      ..sort((a, b) {
+-        final cmp = b.value.compareTo(a.value);
+-        if (cmp != 0) return cmp;
+-        final lenCmp = a.key.title.length.compareTo(b.key.title.length);
+-        if (lenCmp != 0) return lenCmp;
+-        return a.key.title.compareTo(b.key.title);
+-      });
++    list.sort((a, b) {
++      final sa = score(a.title);
++      final sb = score(b.title);
++      if (sa != sb) return sa - sb;
++      return col.compareByAlphabet(a.title, b.title, alpha);
++    });
++    return list;
++  }
+ 
+-    return sorted.map((e) => e.key).toList();
++  String _normForOsset(String s, bool isOsset) {
++    s = s.replaceAll('æ', 'ӕ').replaceAll('Æ', 'Ӕ');
++    if (isOsset) s = s.replaceAll('a', 'а').replaceAll('A', 'А');
++    return s;
+   }
+-}
+ 
+-class _SearchData {
+-  final List<WordModel> candidates;
+-  final String input;
++  String _normED(String s) => s
++      .toLowerCase()
++      .replaceAll('æ', 'ӕ')
++      .replaceAll('Æ', 'Ӕ')
++      .replaceAll('a', 'а')
++      .replaceAll('ӕ', 'а');
++
++  String _lowerNoConflate(String s) =>
++      s.toLowerCase().replaceAll('æ', 'ӕ').replaceAll('Æ', 'Ӕ');
++
++  WordModel _mapRow(Map<String, Object?> row, bool isRuToDig) {
++    if (isRuToDig && row.containsKey('trn_id') && row['trn_id'] != null) {
++      final copy = Map<String, Object?>.from(row);
++      copy['id'] = row['trn_id'];
++      return WordModel.fromJson(copy);
++    }
++    return WordModel.fromJson(row);
++  }
+ 
+-  _SearchData({
+-    required this.candidates,
+-    required this.input,
+-  });
++  List<String> _expandAeVariants(String s, int maxVariants, {required String alpha}) {
++    final osset = (alpha == 'dig' || alpha == 'iron');
++    if (!osset) return [s];
++
++    if (!s.contains('а') && !s.contains('А') && !s.contains('ӕ') && !s.contains('Ӕ')) {
++      return [s];
++    }
++
++    List<String> seeds = [''];
++    for (int i = 0; i < s.length; i++) {
++      final ch = s[i];
++
++      List<String> alts;
++      final isA = (ch == 'а' || ch == 'А');
++      final isAe = (ch == 'ӕ' || ch == 'Ӕ');
++      if (isA) {
++        alts = [_toCase(ch, 'а'), _toCase(ch, 'ӕ')];
++      } else if (isAe) {
++        alts = [_toCase(ch, 'ӕ')];
++      } else {
++        alts = [ch];
++      }
++
++      final next = <String>[];
++      for (final seed in seeds) {
++        for (final a in alts) {
++          next.add('$seed$a');
++          if (next.length >= maxVariants) break;
++        }
++        if (next.length >= maxVariants) break;
++      }
++      seeds = next;
++      if (seeds.length >= maxVariants) break;
++    }
++
++    return seeds.isEmpty ? [s] : seeds;
++  }
++
++  List<String> _buildPrefixPatternsRelaxed(String input, String alpha) {
++    final variants = _expandAeVariants(input, _MAX_PREFIX_VARIANTS, alpha: alpha);
++    final set = <String>{};
++    for (final v in variants) {
++      set.add('$v%');
++      if (v.isNotEmpty) {
++        final up = v[0].toUpperCase() + (v.length > 1 ? v.substring(1) : '');
++        set.add('$up%');
++      }
++    }
++    return set.toList(growable: false);
++  }
++
++  List<String> _buildTwoLetterBucketPatterns(String input, String alpha) {
++    final s = input;
++    final int n = s.length >= 2 ? 2 : 1;
++
++    List<String> seeds = [''];
++    for (int i = 0; i < n; i++) {
++      final ch = s[i];
++      List<String> alts;
++
++      if (alpha == 'ru') {
++        if (ch == 'а' || ch == 'А' || ch == 'о' || ch == 'О') {
++          alts = [_toCase(ch, 'а'), _toCase(ch, 'о')];
++        } else if (ch == 'е' || ch == 'Е' || ch == 'ё' || ch == 'Ё') {
++          alts = [_toCase(ch, 'е'), _toCase(ch, 'ё')];
++        } else {
++          alts = [ch];
++        }
++      } else if (alpha == 'iron' || alpha == 'dig') {
++        if (ch == 'а' || ch == 'А' || ch == 'ӕ' || ch == 'Ӕ') {
++          alts = [_toCase(ch, 'а'), _toCase(ch, 'ӕ')];
++        } else if (ch == 'и' || ch == 'И' || ch == 'е' || ch == 'Е') {
++          alts = [_toCase(ch, 'и'), _toCase(ch, 'е')];
++        } else {
++          alts = [ch];
++        }
++      } else {
++        alts = [ch];
++      }
++
++      final next = <String>[];
++      for (final seed in seeds) {
++        for (final a in alts) {
++          next.add('$seed$a');
++        }
++      }
++      seeds = next;
++    }
++
++    final patterns = <String>{};
++    for (final p in seeds) {
++      patterns.add('$p%');
++      if (p.isNotEmpty) {
++        final up = p[0].toUpperCase() + (p.length > 1 ? p.substring(1) : '');
++        patterns.add('$up%');
++      }
++    }
++    return patterns.toList(growable: false);
++  }
++
++  List<String> _buildFirstLetterBucketPatternsStrict(String input) {
++    final lower = input[0].toLowerCase();
++    final upper = input[0].toUpperCase();
++    return {'$lower%', '$upper%'}.toList(growable: false);
++  }
++
++  int _fuzzyK(int inputLen) {
++    if (inputLen >= 6) return 3;
++    if (inputLen >= 4) return 2;
++    return 1;
++  }
++
++  int _levAtMostK(String a, String b, int k) {
++    a = _normED(a);
++    b = _normED(b);
++    final la = a.length, lb = b.length;
++    if ((la - lb).abs() > 3) return k + 1;
++
++    final maxVal = k + 1;
++    List<int> prev = List<int>.generate(lb + 1, (j) => j);
++    List<int> curr = List<int>.filled(lb + 1, 0);
++
++    for (int i = 1; i <= la; i++) {
++      curr[0] = i;
++      final from = (i - k) > 1 ? (i - k) : 1;
++      final to = (i + k) < lb ? (i + k) : lb;
++
++      for (int j = 1; j < from; j++) curr[j] = maxVal;
++      for (int j = from; j <= to; j++) {
++        final cost = (a.codeUnitAt(i - 1) == b.codeUnitAt(j - 1)) ? 0 : 1;
++        final del = prev[j] + 1;
++        final ins = curr[j - 1] + 1;
++        final sub = prev[j - 1] + cost;
++        int v = del < ins ? del : ins;
++        if (sub < v) v = sub;
++        curr[j] = v;
++      }
++      for (int j = to + 1; j <= lb; j++) curr[j] = maxVal;
++
++      final tmp = prev; prev = curr; curr = tmp;
++
++      int rowMin = maxVal;
++      for (int j = 0; j <= lb; j++) if (prev[j] < rowMin) rowMin = prev[j];
++      if (rowMin > k) return k + 1;
++    }
++    return prev[lb];
++  }
++
++  List<WordModel> _rankFuzzyKLocal({
++    required List<WordModel> candidates,
++    required String input,
++    required String alpha,
++    required int k,
++  }) {
++    final inp = _normED(input);
++    final scored = <(int, WordModel)>[];
++
++    for (final w in candidates) {
++      final titleN = _normED(w.title);
++      final dlen = (titleN.length - inp.length).abs();
++      if (dlen > 3) continue;
++
++      final d = _levAtMostK(titleN, inp, k);
++      if (d <= k) scored.add((d, w));
++    }
++
++    scored.sort((a, b) {
++      final c = a.$1.compareTo(b.$1);
++      if (c != 0) return c;
++      return col.compareByAlphabet(a.$2.title, b.$2.title, alpha);
++    });
++
++    return [for (final e in scored) e.$2];
++  }
++
++  String _toCase(String src, String targetLower) {
++    final isUpper = src == src.toUpperCase();
++    final t = targetLower;
++    return isUpper ? t.toUpperCase() : t;
++  }
+ }
+ 
+ final localApiClientProvider = Provider<SQLiteDataSource>((ref) {
+   final db = ref.watch(databaseProvider).maybeWhen(
+-        data: (db) => db,
+-        orElse: () => throw Exception('Database is not initialized'),
+-      );
++    data: (db) => db,
++    orElse: () => throw Exception('Database is not initialized'),
++  );
+   return SQLiteDataSourceImpl(db);
+ });
++
++class _SortPrefixArgs {
++  final List<String> titles;
++  final String alpha;
++  final String input;
++  const _SortPrefixArgs(this.titles, this.alpha, this.input);
++}
++
++String _lowerNoConflate(String s) =>
++    s.toLowerCase().replaceAll('æ', 'ӕ').replaceAll('Æ', 'Ӕ');
++
++List<int> _sortIndicesByPrefix(_SortPrefixArgs a) {
++  final inp = _lowerNoConflate(a.input);
++  int score(String title) {
++    final t = _lowerNoConflate(title);
++    final n = inp.length <= t.length ? inp.length : t.length;
++    int s = 0;
++    for (int i = 0; i < n; i++) {
++      if (t[i] != inp[i]) s++;
++    }
++    return s;
++  }
++
++  final idx = List<int>.generate(a.titles.length, (i) => i);
++  idx.sort((i, j) {
++    final si = score(a.titles[i]);
++    final sj = score(a.titles[j]);
++    if (si != sj) return si - sj;
++    return col.compareByAlphabet(a.titles[i], a.titles[j], a.alpha);
++  });
++  return idx;
++}
+\ No newline at end of file
+diff --git a/lib/presentation/providers/search.dart b/lib/presentation/providers/search.dart
+index ecc212f..e82930e 100644
+--- a/lib/presentation/providers/search.dart
++++ b/lib/presentation/providers/search.dart
+@@ -4,60 +4,30 @@ import '../../data/data_sources/local/sqlite_datasource.dart';
+ import '../../domain/models/word_model.dart';
+ import 'search_mode.dart';
+ 
++const _dir = <LanguageMode, (String from, String to)>{
++  LanguageMode.digEnglish: ('dig', 'en'),
++  LanguageMode.digRussian: ('dig', 'ru'),
++  LanguageMode.digTurkish: ('dig', 'turk'),
++  LanguageMode.engDigor: ('en', 'dig'),
++  LanguageMode.rusDigor: ('ru', 'dig'),
++  LanguageMode.turkDigor: ('turk', 'dig'),
++  LanguageMode.engIron: ('en', 'iron'),
++  LanguageMode.rusIron: ('ru', 'iron'),
++  LanguageMode.ironTurkish: ('iron', 'turk'),
++  LanguageMode.ironEnglish: ('iron', 'en'),
++  LanguageMode.ironRussian: ('iron', 'ru'),
++  LanguageMode.turkIron: ('turk', 'iron'),
++};
++
+ final searchProvider = FutureProvider.family<List<WordModel>, String>((ref, text) async {
+-  if (text.trim().isEmpty) {
+-    return [];
+-  }
++  if (text.trim().isEmpty) return [];
++
+   final mode = ref.watch(searchModeProvider).value;
+   if (mode == null) return [];
+-  String fromLang = '';
+-  String toLang = '';
+-  switch (mode) {
+-    case LanguageMode.digEnglish:
+-      fromLang = 'dig';
+-      toLang = 'en';
+-
+-    case LanguageMode.digRussian:
+-      fromLang = 'dig';
+-      toLang = 'ru';
+-
+-    case LanguageMode.digTurkish:
+-      fromLang = 'dig';
+-      toLang = 'turk';
+-
+-    case LanguageMode.engDigor:
+-      fromLang = 'en';
+-      toLang = 'dig';
+-
+-    case LanguageMode.rusDigor:
+-      fromLang = 'ru';
+-      toLang = 'dig';
+-
+-    case LanguageMode.turkDigor:
+-      fromLang = 'turk';
+-      toLang = 'dig';
+-    case LanguageMode.engIron:
+-      fromLang = 'en';
+-      toLang = 'iron';
+-    case LanguageMode.rusIron:
+-      fromLang = 'ru';
+-      toLang = 'iron';
+-    case LanguageMode.ironTurkish:
+-      fromLang = 'iron';
+-      toLang = 'turk';
+-    case LanguageMode.ironEnglish:
+-      fromLang = 'iron';
+-      toLang = 'en';
+-    case LanguageMode.ironRussian:
+-      fromLang = 'iron';
+-      toLang = 'ru';
+-    case LanguageMode.turkIron:
+-      fromLang = 'turk';
+-      toLang = 'iron';
+-  }
+ 
++  final (fromLang, toLang) = _dir[mode]!;
+   final api = ref.watch(localApiClientProvider);
+-  final result = await api.search(text, fromLang, toLang);
+ 
++  final result = await api.search(text, fromLang, toLang);
+   return result;
+ });
+diff --git a/pubspec.lock b/pubspec.lock
+index 11f7b5a..6537fbc 100644
+--- a/pubspec.lock
++++ b/pubspec.lock
+@@ -285,10 +285,10 @@ packages:
+     dependency: transitive
+     description:
+       name: fake_async
+-      sha256: "6a95e56b2449df2273fd8c45a662d6947ce1ebb7aafe80e550a3f68297f3cacc"
++      sha256: "5368f224a74523e8d2e7399ea1638b37aecfca824a3cc4dfdf77bf1fa905ac44"
+       url: "https://pub.dev"
+     source: hosted
+-    version: "1.3.2"
++    version: "1.3.3"
+   ffi:
+     dependency: transitive
+     description:
+@@ -449,10 +449,10 @@ packages:
+     dependency: transitive
+     description:
+       name: intl
+-      sha256: d6f56758b7d3014a48af9701c085700aac781a92a87a62b1333b46d8879661cf
++      sha256: "3df61194eb431efc39c4ceba583b95633a403f46c9fd341e550ce0bfa50e9aa5"
+       url: "https://pub.dev"
+     source: hosted
+-    version: "0.19.0"
++    version: "0.20.2"
+   io:
+     dependency: transitive
+     description:
+@@ -521,26 +521,26 @@ packages:
+     dependency: transitive
+     description:
+       name: leak_tracker
+-      sha256: c35baad643ba394b40aac41080300150a4f08fd0fd6a10378f8f7c6bc161acec
++      sha256: "8dcda04c3fc16c14f48a7bb586d4be1f0d1572731b6d81d51772ef47c02081e0"
+       url: "https://pub.dev"
+     source: hosted
+-    version: "10.0.8"
++    version: "11.0.1"
+   leak_tracker_flutter_testing:
+     dependency: transitive
+     description:
+       name: leak_tracker_flutter_testing
+-      sha256: f8b613e7e6a13ec79cfdc0e97638fddb3ab848452eff057653abd3edba760573
++      sha256: "1dbc140bb5a23c75ea9c4811222756104fbcd1a27173f0c34ca01e16bea473c1"
+       url: "https://pub.dev"
+     source: hosted
+-    version: "3.0.9"
++    version: "3.0.10"
+   leak_tracker_testing:
+     dependency: transitive
+     description:
+       name: leak_tracker_testing
+-      sha256: "6ba465d5d76e67ddf503e1161d1f4a6bc42306f9d66ca1e8f079a47290fb06d3"
++      sha256: "8d5a2d49f4a66b49744b23b018848400d23e54caf9463f4eb20df3eb8acb2eb1"
+       url: "https://pub.dev"
+     source: hosted
+-    version: "3.0.1"
++    version: "3.0.2"
+   lints:
+     dependency: transitive
+     description:
+@@ -1022,10 +1022,10 @@ packages:
+     dependency: transitive
+     description:
+       name: test_api
+-      sha256: fb31f383e2ee25fbbfe06b40fe21e1e458d14080e3c67e7ba0acfde4df4e0bbd
++      sha256: "522f00f556e73044315fa4585ec3270f1808a4b186c936e612cab0b565ff1e00"
+       url: "https://pub.dev"
+     source: hosted
+-    version: "0.7.4"
++    version: "0.7.6"
+   timing:
+     dependency: transitive
+     description:
+@@ -1158,10 +1158,10 @@ packages:
+     dependency: transitive
+     description:
+       name: vector_math
+-      sha256: "80b3257d1492ce4d091729e3a67a60407d227c27241d6927be0130c98e741803"
++      sha256: d530bd74fea330e6e364cda7a85019c434070188383e1cd8d9777ee586914c5b
+       url: "https://pub.dev"
+     source: hosted
+-    version: "2.1.4"
++    version: "2.2.0"
+   version:
+     dependency: transitive
+     description:
+@@ -1259,5 +1259,5 @@ packages:
+     source: hosted
+     version: "3.1.3"
+ sdks:
+-  dart: ">=3.7.0 <4.0.0"
++  dart: ">=3.8.0-0 <4.0.0"
+   flutter: ">=3.29.0"
