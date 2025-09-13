@@ -214,7 +214,9 @@ class _CustomPopupMenuButtonState<T>
   Widget build(BuildContext context) {
     return Builder(builder: (ctx) {
       return GestureDetector(
+        behavior: HitTestBehavior.translucent,
         onTap: () {
+          print("ta");
           // Toggle: если уже открыт — закроем, иначе откроем
           if (_entry != null) {
             _removeOverlay();
@@ -222,7 +224,7 @@ class _CustomPopupMenuButtonState<T>
             _showOverlay(ctx);
           }
         },
-        child: widget.child,
+        child: SizedBox(height: 50, child: widget.child),
       );
     });
   }

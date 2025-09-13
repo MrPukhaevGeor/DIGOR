@@ -293,7 +293,7 @@ class AppBarWidget extends ConsumerWidget {
                 right: false,
                 child: Container(
                   alignment: Alignment.center,
-                  padding: const EdgeInsets.only(left: 12),
+                  padding: const EdgeInsets.only(left: 12,top: 12,bottom: 12),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -371,7 +371,7 @@ class AppBarWidget extends ConsumerWidget {
                 right: true,
                 child: Container(
                   alignment: Alignment.center,
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 12,vertical: 12),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

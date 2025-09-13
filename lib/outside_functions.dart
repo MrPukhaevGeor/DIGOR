@@ -29,27 +29,70 @@ class ZoomOverlay {
   static Timer? _hideTimer;
   static late AnimationController _controller;
   static late Animation<double> _animation;
-
-  /// Показывает (или обновляет) overlay с процентом зума.
   static void show(BuildContext context, double zoom,
-      {Duration duration = const Duration(seconds: 1)}) {
+      {Duration duration = const Duration(seconds: 2)}) {
     final int percent = (zoom * 100).round();
 
-    if (_notifier == null) {
-      _notifier = ValueNotifier<int>(percent);
-    } else {
-      _notifier!.value = percent;
+    // обновляем (или создаём) нотифаер с числом
+    _notifier ??= ValueNotifier<int>(percent);
+    _notifier!.value = percent;
+
+    final overlay = Overlay.of(context);
+    if (overlay == null) return;
+
+    // 1) Если оверлей уже показан — делаем быстрый reverse (короткий) и затем forward
+    if (_entry != null && _controller != null) {
+      // отменяем старый таймер скрытия
+      _hideTimer?.cancel();
+
+      // быстрый реверс (короткая длительность), затем обычный forward
+      // тут можно настроить короткую длительность (например 100 ms)
+      final shortReverseDuration = const Duration(milliseconds: 120);
+      final normalForwardDuration = const Duration(milliseconds: 360);
+
+      // если сейчас идёт reverse, ничего не делаем — подождём/восстановим forward
+      try {
+        // animateBack до 0.0 с короткой длительностью, затем снова forward
+        _controller!
+            .animateBack(
+          0.0,
+          duration: shortReverseDuration,
+          curve: Curves.easeIn,
+        )
+            .then((_) {
+          // немножко задержки можно добавить при желании
+          _controller!.animateTo(
+            1.0,
+            duration: normalForwardDuration,
+            curve: Curves.easeOutBack,
+          );
+        });
+      } catch (_) {
+        // если animateBack упал, пробуем просто forward
+        try {
+          _controller!.forward();
+        } catch (_) {}
+      }
+
+      // пересоздаём/обновляем таймер скрытия
+      _hideTimer = Timer(duration, () {
+        hide();
+      });
+
+      return; // готово — не создаём новый OverlayEntry
     }
 
-    // Если Overlay ещё не вставлен — вставляем его
+    // 2) Оверлей ещё не был создан — создаём как раньше
     if (_entry == null) {
-      final overlay = Overlay.of(context);
-      if (overlay == null) return;
-
+      // если был старый контроллер — почистим
+      try {
+        _controller.dispose();
+      } catch (_) {}
+      // создаём контроллер и анимацию
       _controller = AnimationController(
-        vsync: overlay, // OverlayState имеет TickerProvider
-        duration: const Duration(milliseconds: 200),
-        reverseDuration: const Duration(milliseconds: 200),
+        vsync: overlay,
+        duration: const Duration(milliseconds: 450),
+        reverseDuration: const Duration(milliseconds: 380),
       );
 
       _animation =
@@ -58,56 +101,57 @@ class ZoomOverlay {
       _entry = OverlayEntry(builder: (ctx) {
         final theme = Theme.of(ctx);
         return Positioned(
-          bottom: 70 + MediaQuery.of(ctx).viewInsets.bottom,
+          bottom: MediaQuery.of(context).size.height / 9 +
+              MediaQuery.of(ctx).viewInsets.bottom,
           left: 0,
           right: 0,
           child: IgnorePointer(
             ignoring: true,
-            child: Center(
-              child: Material(
-                color: Colors.transparent,
-                child: FadeTransition(
-                  opacity: _animation,
-                  child: Container(
-                    width: 200,
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 8, horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(.5),
-                      borderRadius: BorderRadius.circular(40.0),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          width: 32,
-                          height: 32,
-                          child: Image.asset('assets/white.png'),
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          '${l.tr('zoom')} ',
-                          style: theme.textTheme.bodySmall!
-                              .copyWith(color: Colors.white, fontSize: 15),
-                        ),
-                        ValueListenableBuilder<int>(
-                          valueListenable: _notifier!,
-                          builder: (context, value, child) {
-                            return AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 150),
-                              transitionBuilder: (child, anim) =>
-                                  FadeTransition(opacity: anim, child: child),
-                              child: Text(
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 450),
+              transitionBuilder: (child, anim) =>
+                  ScaleTransition(scale: anim, child: child),
+              child: Center(
+                child: Material(
+                  color: Colors.transparent,
+                  child: FadeTransition(
+                    opacity: _animation,
+                    child: Container(
+                      width: 200,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(.68),
+                        borderRadius: BorderRadius.circular(40.0),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            width: 30,
+                            height: 30,
+                            child: Image.asset('assets/white.png'),
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            '${l.tr('zoom')} ',
+                            style: theme.textTheme.bodySmall!
+                                .copyWith(color: Colors.white, fontSize: 16),
+                          ),
+                          ValueListenableBuilder<int>(
+                            valueListenable: _notifier!,
+                            builder: (context, value, child) {
+                              return Text(
                                 '$value%',
                                 key: ValueKey<int>(value),
                                 style: theme.textTheme.bodySmall!.copyWith(
                                     color: Colors.white, fontSize: 15),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -129,12 +173,15 @@ class ZoomOverlay {
   }
 
   /// Скрыть overlay с анимацией
-  static Future<void> hide() async {
+  static Future<void> hide({bool immediately = false}) async {
     _hideTimer?.cancel();
     _hideTimer = null;
 
     if (_entry != null) {
-      await _controller.reverse(); // плавное исчезновение
+
+        await _controller.reverse(); // плавное исчезновение
+
+
       _entry?.remove();
       _entry = null;
       _controller.dispose();
@@ -144,7 +191,6 @@ class ZoomOverlay {
     _notifier = null;
   }
 }
-
 
 /// Виджет: обрезает строку по ширине и добавляет ".." вместо стандартного "…"
 class TwoDotEllipsis extends StatelessWidget {

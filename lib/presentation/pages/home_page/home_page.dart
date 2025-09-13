@@ -30,15 +30,16 @@ class HomePage extends ConsumerWidget {
             ref.read(popupMenuClearTextOpenProvider).call();
             return false; // Не выходим из приложения
           }
-          
+
           // Проверяем состояние текстового поля
           final textFieldValue = ref.read(textFieldValueProvider);
           if (textFieldValue.isNotEmpty) {
-            // Очищаем текстовое поле
-            ref.read(textFieldValueProvider.notifier).clearText();
+            ref.read(textFieldValueProvider.notifier).state = '';
+            ref.read(translateModeProvider.notifier).setFalse();
+            textController.clear();
             return false; // Не выходим из приложения
           }
-          
+
           // Если всё пусто и ничего не открыто - разрешаем выход
           return true;
         },
@@ -61,9 +62,13 @@ class HomePage extends ConsumerWidget {
                 ),
               ),
               if (ref.watch(splitModeProvider)) ...[
-                SizedBox(height: 2, child: Divider(thickness: 2, color: Theme.of(context).primaryColor)),
+                SizedBox(
+                    height: 2,
+                    child: Divider(
+                        thickness: 2, color: Theme.of(context).primaryColor)),
                 Expanded(
-                  child: WordPage(ref.watch(selectedBottomPanelWordIdProvider), needAppBar: false),
+                  child: WordPage(ref.watch(selectedBottomPanelWordIdProvider),
+                      needAppBar: false),
                 ),
               ]
             ],
