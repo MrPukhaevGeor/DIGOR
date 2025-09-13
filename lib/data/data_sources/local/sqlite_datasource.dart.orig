@@ -1,3 +1,5 @@
+// lib/data/data_sources/local/sqlite_datasource.dart
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqflite.dart';
@@ -7,10 +9,9 @@ import '../../../core/utils/collation.dart' as col;
 import '../../../domain/models/word_model.dart';
 
 abstract interface class SQLiteDataSource {
-  Future<WordModel?> searchById(int id, String lang);
+  Future<WordModel?> getById(int id, String lang);
   Future<List<WordModel>> searchByIds(List<int> ids, String lang);
   Future<List<WordModel>> search(String text, String fromLang, String toLang);
-  Future<void> addReport(Map<String, dynamic> body);
 }
 
 final class SQLiteDataSourceImpl implements SQLiteDataSource {
@@ -19,81 +20,20 @@ final class SQLiteDataSourceImpl implements SQLiteDataSource {
   final Map<String, bool> _tableHasTitleNorm = {};
 
   static const int _SORT_IN_ISOLATE_THRESHOLD = 2000;
-
   static const int _FUZZY_BUCKET_LIMIT = 1200;
-
   static const int _MAX_PREFIX_VARIANTS = 48;
 
   SQLiteDataSourceImpl(this._database);
 
-  String _getTableNameForGetById(String from, String to) {
-    return switch ((from, to)) {
-      ('iron', _) => 'ir1_ru1_dict',
-      (_, 'iron') => 'ru2_ir2_dict',
-      ('dig', _) => 'dig_${to}_dict',
-      (_, 'dig') => 'dig_${from}_dict',
-      _ => '${from}_${to}_dict',
-    };
-  }
-
-  String _getTableNameForSearch(String from, String to) {
-    return switch ((from, to)) {
-      ('iron', _) => 'ir1_ru1_dict',
-      (_, 'iron') => 'ru2_ir2_dict',
-      ('dig', _) => 'dig_${to}_dict',
-      (_, 'dig') => '${from}_dig_dict',
-      _ => '${from}_${to}_dict',
-    };
-  }
-
-  String _getRefTableName(String from, String to) {
-    return switch ((from, to)) {
-      ('dig', _) => 'dig_${to}_refs',
-      ('iron', _) => 'ir1_ru1_refs',
-      (_, 'iron') => 'ru2_ir2_refs',
-      _ => 'dig_${from}_refs',
-    };
-  }
-
-  Future<void> _ensureIndexForTable(String table, String column) async {
-    final key = '$table.$column';
-    if (_indexesEnsured.contains(key)) return;
-    try {
-      await _database
-          .execute('CREATE INDEX IF NOT EXISTS idx_${table}_${column} ON $table($column)');
-    } catch (_) {/* ignore */}
-    _indexesEnsured.add(key);
-  }
-
-  Future<bool> _hasColumn(String table, String column) async {
-    final cacheKey = '$table::$column';
-    final cached = _tableHasTitleNorm[cacheKey];
-    if (cached != null) return cached;
-    try {
-      final rows = await _database.rawQuery('PRAGMA table_info($table)');
-      final ok = rows.any((r) => (r['name'] as String?) == column);
-      _tableHasTitleNorm[cacheKey] = ok;
-      return ok;
-    } catch (_) {
-      _tableHasTitleNorm[cacheKey] = false;
-      return false;
-    }
-  }
-
   @override
-  Future<void> addReport(Map<String, dynamic> body) async {
-    await _database.insert('reports', body);
-  }
-
-  @override
-  Future<WordModel?> searchById(int id, String lang) async {
+  Future<WordModel?> getById(int id, String lang) async {
     final parts = lang.split('=');
     if (parts.length != 2) return null;
 
     final from = parts[0];
     final to = parts[1];
     final dictTable = _getTableNameForGetById(from, to);
-    final refTable  = _getRefTableName(from, to);
+    final refTable = _getRefTableName(from, to);
 
     final wordRows = await _database.query(
       dictTable,
@@ -107,22 +47,15 @@ final class SQLiteDataSourceImpl implements SQLiteDataSource {
     try {
       final refRows = await _database.query(
         refTable,
-        where: (from == 'dig' || from == 'iron' || to == 'iron')
-            ? 'orig_id = ?'
-            : 'ref_id = ?',
+        where: (from == 'dig' || from == 'iron' || to == 'iron') ? 'orig_id = ?' : 'ref_id = ?',
         whereArgs: [id],
       );
       refs = {
         for (final r in refRows)
-          (r['ref_title']?.toString()
-              ?? r['orig_id']?.toString()
-              ?? r['ref_id'].toString()):
-          (from == 'dig' || from == 'iron' || to == 'iron')
-              ? r['ref_id'] as int
-              : r['orig_id'] as int
+          (r['ref_title']?.toString() ?? r['orig_id']?.toString() ?? r['ref_id'].toString()):
+          (from == 'dig' || from == 'iron' || to == 'iron') ? r['ref_id'] as int : r['orig_id'] as int
       };
-    } catch (_) {
-    }
+    } catch (_) {}
 
     return WordModel.fromJson({
       ...wordRows.first,
@@ -133,8 +66,10 @@ final class SQLiteDataSourceImpl implements SQLiteDataSource {
   @override
   Future<List<WordModel>> searchByIds(List<int> ids, String lang) async {
     if (ids.isEmpty) return [];
+
     final parts = lang.split("=");
     if (parts.length != 2) return [];
+
     final table = _getTableNameForSearch(parts[0], parts[1]);
     final placeholders = List.filled(ids.length, '?').join(',');
 
@@ -142,6 +77,7 @@ final class SQLiteDataSourceImpl implements SQLiteDataSource {
       'SELECT * FROM $table WHERE id IN ($placeholders)',
       ids,
     );
+
     return result.map(WordModel.fromJson).toList();
   }
 
@@ -162,9 +98,7 @@ final class SQLiteDataSourceImpl implements SQLiteDataSource {
       'id',
       'title',
       'translation',
-      if (fromLang != 'dig' &&
-          !(fromLang == 'ru' && toLang == 'iron') &&
-          !(fromLang == 'iron' && toLang == 'ru'))
+      if (fromLang != 'dig' && !(fromLang == 'ru' && toLang == 'iron') && !(fromLang == 'iron' && toLang == 'ru'))
         'trn_id',
     ];
 
@@ -178,7 +112,7 @@ final class SQLiteDataSourceImpl implements SQLiteDataSource {
     if (input.length == 1) {
       final ch = input[0];
       if (hasNorm) {
-        final lower = col.normalizeAlpha(ch, fromLang).toLowerCase();
+        final lower = col.normalizeAlpha(ch).toLowerCase();
         final rows = await _queryByRanges(
           table: table,
           columns: columns,
@@ -188,7 +122,7 @@ final class SQLiteDataSourceImpl implements SQLiteDataSource {
         final list = rows.map((r) => _mapRow(r, isRuToDig)).toList();
         return _sortPrefixMaybeInIsolate(list, fromLang, input);
       } else {
-        final patterns = <String>{'$ch%', '${ch.toUpperCase()}%'} .toList(growable: false);
+        final patterns = <String>{'$ch%', '${ch.toUpperCase()}%'}.toList(growable: false);
         final rows = await _database.query(
           table,
           columns: columns,
@@ -203,7 +137,7 @@ final class SQLiteDataSourceImpl implements SQLiteDataSource {
     List<WordModel> prefix;
     if (hasNorm) {
       final variants = _expandAeVariants(input, _MAX_PREFIX_VARIANTS, alpha: fromLang)
-          .map((v) => col.normalizeAlpha(v, fromLang).toLowerCase())
+          .map((v) => col.normalizeAlpha(v).toLowerCase())
           .toSet()
           .toList(growable: false);
 
@@ -299,7 +233,7 @@ final class SQLiteDataSourceImpl implements SQLiteDataSource {
 
     if (hasNorm) {
       final variants = _expandAeVariants(anchor, _MAX_PREFIX_VARIANTS, alpha: fromLang)
-          .map((v) => col.normalizeAlpha(v, fromLang).toLowerCase())
+          .map((v) => col.normalizeAlpha(v).toLowerCase())
           .toSet()
           .toList(growable: false);
 
@@ -394,8 +328,8 @@ final class SQLiteDataSourceImpl implements SQLiteDataSource {
     if (useNorm) {
       final ranges = <(String, String)>[
         for (final v in variants)
-          (col.normalizeAlpha(v, fromLang).toLowerCase(),
-          col.normalizeAlpha(v, fromLang).toLowerCase() + '\uFFFF'),
+          (col.normalizeAlpha(v).toLowerCase(),
+          '${col.normalizeAlpha(v).toLowerCase()}\uFFFF'),
       ];
       final rows = await _queryByRanges(
         table: table,
@@ -675,6 +609,22 @@ final class SQLiteDataSourceImpl implements SQLiteDataSource {
     final t = targetLower;
     return isUpper ? t.toUpperCase() : t;
   }
+
+  Future<bool> _hasColumn(String table, String colName) async {
+    final info = await _database.rawQuery('PRAGMA table_info($table)');
+    return info.any((r) => r['name'] == colName);
+  }
+
+  Future<void> _ensureIndexForTable(String table, String colName) async {
+    final key = '$table.$colName';
+    if (_indexesEnsured.contains(key)) return;
+    await _database.execute('CREATE INDEX IF NOT EXISTS idx_$table\_$colName ON $table($colName)');
+    _indexesEnsured.add(key);
+  }
+
+  String _getTableNameForGetById(String from, String to) => 'dict_${from}_$to';
+  String _getRefTableName(String from, String to) => 'ref_${from}_$to';
+  String _getTableNameForSearch(String from, String to) => 'dict_${from}_$to';
 }
 
 final localApiClientProvider = Provider<SQLiteDataSource>((ref) {

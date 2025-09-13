@@ -4,22 +4,23 @@ int _unknownBase = 0x10000;
 
 final Map<String, List<String>> _orders = {
   'ru': [
+    ' ',
     'а','б','в','г','д','е','ё','ж','з','и','й','к','л','м','н','о','п','р','с','т','у','ф','х','ц','ч','ш','щ','ъ','ы','ь','э','ю','я',
   ],
-
   'iron': [
+    ' ',
     'а','ӕ','б','в','г','д','е','ё','ж','з','и','й','к','л','м','н','о','п','р','с','т','у','ф','х','ц','ч','ш','щ','ы','ь','э','ю','я','ъ',
   ],
-
   'dig': [
+    ' ',
     'ӕ','а','б','в','г','д','е','ё','ж','з','и','й','к','л','м','н','о','п','р','с','т','у','ф','х','ц','ч','ш','щ','ы','ь','э','ю','я','ъ',
   ],
-
   'turk': [
+    ' ',
     'a','b','c','ç','d','e','f','g','ğ','h','ı','i','j','k','l','m','n','o','ö','p','r','s','ş','t','u','ü','v','y','z',
   ],
-
   'en': [
+    ' ',
     'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
   ],
 };
@@ -40,7 +41,9 @@ int _rankOf(String ch, String alpha) {
   return map[ch] ?? (_unknownBase + ch.codeUnitAt(0));
 }
 
-String normalizeAlpha(String s) {
+String normalizeAlpha(String s, String alpha) {
+  final ossetOrRu = alpha == 'iron' || alpha == 'dig' || alpha == 'ru';
+  if (!ossetOrRu) return s;
   return s
       .replaceAll('æ', 'ӕ')
       .replaceAll('Æ', 'Ӕ')
@@ -49,8 +52,8 @@ String normalizeAlpha(String s) {
 }
 
 int compareByAlphabet(String a, String b, String alpha) {
-  a = normalizeAlpha(a).toLowerCase();
-  b = normalizeAlpha(b).toLowerCase();
+  a = normalizeAlpha(a, alpha).toLowerCase();
+  b = normalizeAlpha(b, alpha).toLowerCase();
   final len = a.length < b.length ? a.length : b.length;
   for (int i = 0; i < len; i++) {
     final ra = _rankOf(a[i], alpha);

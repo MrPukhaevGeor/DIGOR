@@ -11,7 +11,7 @@ final fetchWordProvider = FutureProvider.family<WordModel?, int>((ref, id) async
   final from = ref.read(searchModeProvider.notifier).getFromLanguageMode();
   final to = ref.read(searchModeProvider.notifier).getToLanguageMode();
 
-  return api.searchById(id, '$from=$to');
+  return (await api.searchByIds([id], '$from=$to')).firstOrNull;
 });
 
 const String _articleZoomSettingKey = 'articleZoomSettingKey';
