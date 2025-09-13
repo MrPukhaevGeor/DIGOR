@@ -1,4 +1,3 @@
-
 library collation;
 
 int _unknownBase = 0x10000;

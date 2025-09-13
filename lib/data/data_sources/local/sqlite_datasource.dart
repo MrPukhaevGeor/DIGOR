@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -14,13 +15,14 @@ abstract interface class SQLiteDataSource {
 
 final class SQLiteDataSourceImpl implements SQLiteDataSource {
   final Database _database;
-  final Map<String, List<WordModel>> _cache = {};
   final Set<String> _indexesEnsured = {};
+  final Map<String, bool> _tableHasTitleNorm = {};
 
-  static const int _FUZZY_K = 3;
-  static const int _FUZZY_MIN_INPUT = 4;
-  static const int _FUZZY_PREFIX_THRESHOLD = 5;
-  static const int _FUZZY_BUCKET_LIMIT = 5000;
+  static const int _SORT_IN_ISOLATE_THRESHOLD = 2000;
+
+  static const int _FUZZY_BUCKET_LIMIT = 1200;
+
+  static const int _MAX_PREFIX_VARIANTS = 48;
 
   SQLiteDataSourceImpl(this._database);
 
@@ -57,9 +59,25 @@ final class SQLiteDataSourceImpl implements SQLiteDataSource {
     final key = '$table.$column';
     if (_indexesEnsured.contains(key)) return;
     try {
-      await _database.execute('CREATE INDEX IF NOT EXISTS idx_${table}_${column} ON $table($column)');
+      await _database
+          .execute('CREATE INDEX IF NOT EXISTS idx_${table}_${column} ON $table($column)');
     } catch (_) {/* ignore */}
     _indexesEnsured.add(key);
+  }
+
+  Future<bool> _hasColumn(String table, String column) async {
+    final cacheKey = '$table::$column';
+    final cached = _tableHasTitleNorm[cacheKey];
+    if (cached != null) return cached;
+    try {
+      final rows = await _database.rawQuery('PRAGMA table_info($table)');
+      final ok = rows.any((r) => (r['name'] as String?) == column);
+      _tableHasTitleNorm[cacheKey] = ok;
+      return ok;
+    } catch (_) {
+      _tableHasTitleNorm[cacheKey] = false;
+      return false;
+    }
   }
 
   @override
@@ -75,36 +93,39 @@ final class SQLiteDataSourceImpl implements SQLiteDataSource {
     final from = parts[0];
     final to = parts[1];
     final dictTable = _getTableNameForGetById(from, to);
-    final refTable = _getRefTableName(from, to);
+    final refTable  = _getRefTableName(from, to);
 
-    final results = await Future.wait([
-      _database.query(
-        dictTable,
-        where: 'id = ?',
-        whereArgs: [id],
-        limit: 1,
-      ),
-      _database.query(
+    final wordRows = await _database.query(
+      dictTable,
+      where: 'id = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
+    if (wordRows.isEmpty) return null;
+
+    Map<String, int> refs = {};
+    try {
+      final refRows = await _database.query(
         refTable,
-        where: (from == 'dig' || from == 'iron' || to == 'iron') ? 'orig_id = ?' : 'ref_id = ?',
+        where: (from == 'dig' || from == 'iron' || to == 'iron')
+            ? 'orig_id = ?'
+            : 'ref_id = ?',
         whereArgs: [id],
-      ),
-    ]);
-
-    final wordResult = results[0];
-    if (wordResult.isEmpty) return null;
-
-    final refsResult = results[1];
-    final refs = {
-      for (final row in refsResult)
-        (row['ref_title']?.toString() ?? row['orig_id']?.toString() ?? row['ref_id'].toString()):
-        (from == 'dig' || from == 'iron' || to == 'iron')
-            ? row['ref_id'] as int
-            : row['orig_id'] as int
-    };
+      );
+      refs = {
+        for (final r in refRows)
+          (r['ref_title']?.toString()
+              ?? r['orig_id']?.toString()
+              ?? r['ref_id'].toString()):
+          (from == 'dig' || from == 'iron' || to == 'iron')
+              ? r['ref_id'] as int
+              : r['orig_id'] as int
+      };
+    } catch (_) {
+    }
 
     return WordModel.fromJson({
-      ...wordResult.first,
+      ...wordRows.first,
       'refs': refs,
     });
   }
@@ -134,108 +155,320 @@ final class SQLiteDataSourceImpl implements SQLiteDataSource {
     input = _normForOsset(input, isOsset);
 
     final isRuToDig = (fromLang == 'ru' && toLang == 'dig');
-    const searchColumn = 'title';
+
     final table = _getTableNameForSearch(fromLang, toLang);
 
     final columns = <String>[
       'id',
       'title',
       'translation',
-      if (fromLang != 'dig' && !(fromLang == 'ru' && toLang == 'iron') && !(fromLang == 'iron' && toLang == 'ru'))
+      if (fromLang != 'dig' &&
+          !(fromLang == 'ru' && toLang == 'iron') &&
+          !(fromLang == 'iron' && toLang == 'ru'))
         'trn_id',
     ];
 
-    await _ensureIndexForTable(table, searchColumn);
+    final hasNorm = await _hasColumn(table, 'title_norm');
+    if (hasNorm) {
+      await _ensureIndexForTable(table, 'title_norm');
+    } else {
+      await _ensureIndexForTable(table, 'title');
+    }
 
     if (input.length == 1) {
-      final patterns = _buildSingleLetterPatternsStrict(input);
-      final where = List.filled(patterns.length, '$searchColumn LIKE ?').join(' OR ');
+      final ch = input[0];
+      if (hasNorm) {
+        final lower = col.normalizeAlpha(ch, fromLang).toLowerCase();
+        final rows = await _queryByRanges(
+          table: table,
+          columns: columns,
+          ranges: [('$lower', '$lower\uFFFF')],
+          useNorm: true,
+        );
+        final list = rows.map((r) => _mapRow(r, isRuToDig)).toList();
+        return _sortPrefixMaybeInIsolate(list, fromLang, input);
+      } else {
+        final patterns = <String>{'$ch%', '${ch.toUpperCase()}%'} .toList(growable: false);
+        final rows = await _database.query(
+          table,
+          columns: columns,
+          where: 'title LIKE ? OR title LIKE ?',
+          whereArgs: patterns,
+        );
+        final list = rows.map((r) => _mapRow(r, isRuToDig)).toList();
+        return _sortPrefixMaybeInIsolate(list, fromLang, input);
+      }
+    }
+
+    List<WordModel> prefix;
+    if (hasNorm) {
+      final variants = _expandAeVariants(input, _MAX_PREFIX_VARIANTS, alpha: fromLang)
+          .map((v) => col.normalizeAlpha(v, fromLang).toLowerCase())
+          .toSet()
+          .toList(growable: false);
+
+      final ranges = <(String, String)>[
+        for (final v in variants) (v, '$v\uFFFF'),
+      ];
+
+      final rows = await _queryByRanges(
+        table: table,
+        columns: columns,
+        ranges: ranges,
+        useNorm: true,
+      );
+      prefix = rows.map((r) => _mapRow(r, isRuToDig)).toList();
+    } else {
+      final patterns = _buildPrefixPatternsRelaxed(input, fromLang);
+      final where = List.filled(patterns.length, 'title LIKE ?').join(' OR ');
       final rows = await _database.query(
         table,
         columns: columns,
         where: where,
         whereArgs: patterns,
       );
-      final mapped = rows.map((row) {
-        if (isRuToDig && row.containsKey('trn_id') && row['trn_id'] != null) {
-          final copy = Map<String, Object?>.from(row);
-          copy['id'] = row['trn_id'];
-          return WordModel.fromJson(copy);
-        }
-        return WordModel.fromJson(row);
-      }).toList()
-        ..sort((a, b) => col.compareByAlphabet(a.title, b.title, fromLang));
-      return mapped;
+      prefix = rows.map((r) => _mapRow(r, isRuToDig)).toList();
     }
 
-    final prefixPatterns = _buildPrefixPatterns(input, isOsset);
-    final prefixWhere = List.filled(prefixPatterns.length, '$searchColumn LIKE ?').join(' OR ');
-    final prefixRows = await _database.query(
-      table,
-      columns: columns,
-      where: prefixWhere,
-      whereArgs: prefixPatterns,
-      limit: 200,
-    );
-    final prefix = prefixRows.map((row) {
-      if (isRuToDig && row.containsKey('trn_id') && row['trn_id'] != null) {
-        final copy = Map<String, Object?>.from(row);
-        copy['id'] = row['trn_id'];
-        return WordModel.fromJson(copy);
+    if (prefix.isNotEmpty) {
+      return _sortPrefixMaybeInIsolate(prefix, fromLang, input);
+    }
+
+    if (fromLang == 'dig' || fromLang == 'iron') {
+      final correctedPrefix = await _tryOssetEarlyPrefix(
+        input: input,
+        fromLang: fromLang,
+        table: table,
+        columns: columns,
+        useNorm: hasNorm,
+        isRuToDig: isRuToDig,
+      );
+      if (correctedPrefix.isNotEmpty) {
+        return _sortPrefixMaybeInIsolate(correctedPrefix, fromLang, input);
       }
-      return WordModel.fromJson(row);
-    }).toList();
-
-    final inputLower = _norm(input);
-    final exacts = prefix.where((w) => _norm(w.title) == inputLower).toList();
-    if (exacts.isNotEmpty) {
-      exacts.sort((a, b) => col.compareByAlphabet(a.title, b.title, fromLang));
-      return exacts;
     }
 
-    if (prefix.length >= _FUZZY_PREFIX_THRESHOLD || input.length < _FUZZY_MIN_INPUT) {
-      prefix.sort((a, b) => col.compareByAlphabet(a.title, b.title, fromLang));
-      return prefix;
-    }
-
-    final firstLetterPatterns = _buildFirstLetterBucketPatterns(input, isOsset);
-    final firstWhere = List.filled(firstLetterPatterns.length, '$searchColumn LIKE ?').join(' OR ');
-    final fuzzRows = await _database.query(
+    final bucket2 = _buildTwoLetterBucketPatterns(input, fromLang);
+    final where2 = List.filled(bucket2.length, 'title LIKE ?').join(' OR ');
+    final rows2 = await _database.query(
       table,
       columns: columns,
-      where: firstWhere,
-      whereArgs: firstLetterPatterns,
+      where: where2,
+      whereArgs: bucket2,
       limit: _FUZZY_BUCKET_LIMIT,
     );
-    final fuzzCandidates = fuzzRows.map((row) {
-      if (isRuToDig && row.containsKey('trn_id') && row['trn_id'] != null) {
-        final copy = Map<String, Object?>.from(row);
-        copy['id'] = row['trn_id'];
-        return WordModel.fromJson(copy);
-      }
-      return WordModel.fromJson(row);
-    }).toList();
-
-    final fuzzy = _rankFuzzyKLocal(
-      candidates: fuzzCandidates,
+    final cand2 = rows2.map((r) => _mapRow(r, isRuToDig)).toList();
+    final k = _fuzzyK(input.length);
+    var fuzzy = _rankFuzzyKLocal(
+      candidates: cand2,
       input: input,
       alpha: fromLang,
-      k: _FUZZY_K,
+      k: k,
     );
 
-    prefix.sort((a, b) => col.compareByAlphabet(a.title, b.title, fromLang));
-    final seen = <int>{};
-    final merged = <WordModel>[];
-    for (final w in prefix) {
-      if (seen.add(w.id)) merged.add(w);
+    int bestDist = 999;
+    if (fuzzy.isNotEmpty) {
+      bestDist = _levAtMostK(fuzzy.first.title, input, 6);
     }
-    for (final w in fuzzy) {
-      if (seen.add(w.id)) merged.add(w);
+
+    if (fuzzy.isEmpty || bestDist > 1) {
+      final bucket1 = _buildFirstLetterBucketPatternsStrict(input);
+      final where1 = List.filled(bucket1.length, 'title LIKE ?').join(' OR ');
+      final rows1 = await _database.query(
+        table,
+        columns: columns,
+        where: where1,
+        whereArgs: bucket1,
+        limit: _FUZZY_BUCKET_LIMIT,
+      );
+      final map = <int, WordModel>{};
+      for (final w in cand2) map[w.id] = w;
+      for (final w in rows1.map((r) => _mapRow(r, isRuToDig))) map[w.id] = w;
+
+      fuzzy = _rankFuzzyKLocal(
+        candidates: map.values.toList(growable: false),
+        input: input,
+        alpha: fromLang,
+        k: k,
+      );
     }
-    return merged;
+
+    if (fuzzy.isEmpty) return [];
+
+    final anchor = fuzzy.first.title;
+
+    if (hasNorm) {
+      final variants = _expandAeVariants(anchor, _MAX_PREFIX_VARIANTS, alpha: fromLang)
+          .map((v) => col.normalizeAlpha(v, fromLang).toLowerCase())
+          .toSet()
+          .toList(growable: false);
+
+      final ranges = <(String, String)>[
+        for (final v in variants) (v, '$v\uFFFF'),
+      ];
+
+      final rows = await _queryByRanges(
+        table: table,
+        columns: columns,
+        ranges: ranges,
+        useNorm: true,
+      );
+      final correctedPrefix = rows.map((r) => _mapRow(r, isRuToDig)).toList();
+      return _sortPrefixMaybeInIsolate(correctedPrefix, fromLang, input);
+    } else {
+      final patterns = _buildPrefixPatternsRelaxed(anchor, fromLang);
+      final where = List.filled(patterns.length, 'title LIKE ?').join(' OR ');
+      final rows = await _database.query(
+        table,
+        columns: columns,
+        where: where,
+        whereArgs: patterns,
+      );
+      final correctedPrefix = rows.map((r) => _mapRow(r, isRuToDig)).toList();
+      return _sortPrefixMaybeInIsolate(correctedPrefix, fromLang, input);
+    }
   }
 
-  String _norm(String s) => s.toLowerCase().replaceAll('æ', 'ӕ').replaceAll('Æ', 'Ӕ').replaceAll('a', 'а');
+  Future<List<WordModel>> _tryOssetEarlyPrefix({
+    required String input,
+    required String fromLang,
+    required String table,
+    required List<String> columns,
+    required bool useNorm,
+    required bool isRuToDig,
+  }) async {
+    bool _isGeminatable(String ch) {
+      const g = {
+        'ц','т','с','н','л','к','п','м','р','б','д','ж','з','ч','ш','ф','г','х'
+      };
+      return g.contains(ch.toLowerCase());
+    }
+
+    List<String> _vowelAlts(String ch) {
+      switch (ch) {
+        case 'и': return ['е'];
+        case 'е': return ['и'];
+        case 'И': return ['Е'];
+        case 'Е': return ['И'];
+      }
+      return const [];
+    }
+
+    final vset = <String>{};
+    final vbound = input.length < 3 ? input.length : 3;
+    for (int i = 0; i < vbound; i++) {
+      final alts = _vowelAlts(input[i]);
+      for (final a in alts) {
+        vset.add(input.substring(0, i) + a + input.substring(i + 1));
+      }
+    }
+
+    final gset = <String>{};
+    final gbound = input.length < 5 ? input.length : 5;
+    for (int i = 0; i < gbound; i++) {
+      final ch = input[i];
+      if (i + 1 < input.length && input[i + 1] == ch) {
+        gset.add(input.substring(0, i) + ch + input.substring(i + 2));
+      } else if (_isGeminatable(ch)) {
+        gset.add(input.substring(0, i) + ch + ch + input.substring(i + 1));
+      }
+    }
+
+    final variants = <String>{...vset, ...gset};
+    final baseForCombo = List<String>.from(vset);
+    for (final s in baseForCombo) {
+      final n = s.length < 5 ? s.length : 5;
+      for (int i = 0; i < n; i++) {
+        final ch = s[i];
+        if (i + 1 < s.length && s[i + 1] == ch) {
+          variants.add(s.substring(0, i) + ch + s.substring(i + 2));
+        } else if (_isGeminatable(ch)) {
+          variants.add(s.substring(0, i) + ch + ch + s.substring(i + 1));
+        }
+      }
+      if (variants.length >= 24) break;
+    }
+
+    if (variants.isEmpty) return const [];
+
+    if (useNorm) {
+      final ranges = <(String, String)>[
+        for (final v in variants)
+          (col.normalizeAlpha(v, fromLang).toLowerCase(),
+          col.normalizeAlpha(v, fromLang).toLowerCase() + '\uFFFF'),
+      ];
+      final rows = await _queryByRanges(
+        table: table,
+        columns: columns,
+        ranges: ranges.take(24).toList(),
+        useNorm: true,
+      );
+      return rows.map((r) => _mapRow(r, isRuToDig)).toList();
+    } else {
+      final patterns = <String>{
+        for (final v in variants.take(24))
+          ...{'$v%', '${v.isNotEmpty ? v[0].toUpperCase() : ''}${v.length > 1 ? v.substring(1) : ''}%'}
+      }.toList(growable: false);
+      final where = List.filled(patterns.length, 'title LIKE ?').join(' OR ');
+      final rows = await _database.query(
+        table,
+        columns: columns,
+        where: where,
+        whereArgs: patterns,
+      );
+      return rows.map((r) => _mapRow(r, isRuToDig)).toList();
+    }
+  }
+
+  Future<List<Map<String, Object?>>> _queryByRanges({
+    required String table,
+    required List<String> columns,
+    required List<(String, String)> ranges,
+    required bool useNorm,
+  }) async {
+    final colName = useNorm ? 'title_norm' : 'title';
+    final whereParts = <String>[];
+    final args = <Object?>[];
+    for (final (l, u) in ranges) {
+      whereParts.add('($colName >= ? AND $colName < ?)');
+      args..add(l)..add(u);
+    }
+    final where = whereParts.join(' OR ');
+    return _database.query(table, columns: columns, where: where, whereArgs: args);
+  }
+
+  Future<List<WordModel>> _sortPrefixMaybeInIsolate(
+      List<WordModel> list, String alpha, String input) async {
+    if (list.length <= _SORT_IN_ISOLATE_THRESHOLD) {
+      return _sortPrefixSync(list, alpha, input);
+    }
+    final titles = List<String>.generate(list.length, (i) => list[i].title, growable: false);
+    final order = await compute<_SortPrefixArgs, List<int>>(
+      _sortIndicesByPrefix, _SortPrefixArgs(titles, alpha, input),
+    );
+    return [for (final i in order) list[i]];
+  }
+
+  List<WordModel> _sortPrefixSync(List<WordModel> list, String alpha, String input) {
+    final inp = _lowerNoConflate(input);
+    int score(String title) {
+      final t = _lowerNoConflate(title);
+      final n = inp.length <= t.length ? inp.length : t.length;
+      int s = 0;
+      for (int i = 0; i < n; i++) {
+        if (t[i] != inp[i]) s++;
+      }
+      return s;
+    }
+
+    list.sort((a, b) {
+      final sa = score(a.title);
+      final sb = score(b.title);
+      if (sa != sb) return sa - sb;
+      return col.compareByAlphabet(a.title, b.title, alpha);
+    });
+    return list;
+  }
 
   String _normForOsset(String s, bool isOsset) {
     s = s.replaceAll('æ', 'ӕ').replaceAll('Æ', 'Ӕ');
@@ -243,47 +476,142 @@ final class SQLiteDataSourceImpl implements SQLiteDataSource {
     return s;
   }
 
-  List<String> _buildSingleLetterPatternsStrict(String input) {
-    final ch = input[0];
-    final up = ch.toUpperCase();
-    return ['$ch%', '$up%'];
-  }
+  String _normED(String s) => s
+      .toLowerCase()
+      .replaceAll('æ', 'ӕ')
+      .replaceAll('Æ', 'Ӕ')
+      .replaceAll('a', 'а')
+      .replaceAll('ӕ', 'а');
 
-  List<String> _buildPrefixPatterns(String input, bool isOsset) {
-    final first = input[0];
-    final rest = input.substring(1);
-    final upFirst = first.toUpperCase();
-    final upRest = rest.isEmpty ? '' : '${rest[0].toUpperCase()}${rest.substring(1)}';
+  String _lowerNoConflate(String s) =>
+      s.toLowerCase().replaceAll('æ', 'ӕ').replaceAll('Æ', 'Ӕ');
 
-    final patterns = <String>['${first}${rest}%', '${upFirst}${upRest}%'];
-
-    if (isOsset && (first == 'а' || first == 'А' || first == 'ӕ' || first == 'Ӕ')) {
-      final alt = (first == 'а' || first == 'А') ? 'ӕ' : 'а';
-      final altUp = alt.toUpperCase();
-      patterns.add('${alt}${rest}%');
-      patterns.add('${altUp}${upRest}%');
+  WordModel _mapRow(Map<String, Object?> row, bool isRuToDig) {
+    if (isRuToDig && row.containsKey('trn_id') && row['trn_id'] != null) {
+      final copy = Map<String, Object?>.from(row);
+      copy['id'] = row['trn_id'];
+      return WordModel.fromJson(copy);
     }
-    return patterns;
+    return WordModel.fromJson(row);
   }
 
-  List<String> _buildFirstLetterBucketPatterns(String input, bool isOsset) {
-    final ch = input[0];
-    final up = ch.toUpperCase();
-    return ['$ch%', '$up%'];
+  List<String> _expandAeVariants(String s, int maxVariants, {required String alpha}) {
+    final osset = (alpha == 'dig' || alpha == 'iron');
+    if (!osset) return [s];
+
+    if (!s.contains('а') && !s.contains('А') && !s.contains('ӕ') && !s.contains('Ӕ')) {
+      return [s];
+    }
+
+    List<String> seeds = [''];
+    for (int i = 0; i < s.length; i++) {
+      final ch = s[i];
+
+      List<String> alts;
+      final isA = (ch == 'а' || ch == 'А');
+      final isAe = (ch == 'ӕ' || ch == 'Ӕ');
+      if (isA) {
+        alts = [_toCase(ch, 'а'), _toCase(ch, 'ӕ')];
+      } else if (isAe) {
+        alts = [_toCase(ch, 'ӕ')];
+      } else {
+        alts = [ch];
+      }
+
+      final next = <String>[];
+      for (final seed in seeds) {
+        for (final a in alts) {
+          next.add('$seed$a');
+          if (next.length >= maxVariants) break;
+        }
+        if (next.length >= maxVariants) break;
+      }
+      seeds = next;
+      if (seeds.length >= maxVariants) break;
+    }
+
+    return seeds.isEmpty ? [s] : seeds;
   }
 
-  String _normED(String s) =>
-      s.toLowerCase()
-          .replaceAll('æ', 'ӕ')
-          .replaceAll('Æ', 'Ӕ')
-          .replaceAll('a', 'а')
-          .replaceAll('ӕ', 'а');
+  List<String> _buildPrefixPatternsRelaxed(String input, String alpha) {
+    final variants = _expandAeVariants(input, _MAX_PREFIX_VARIANTS, alpha: alpha);
+    final set = <String>{};
+    for (final v in variants) {
+      set.add('$v%');
+      if (v.isNotEmpty) {
+        final up = v[0].toUpperCase() + (v.length > 1 ? v.substring(1) : '');
+        set.add('$up%');
+      }
+    }
+    return set.toList(growable: false);
+  }
+
+  List<String> _buildTwoLetterBucketPatterns(String input, String alpha) {
+    final s = input;
+    final int n = s.length >= 2 ? 2 : 1;
+
+    List<String> seeds = [''];
+    for (int i = 0; i < n; i++) {
+      final ch = s[i];
+      List<String> alts;
+
+      if (alpha == 'ru') {
+        if (ch == 'а' || ch == 'А' || ch == 'о' || ch == 'О') {
+          alts = [_toCase(ch, 'а'), _toCase(ch, 'о')];
+        } else if (ch == 'е' || ch == 'Е' || ch == 'ё' || ch == 'Ё') {
+          alts = [_toCase(ch, 'е'), _toCase(ch, 'ё')];
+        } else {
+          alts = [ch];
+        }
+      } else if (alpha == 'iron' || alpha == 'dig') {
+        if (ch == 'а' || ch == 'А' || ch == 'ӕ' || ch == 'Ӕ') {
+          alts = [_toCase(ch, 'а'), _toCase(ch, 'ӕ')];
+        } else if (ch == 'и' || ch == 'И' || ch == 'е' || ch == 'Е') {
+          alts = [_toCase(ch, 'и'), _toCase(ch, 'е')];
+        } else {
+          alts = [ch];
+        }
+      } else {
+        alts = [ch];
+      }
+
+      final next = <String>[];
+      for (final seed in seeds) {
+        for (final a in alts) {
+          next.add('$seed$a');
+        }
+      }
+      seeds = next;
+    }
+
+    final patterns = <String>{};
+    for (final p in seeds) {
+      patterns.add('$p%');
+      if (p.isNotEmpty) {
+        final up = p[0].toUpperCase() + (p.length > 1 ? p.substring(1) : '');
+        patterns.add('$up%');
+      }
+    }
+    return patterns.toList(growable: false);
+  }
+
+  List<String> _buildFirstLetterBucketPatternsStrict(String input) {
+    final lower = input[0].toLowerCase();
+    final upper = input[0].toUpperCase();
+    return {'$lower%', '$upper%'}.toList(growable: false);
+  }
+
+  int _fuzzyK(int inputLen) {
+    if (inputLen >= 6) return 3;
+    if (inputLen >= 4) return 2;
+    return 1;
+  }
 
   int _levAtMostK(String a, String b, int k) {
     a = _normED(a);
     b = _normED(b);
     final la = a.length, lb = b.length;
-    if ((la - lb).abs() > 1) return k + 1;
+    if ((la - lb).abs() > 3) return k + 1;
 
     final maxVal = k + 1;
     List<int> prev = List<int>.generate(lb + 1, (j) => j);
@@ -294,9 +622,7 @@ final class SQLiteDataSourceImpl implements SQLiteDataSource {
       final from = (i - k) > 1 ? (i - k) : 1;
       final to = (i + k) < lb ? (i + k) : lb;
 
-      for (int j = 1; j < from; j++) {
-        curr[j] = maxVal;
-      }
+      for (int j = 1; j < from; j++) curr[j] = maxVal;
       for (int j = from; j <= to; j++) {
         final cost = (a.codeUnitAt(i - 1) == b.codeUnitAt(j - 1)) ? 0 : 1;
         final del = prev[j] + 1;
@@ -306,17 +632,12 @@ final class SQLiteDataSourceImpl implements SQLiteDataSource {
         if (sub < v) v = sub;
         curr[j] = v;
       }
-      for (int j = to + 1; j <= lb; j++) {
-        curr[j] = maxVal;
-      }
-      final tmp = prev;
-      prev = curr;
-      curr = tmp;
+      for (int j = to + 1; j <= lb; j++) curr[j] = maxVal;
+
+      final tmp = prev; prev = curr; curr = tmp;
 
       int rowMin = maxVal;
-      for (int j = 0; j <= lb; j++) {
-        if (prev[j] < rowMin) rowMin = prev[j];
-      }
+      for (int j = 0; j <= lb; j++) if (prev[j] < rowMin) rowMin = prev[j];
       if (rowMin > k) return k + 1;
     }
     return prev[lb];
@@ -329,21 +650,30 @@ final class SQLiteDataSourceImpl implements SQLiteDataSource {
     required int k,
   }) {
     final inp = _normED(input);
-    final hits = <WordModel, int>{};
-    for (final w in candidates) {
-      final dlen = (_normED(w.title).length - inp.length).abs();
-      if (dlen > 1) continue;
+    final scored = <(int, WordModel)>[];
 
-      final d = _levAtMostK(w.title, inp, k);
-      if (d <= k) hits[w] = d;
+    for (final w in candidates) {
+      final titleN = _normED(w.title);
+      final dlen = (titleN.length - inp.length).abs();
+      if (dlen > 3) continue;
+
+      final d = _levAtMostK(titleN, inp, k);
+      if (d <= k) scored.add((d, w));
     }
-    final list = hits.entries.toList()
-      ..sort((a, b) {
-        final c = a.value.compareTo(b.value);
-        if (c != 0) return c;
-        return col.compareByAlphabet(a.key.title, b.key.title, alpha);
-      });
-    return [for (final e in list) e.key];
+
+    scored.sort((a, b) {
+      final c = a.$1.compareTo(b.$1);
+      if (c != 0) return c;
+      return col.compareByAlphabet(a.$2.title, b.$2.title, alpha);
+    });
+
+    return [for (final e in scored) e.$2];
+  }
+
+  String _toCase(String src, String targetLower) {
+    final isUpper = src == src.toUpperCase();
+    final t = targetLower;
+    return isUpper ? t.toUpperCase() : t;
   }
 }
 
@@ -354,3 +684,35 @@ final localApiClientProvider = Provider<SQLiteDataSource>((ref) {
   );
   return SQLiteDataSourceImpl(db);
 });
+
+class _SortPrefixArgs {
+  final List<String> titles;
+  final String alpha;
+  final String input;
+  const _SortPrefixArgs(this.titles, this.alpha, this.input);
+}
+
+String _lowerNoConflate(String s) =>
+    s.toLowerCase().replaceAll('æ', 'ӕ').replaceAll('Æ', 'Ӕ');
+
+List<int> _sortIndicesByPrefix(_SortPrefixArgs a) {
+  final inp = _lowerNoConflate(a.input);
+  int score(String title) {
+    final t = _lowerNoConflate(title);
+    final n = inp.length <= t.length ? inp.length : t.length;
+    int s = 0;
+    for (int i = 0; i < n; i++) {
+      if (t[i] != inp[i]) s++;
+    }
+    return s;
+  }
+
+  final idx = List<int>.generate(a.titles.length, (i) => i);
+  idx.sort((i, j) {
+    final si = score(a.titles[i]);
+    final sj = score(a.titles[j]);
+    if (si != sj) return si - sj;
+    return col.compareByAlphabet(a.titles[i], a.titles[j], a.alpha);
+  });
+  return idx;
+}

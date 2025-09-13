@@ -24,8 +24,10 @@ final searchProvider = FutureProvider.family<List<WordModel>, String>((ref, text
 
   final mode = ref.watch(searchModeProvider).value;
   if (mode == null) return [];
+
   final (fromLang, toLang) = _dir[mode]!;
   final api = ref.watch(localApiClientProvider);
+
   final result = await api.search(text, fromLang, toLang);
-   return result;
- });
+  return result;
+});
