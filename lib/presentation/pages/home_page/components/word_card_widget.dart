@@ -27,20 +27,28 @@ class WordCardWidget extends ConsumerWidget {
                     ? 1.3
                     : -.3,
           ),
-          selected: ref.watch(translateModeProvider) && word.id == ref.watch(selectedWordIdProvider),
+          selected: ref.watch(translateModeProvider) &&
+              word.id == ref.watch(selectedWordIdProvider),
           selectedColor: theme.textTheme.bodyMedium!.color,
           selectedTileColor: theme.brightness == Brightness.light
               ? const Color.fromARGB(255, 229, 243, 252)
               : const Color.fromARGB(255, 0, 36, 72),
           onTap: () {
+            print("saved word: ${word.id}");
+            print("saved word: ${word.title}");
             ref.read(historyProvider.notifier).addWordToSaved(word);
-            ref.read(selectedWordIdProvider.notifier).changeSelectedId = word.id;
+            ref.read(selectedWordIdProvider.notifier).changeSelectedId =
+                word.id;
             if (ref.read(splitModeProvider)) {
               ref.read(selectedBottomPanelWordIdProvider.notifier).id = word.id;
             } else {
-              textController.selection = TextSelection(baseOffset: 0, extentOffset: textController.value.text.length);
+              textController.selection = TextSelection(
+                  baseOffset: 0,
+                  extentOffset: textController.value.text.length);
               Navigator.of(context).push(NavigateEffects.fadeTransitionToPage(
-                  WordPage(word.translationId != null ? word.translationId! : word.id)));
+                  WordPage(word.translationId != null
+                      ? word.translationId!
+                      : word.id)));
             }
           },
           contentPadding: const EdgeInsets.symmetric(horizontal: 11),
@@ -56,7 +64,9 @@ class WordCardWidget extends ConsumerWidget {
                           ? theme.textTheme.bodyMedium!.copyWith(
                               fontSize: 18.5 * glossaryZoom,
                             )
-                          : theme.textTheme.bodyMedium!.copyWith(fontSize: 18.5 * glossaryZoom, color: Colors.white),
+                          : theme.textTheme.bodyMedium!.copyWith(
+                              fontSize: 18.5 * glossaryZoom,
+                              color: Colors.white),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -64,8 +74,10 @@ class WordCardWidget extends ConsumerWidget {
                       style: theme.textTheme.bodySmall!.copyWith(
                           fontSize: 14 * glossaryZoom,
                           color: theme.brightness == Brightness.dark
-                              ? theme.textTheme.bodySmall!.color!.withOpacity(0.7)
-                              : theme.textTheme.bodySmall!.color!.withOpacity(0.5)),
+                              ? theme.textTheme.bodySmall!.color!
+                                  .withOpacity(0.7)
+                              : theme.textTheme.bodySmall!.color!
+                                  .withOpacity(0.5)),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     )
@@ -80,17 +92,28 @@ class WordCardWidget extends ConsumerWidget {
                       padding: EdgeInsets.zero,
                       splashRadius: 20,
                       onPressed: () => OutsideFunctions.showClearHistoryDialog(
-                          context, () => ref.read(historyProvider.notifier).deleteFromHistory(word), tr('del_this_word')),
+                          context,
+                          () => ref
+                              .read(historyProvider.notifier)
+                              .deleteFromHistory(word),
+                          tr('del_this_word')),
                       icon: Icon(Icons.close,
                           color: Theme.of(context).brightness == Brightness.dark
-                              ? Theme.of(context).textTheme.bodySmall!.color!.withOpacity(.6)
-                              : Theme.of(context).textTheme.bodySmall!.color!.withOpacity(.5))),
+                              ? Theme.of(context)
+                                  .textTheme
+                                  .bodySmall!
+                                  .color!
+                                  .withOpacity(.6)
+                              : Theme.of(context)
+                                  .textTheme
+                                  .bodySmall!
+                                  .color!
+                                  .withOpacity(.5))),
                 ),
             ],
           ),
         ),
         const SizedBox(height: 1, child: Divider(thickness: 1)),
-
       ],
     );
   }

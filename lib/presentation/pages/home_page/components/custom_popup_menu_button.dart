@@ -224,7 +224,7 @@ class _CustomPopupMenuButtonState<T>
             _showOverlay(ctx);
           }
         },
-        child: SizedBox(height: 50, child: widget.child),
+        child: SizedBox(height: 65, child: widget.child),
       );
     });
   }

@@ -16,15 +16,15 @@ import 'custom_popup_menu_button.dart';
 class AppBarWidget extends ConsumerWidget {
   final GlobalKey<ScaffoldState>? scaffoldKey;
 
-   AppBarWidget({super.key, this.scaffoldKey});
- final FocusNode _noFocus = FocusNode(canRequestFocus: false);
+  AppBarWidget({super.key, this.scaffoldKey});
+  final FocusNode _noFocus = FocusNode(canRequestFocus: false);
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final textScaler = MediaQuery.of(context).textScaler;
     final adjustedScaler = textScaler.scale(1.0) > 1.5
         ? textScaler
-        : TextScaler.linear(textScaler.scale(1.0) * 1.1);
+        : TextScaler.linear(textScaler.scale(1.0) * 1.15);
     String dropDownValueFirst = '';
     String dropDownValueSecond = '';
     List<String> dropDownFirstValues = [];
@@ -273,7 +273,7 @@ class AppBarWidget extends ConsumerWidget {
                     .map(
                       (value) => PopupMenuItem<String>(
                         padding: EdgeInsets.zero,
-      
+
                         value: value,
                         height: kToolbarHeight -
                             8, // Высота элемента (можно настроить)
@@ -282,10 +282,10 @@ class AppBarWidget extends ConsumerWidget {
                           textScaler: adjustedScaler,
                           maxLines: 1,
                           style: theme.textTheme.bodyMedium!.copyWith(
-                              fontSize: 15,
+                              fontSize: 14,
                               fontWeight: FontWeight.w500,
                               color: Colors.black,
-                              letterSpacing: 0.4),
+                           ),
                         ),
                       ),
                     )
@@ -293,7 +293,7 @@ class AppBarWidget extends ConsumerWidget {
                 right: false,
                 child: Container(
                   alignment: Alignment.center,
-                  padding: const EdgeInsets.only(left: 12,top: 12,bottom: 12),
+                  padding: const EdgeInsets.only(left: 12, top: 12, bottom: 12),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -301,6 +301,7 @@ class AppBarWidget extends ConsumerWidget {
                         child: TwoDotEllipsis(
                           text: dropDownValueFirst,
                           // maxLines: 1,
+                        
                           textScaler: adjustedScaler,
                           style: theme.textTheme.bodyMedium!.copyWith(
                             color: Colors.white,
@@ -339,7 +340,7 @@ class AppBarWidget extends ConsumerWidget {
                         .read(searchModeProvider.notifier)
                         .onDropDownSecondChange(value);
                   }
-      
+
                   ref
                       .read(textFieldValueProvider.notifier)
                       .focusNode
@@ -349,7 +350,7 @@ class AppBarWidget extends ConsumerWidget {
                     .map(
                       (value) => PopupMenuItem<String>(
                         padding: EdgeInsets.zero,
-      
+
                         value: value,
                         height: kToolbarHeight -
                             4, // Высота элемента (можно настроить)
@@ -359,10 +360,10 @@ class AppBarWidget extends ConsumerWidget {
                             text: value,
                             maxLines: 1,
                             style: theme.textTheme.bodyMedium!.copyWith(
-                                fontSize: 15,
+                                fontSize: 14,
                                 fontWeight: FontWeight.w500,
                                 color: Colors.black,
-                                letterSpacing: 0.4),
+                               ),
                           ),
                         ),
                       ),
@@ -371,7 +372,8 @@ class AppBarWidget extends ConsumerWidget {
                 right: true,
                 child: Container(
                   alignment: Alignment.center,
-                  padding: const EdgeInsets.symmetric(horizontal: 12,vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

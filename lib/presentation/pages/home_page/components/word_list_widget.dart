@@ -57,11 +57,14 @@ class _SearchList extends ConsumerWidget {
     return wordList.when(
       data: (data) {
         if (data.isEmpty) {
-          return Center(
-            child: Text(
-              '${tr('translation_not_found')}.',
-              style: Theme.of(context).textTheme.headlineLarge!.copyWith(fontSize: 20),
-            ),
+          return Column(
+            children: [
+              SizedBox(height: MediaQuery.of(context).size.height/4),
+              Text(
+                '${tr('translation_not_found')}.',
+                style: Theme.of(context).textTheme.headlineLarge!.copyWith(fontSize: 20),
+              ),
+            ],
           );
         }
         return ListView.builder(

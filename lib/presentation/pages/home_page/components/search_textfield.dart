@@ -15,12 +15,16 @@ class SearchTextfield extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isCursorShow = !ref.watch(popupMenuOpenProvider);
+    print(isCursorShow);
     final theme = Theme.of(context);
-    final wordList = ref.watch(searchProvider(ref.watch(textFieldValueProvider)));
+    final wordList =
+        ref.watch(searchProvider(ref.watch(textFieldValueProvider)));
     return ColoredBox(
       color: theme.scaffoldBackgroundColor,
       child: Padding(
-        padding: const EdgeInsets.only(right: 10, left: 10, top: 10, bottom: 10),
+        padding:
+            const EdgeInsets.only(right: 10, left: 10, top: 10, bottom: 10),
         child: Column(
           children: [
             TextField(
@@ -34,7 +38,8 @@ class SearchTextfield extends ConsumerWidget {
                     if (editableTextState.textEditingValue.text.isNotEmpty)
                       TextButton(
                         onPressed: () {
-                          editableTextState.copySelection(SelectionChangedCause.toolbar);
+                          editableTextState
+                              .copySelection(SelectionChangedCause.toolbar);
                         },
                         child: Text(
                           tr('copy'),
@@ -43,7 +48,8 @@ class SearchTextfield extends ConsumerWidget {
                       ),
                     TextButton(
                       onPressed: () {
-                        editableTextState.pasteText(SelectionChangedCause.toolbar);
+                        editableTextState
+                            .pasteText(SelectionChangedCause.toolbar);
                       },
                       child: Text(
                         tr('paste'),
@@ -65,20 +71,27 @@ class SearchTextfield extends ConsumerWidget {
                   ],
                 );
               },
-              cursorHeight: 24,
+              cursorHeight: MediaQuery.of(context).textScaler.scale(24),
               onSubmitted: (_) {
-                if (ref.read(translateModeProvider) && wordList.value != null && wordList.value!.isNotEmpty) {
-                  Navigator.of(context).push(NavigateEffects.fadeTransitionToPage(
-                      WordPage(wordList.value!.first.translationId ?? wordList.value!.first.id)));
+                if (ref.read(translateModeProvider) &&
+                    wordList.value != null &&
+                    wordList.value!.isNotEmpty) {
+                  Navigator.of(context).push(
+                      NavigateEffects.fadeTransitionToPage(WordPage(
+                          wordList.value!.first.translationId ??
+                              wordList.value!.first.id)));
                 }
               },
-              showCursor: true,
+              showCursor: isCursorShow,
               focusNode: ref.read(textFieldValueProvider.notifier).focusNode,
               controller: textController,
               autofocus: true,
               style: theme.textTheme.bodyMedium!.copyWith(fontSize: 20),
               onChanged: (value) {
-                if (ref.read(splitModeProvider)) ref.read(selectedWordIdProvider.notifier).changeSelectedId = -1;
+                ref.read(popupMenuClearTextOpenProvider).call();
+                if (ref.read(splitModeProvider))
+                  ref.read(selectedWordIdProvider.notifier).changeSelectedId =
+                      -1;
                 if (value.isEmpty) {
                   ref.read(translateModeProvider.notifier).setFalse();
                 } else {
@@ -93,11 +106,13 @@ class SearchTextfield extends ConsumerWidget {
                 hintText: tr('enter_the_word'),
                 hintStyle: theme.brightness == Brightness.dark
                     ? theme.textTheme.bodyMedium!.copyWith(
-                        color: theme.textTheme.bodySmall!.color!.withOpacity(0.6),
+                        color:
+                            theme.textTheme.bodySmall!.color!.withOpacity(0.6),
                         fontSize: 18,
                         fontWeight: FontWeight.w500)
                     : theme.textTheme.bodyMedium!.copyWith(
-                        color: theme.textTheme.bodySmall!.color!.withOpacity(0.7),
+                        color:
+                            theme.textTheme.bodySmall!.color!.withOpacity(0.7),
                         fontSize: 18,
                         fontWeight: FontWeight.w500),
                 suffixIconConstraints: const BoxConstraints(maxHeight: 24),
@@ -106,13 +121,17 @@ class SearchTextfield extends ConsumerWidget {
                         width: 35,
                         child: IconButton(
                           padding: const EdgeInsets.all(0),
-                          splashRadius: 20,
+                          splashRadius: 30,
                           onPressed: () {
-                            ref.read(textFieldValueProvider.notifier).state = '';
+                            ref.read(textFieldValueProvider.notifier).state =
+                                '';
                             ref.read(translateModeProvider.notifier).setFalse();
                             textController.clear();
                           },
-                          icon: Icon(Icons.close, color: theme.textTheme.bodySmall!.color, size: 25),
+                          icon: Icon(Icons.close,
+                              color: theme.textTheme.bodySmall!.color!
+                                  .withOpacity(0.6),
+                              size: 32),
                         ),
                       )
                     : const SizedBox.shrink(),

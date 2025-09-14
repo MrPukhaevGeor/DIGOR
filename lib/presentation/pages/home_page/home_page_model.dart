@@ -46,6 +46,8 @@ class SplitMode extends _$SplitMode {
   set newState(bool value) {
     state = value;
     _saveState();
+    print(123);
+    ref.read(selectedBottomPanelWordIdProvider.notifier).state = -1;
   }
 
   Future<void> _saveState() async {

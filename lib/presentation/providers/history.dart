@@ -37,11 +37,16 @@ class HistoryNotifier extends AsyncNotifier<List<WordModel>> {
       state = const AsyncValue.data([]);
       return [];
     }
-
+      print("word ${ids}");
     final fromLangMode = ref.read(searchModeProvider.notifier).getFromLanguageMode();
     final toLangMode = ref.read(searchModeProvider.notifier).getToLanguageMode();
+    print("${fromLangMode}, to ${toLangMode}");
     try {
       final response = await _dataSource.searchByIds(ids, '$fromLangMode=$toLangMode');
+      for (final element in response) {
+        print("word ${element.id}");
+        print("word ${element.title}");
+      }
       state = AsyncValue.data(response);
       return response;
     } catch (error) {

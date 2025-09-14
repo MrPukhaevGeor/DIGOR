@@ -29,70 +29,22 @@ class ZoomOverlay {
   static Timer? _hideTimer;
   static late AnimationController _controller;
   static late Animation<double> _animation;
+
   static void show(BuildContext context, double zoom,
       {Duration duration = const Duration(seconds: 2)}) {
     final int percent = (zoom * 100).round();
 
-    // обновляем (или создаём) нотифаер с числом
     _notifier ??= ValueNotifier<int>(percent);
     _notifier!.value = percent;
 
     final overlay = Overlay.of(context);
     if (overlay == null) return;
 
-    // 1) Если оверлей уже показан — делаем быстрый reverse (короткий) и затем forward
-    if (_entry != null && _controller != null) {
-      // отменяем старый таймер скрытия
-      _hideTimer?.cancel();
-
-      // быстрый реверс (короткая длительность), затем обычный forward
-      // тут можно настроить короткую длительность (например 100 ms)
-      final shortReverseDuration = const Duration(milliseconds: 120);
-      final normalForwardDuration = const Duration(milliseconds: 360);
-
-      // если сейчас идёт reverse, ничего не делаем — подождём/восстановим forward
-      try {
-        // animateBack до 0.0 с короткой длительностью, затем снова forward
-        _controller!
-            .animateBack(
-          0.0,
-          duration: shortReverseDuration,
-          curve: Curves.easeIn,
-        )
-            .then((_) {
-          // немножко задержки можно добавить при желании
-          _controller!.animateTo(
-            1.0,
-            duration: normalForwardDuration,
-            curve: Curves.easeOutBack,
-          );
-        });
-      } catch (_) {
-        // если animateBack упал, пробуем просто forward
-        try {
-          _controller!.forward();
-        } catch (_) {}
-      }
-
-      // пересоздаём/обновляем таймер скрытия
-      _hideTimer = Timer(duration, () {
-        hide();
-      });
-
-      return; // готово — не создаём новый OverlayEntry
-    }
-
-    // 2) Оверлей ещё не был создан — создаём как раньше
     if (_entry == null) {
-      // если был старый контроллер — почистим
-      try {
-        _controller.dispose();
-      } catch (_) {}
-      // создаём контроллер и анимацию
       _controller = AnimationController(
         vsync: overlay,
-        duration: const Duration(milliseconds: 450),
-        reverseDuration: const Duration(milliseconds: 380),
+        duration: const Duration(milliseconds: 800),
+        reverseDuration: const Duration(milliseconds: 800),
       );
 
       _animation =
@@ -100,28 +52,27 @@ class ZoomOverlay {
 
       _entry = OverlayEntry(builder: (ctx) {
         final theme = Theme.of(ctx);
-        return Positioned(
-          bottom: MediaQuery.of(context).size.height / 9 +
-              MediaQuery.of(ctx).viewInsets.bottom,
-          left: 0,
-          right: 0,
-          child: IgnorePointer(
-            ignoring: true,
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 450),
-              transitionBuilder: (child, anim) =>
-                  ScaleTransition(scale: anim, child: child),
+        return MediaQuery(
+          data: MediaQuery.of(context)
+              .copyWith(textScaler: TextScaler.linear(1), boldText: false),
+          child: Positioned(
+            bottom: MediaQuery.of(context).size.height / 9 +
+                MediaQuery.of(ctx).viewInsets.bottom,
+            left: 0,
+            right: 0,
+            child: IgnorePointer(
+              ignoring: true,
               child: Center(
                 child: Material(
                   color: Colors.transparent,
                   child: FadeTransition(
                     opacity: _animation,
                     child: Container(
-                      width: 200,
+                      width: 180,
                       padding: const EdgeInsets.symmetric(
-                          vertical: 8, horizontal: 12),
+                          vertical: 12, horizontal: 12),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(.68),
+                        color: Colors.black.withOpacity(.70),
                         borderRadius: BorderRadius.circular(40.0),
                       ),
                       child: Row(
@@ -129,24 +80,33 @@ class ZoomOverlay {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           SizedBox(
-                            width: 30,
-                            height: 30,
+                            width: 25,
+                            height: 25,
                             child: Image.asset('assets/white.png'),
                           ),
                           const SizedBox(width: 10),
                           Text(
                             '${l.tr('zoom')} ',
                             style: theme.textTheme.bodySmall!
-                                .copyWith(color: Colors.white, fontSize: 16),
+                                .copyWith(color: Colors.white, fontSize: 15),
                           ),
                           ValueListenableBuilder<int>(
                             valueListenable: _notifier!,
                             builder: (context, value, child) {
-                              return Text(
-                                '$value%',
-                                key: ValueKey<int>(value),
-                                style: theme.textTheme.bodySmall!.copyWith(
-                                    color: Colors.white, fontSize: 15),
+                              return AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 200),
+                                transitionBuilder: (child, anim) =>
+                                    FadeTransition(opacity: anim, child: child),
+                                child: SizedBox(
+                                  width: 48,
+                                  child: Text(
+                                    '$value%',
+                                    key:
+                                        ValueKey<int>(value), // ключ обязателен
+                                    style: theme.textTheme.bodySmall!.copyWith(
+                                        color: Colors.white, fontSize: 15),
+                                  ),
+                                ),
                               );
                             },
                           ),
@@ -162,25 +122,23 @@ class ZoomOverlay {
       });
 
       overlay.insert(_entry!);
-      _controller.forward(); // анимация появления
+      _controller.forward();
     }
 
-    // Обновляем таймер скрытия
     _hideTimer?.cancel();
     _hideTimer = Timer(duration, () {
       hide();
     });
   }
 
-  /// Скрыть overlay с анимацией
   static Future<void> hide({bool immediately = false}) async {
     _hideTimer?.cancel();
     _hideTimer = null;
 
     if (_entry != null) {
-
-        await _controller.reverse(); // плавное исчезновение
-
+      if (!immediately) {
+        await _controller.reverse();
+      }
 
       _entry?.remove();
       _entry = null;
@@ -224,7 +182,7 @@ class TwoDotEllipsis extends StatelessWidget {
     final double textScaleFactor = effectiveTextScaler.scale(1.0);
 
     return LayoutBuilder(builder: (context, constraints) {
-      final double maxWidth = maxWidthOverride ?? constraints.maxWidth;
+      final double maxWidth = maxWidthOverride ?? constraints.maxWidth - 4;
 
       // Если ширина бесконечна, просто рисуем текст — нет ограничений.
       if (maxWidth.isInfinite) {
@@ -495,6 +453,11 @@ class OutsideFunctions {
 
   static Future<void> showClearHistoryDialog(
       BuildContext context, Function callback, String content) async {
+    final scaler = MediaQuery.of(context).textScaler;
+    final systemScale = scaler.scale(1.0); // например 1.0, 1.5, 2.0
+    const double dampFactor = 0.25; // 25% от системного изменения
+    final adjustedScale = 1.0 + (systemScale - 1.0) * dampFactor;
+    final height = 133 * adjustedScale;
     final theme = Theme.of(context);
     showDialog(
       context: context,
@@ -506,7 +469,7 @@ class OutsideFunctions {
               borderRadius: BorderRadius.circular(2),
             ),
             margin: const EdgeInsets.symmetric(horizontal: 22),
-            padding: const EdgeInsets.all(17),
+            padding: const EdgeInsets.all(22),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,

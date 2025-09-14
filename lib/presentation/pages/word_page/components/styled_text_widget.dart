@@ -41,7 +41,7 @@ class StyledTextWidget extends ConsumerWidget {
         children: [
           if (word.audioUrl == null)
             Positioned(
-              top: 30 * zoom,
+              top: 51 * zoom,
               left: 0,
               right: 0,
               child: SizedBox(
@@ -53,9 +53,9 @@ class StyledTextWidget extends ConsumerWidget {
             ),
           textLines.isEmpty
               ? const SizedBox.shrink()
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: (isShowingExamples
+              : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  SizedBox(height: 18),
+                  ...(isShowingExamples
                           ? textLines
                           : textLines.where((element) =>
                               !element.contains('<m2>') &&
@@ -63,13 +63,13 @@ class StyledTextWidget extends ConsumerWidget {
                       .map(
                         (e) => Padding(
                           padding: EdgeInsets.only(
-                            /*left: e.contains('m1')
+                            left: e.contains('m1')
                                 ? mPadding * 1
-                                : e.contains('m2')
+                                : e.contains('m2') || e.contains('b')
                                     ? mPadding * 2
                                     : e.contains('m3')
                                         ? mPadding * 3
-                                        : mPadding * 0,*/
+                                        : mPadding * 0,
                             right: 32,
                           ),
                           child: Consumer(builder: (context, ref, child) {
@@ -138,6 +138,11 @@ class StyledTextWidget extends ConsumerWidget {
                                     height: 1,
                                   ),
                                 ),
+                                'm1': StyledTextTag(
+                                    style: TextStyle(
+                                        fontFamily: 'BrisaSans',
+                                        fontSize: 14 * zoom,
+                                        height: 1)),
                                 'u': StyledTextTag(
                                     style: const TextStyle(
                                         fontFamily: 'BrisaSans',
@@ -204,7 +209,7 @@ class StyledTextWidget extends ConsumerWidget {
                         ),
                       )
                       .toList(),
-                ),
+                ]),
         ],
       ),
     );

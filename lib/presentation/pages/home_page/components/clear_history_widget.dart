@@ -97,7 +97,10 @@ class _ClearHistoryButtonState extends ConsumerState<ClearHistoryButton>
                                       }
                                     },
                               child: ConstrainedBox(
-                                constraints: BoxConstraints(minWidth: minWidth),
+                                constraints: BoxConstraints(
+                                  minWidth: minWidth,
+                                 
+                                ),
                                 child: Container(
                                   alignment: Alignment.centerLeft,
                                   height: kToolbarHeight - 8,
@@ -106,18 +109,21 @@ class _ClearHistoryButtonState extends ConsumerState<ClearHistoryButton>
                                     vertical: 2,
                                   ),
                                   child: Text(
+                                    overflow: TextOverflow.ellipsis,
                                     'clear_history'.tr(),
                                     maxLines: 1,
                                     style: isEmpty ||
                                             ref
                                                 .read(textFieldValueProvider)
                                                 .isNotEmpty
-                                        ? theme.textTheme.bodyMedium!.copyWith(
+                                        ? theme.textTheme.bodyMedium!
+                                            .copyWith(
                                             color: Colors.grey,
                                             fontSize: 16,
                                             fontWeight: FontWeight.w500,
                                           )
-                                        : theme.textTheme.bodyMedium!.copyWith(
+                                        : theme.textTheme.bodyMedium!
+                                            .copyWith(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w500,
                                           ),

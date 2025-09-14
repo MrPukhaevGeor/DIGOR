@@ -28,6 +28,7 @@ class HomePage extends ConsumerWidget {
           if (isPopupOpen) {
             // Закрываем popup меню
             ref.read(popupMenuClearTextOpenProvider).call();
+            ref.read(popupMenuOpenProvider.notifier).state = false;
             return false; // Не выходим из приложения
           }
 
