@@ -1,7 +1,5 @@
 import 'dart:convert';
 import 'dart:ui';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:styled_text/styled_text.dart';
@@ -26,15 +24,150 @@ class StyledTextWidget extends ConsumerWidget {
     this.maxLines,
   });
 
+  /// --- ХЕЛПЕРЫ ---
+
+  double measureSpaceWidth(TextStyle style) {
+    final tp = TextPainter(
+      text: TextSpan(text: ' ', style: style),
+      textDirection: TextDirection.ltr,
+    );
+    tp.layout();
+    return tp.width;
+  }
+
+  int detectIndentSpaces(String line) {
+    final s = line.toLowerCase();
+    if (s.contains('<m3>')) return 8;
+    if (s.contains('<m2>')) return 8;
+    if (s.trimLeft().startsWith('<b>')) return 2;
+    if (s.contains('<m1>')) return 4;
+    return 0;
+  }
+
+  List<String> splitStringByTab(String textToSplit) {
+    final list = textToSplit
+        .split(utf8.decode([10]))
+        .where((element) => element.trim().isNotEmpty)
+        .map((e) => formatText(e).trim())
+        .toList();
+    return list;
+  }
+
+  String formatText(String textToFormat) {
+    return textToFormat.replaceAll('[', '<').replaceAll(']', '>');
+  }
+
+  bool isNumberedLine(String text) {
+    // простая проверка на начало строки "цифра+)"
+    final trimmed = text.trimLeft();
+    final regex = RegExp(r'^\d+\)');
+    return regex.hasMatch(trimmed);
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final textLines = splitStringByTab(word.body ?? '');
-
     final theme = Theme.of(context);
-    const mPadding = 10;
     final dicName = ref.read(searchModeProvider.notifier).getFullLanguageMode();
     final zoom = ref.watch(articleZoomProvider);
 
+    final baseTextStyle = theme.textTheme.bodySmall!.copyWith(
+      fontSize: 17 * zoom,
+      height: 1,
+      fontFamily: 'BrisaSans',
+      fontWeight: FontWeight.w300,
+    );
+    final spaceWidth = measureSpaceWidth(baseTextStyle);
+
+    final Map<String, StyledTextTagBase> tags = {
+      'ref': StyledTextActionTag(
+        (String? text, Map<String?, String?> attrs) {
+          if (word.refs!.containsKey(text)) {
+            try {
+              ref.read(splitModeProvider)
+                  ? ref.read(selectedBottomPanelWordIdProvider.notifier).id =
+                      word.refs![text]!
+                  : Navigator.of(context).push(
+                      NavigateEffects.fadeTransitionToPage(
+                          WordPage(word.refs![text]!)));
+            } catch (err) {
+              print(err);
+            }
+          } else {
+            OutsideFunctions.showRefSnackBar(context, text ?? '');
+          }
+        },
+        style: TextStyle(
+          fontFamily: 'BrisaSans',
+          fontSize: 13 * zoom,
+          color: theme.brightness == Brightness.dark
+              ? const Color.fromARGB(255, 0, 129, 255)
+              : const Color.fromARGB(255, 0, 0, 238),
+        ),
+      ),
+      'b': StyledTextTag(
+        style:  TextStyle(
+          fontFamily: 'BrisaSans',
+          height: 1,
+          fontSize: 15 * zoom,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      'trn': StyledTextTag(
+        style: TextStyle(
+          fontFamily: 'BrisaSans',
+          fontSize: 15 * zoom,
+          fontWeight: FontWeight.w500,
+          color: theme.textTheme.bodyMedium!.color,
+          height: 1,
+        ),
+      ),
+      'u': StyledTextTag(
+        style: TextStyle(
+          fontFamily: 'BrisaSans',
+          height: 1,
+          fontSize: 14 * zoom,
+          decoration: TextDecoration.underline,
+        ),
+      ),
+      'c': StyledTextTag(
+        style: TextStyle(
+          fontFamily: 'BrisaSans',
+          height: 1,
+          fontSize: 15 * zoom,
+          fontWeight: FontWeight.w500,
+          color: Color.fromRGBO(1, 127, 1, 1),
+        ),
+      ),
+      'i': StyledTextTag(
+        style: TextStyle(
+          fontFamily: 'BrisaSans',
+          fontSize: 15 * zoom,
+          fontStyle: FontStyle.italic,
+          height: 1,
+        ),
+      ),
+      'ex': StyledTextTag(
+        style: TextStyle(
+          fontSize: 13 * zoom,
+          fontWeight: FontWeight.w500,
+          fontFamily: 'BrisaSans',
+          color: theme.brightness == Brightness.dark
+              ? const Color.fromARGB(255, 206, 207, 255)
+              : const Color.fromARGB(255, 0, 0, 97),
+          height: 1,
+        ),
+      ),
+      "'": StyledTextTag(
+        style: const TextStyle(
+          fontFamily: 'BrisaSans',
+          height: 1,
+          fontStyle: FontStyle.italic,
+          decoration: TextDecoration.lineThrough,
+        ),
+      ),
+    };
+    print(textLines);
     return SizedBox(
       width: MediaQuery.sizeOf(context).width,
       child: Stack(
@@ -45,193 +178,119 @@ class StyledTextWidget extends ConsumerWidget {
               left: 0,
               right: 0,
               child: SizedBox(
-                  height: 1,
-                  child: Divider(
-                      thickness: 1,
-                      endIndent: 10,
-                      color: theme.primaryColor.withOpacity(.5))),
+                height: 1,
+                child: Divider(
+                  thickness: 1,
+                  endIndent: 10,
+                  color: theme.primaryColor.withOpacity(.5),
+                ),
+              ),
             ),
           textLines.isEmpty
               ? const SizedBox.shrink()
-              : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  SizedBox(height: 18),
-                  ...(isShowingExamples
-                          ? textLines
-                          : textLines.where((element) =>
-                              !element.contains('<m2>') &&
-                              !element.contains('<m3>')))
-                      .map(
-                        (e) => Padding(
-                          padding: EdgeInsets.only(
-                            left: e.contains('m1')
-                                ? mPadding * 1
-                                : e.contains('m2') || e.contains('b')
-                                    ? mPadding * 2
-                                    : e.contains('m3')
-                                        ? mPadding * 3
-                                        : mPadding * 0,
-                            right: 32,
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 14),
+
+                    if (word.audioUrl == null) ...[
+                      StyledText(
+                        text: '<dict>Language ($dicName)</dict>',
+                        style: baseTextStyle,
+                        tags: {
+                          'dict': StyledTextTag(
+                            style: theme.textTheme.bodyLarge!.copyWith(
+                              fontSize: 17 * zoom,
+                              fontFamily: 'BrisaSans',
+                            ),
                           ),
-                          child: Consumer(builder: (context, ref, child) {
-                            return StyledText.selectable(
-                              newLineAsBreaks: true,
-                              key: ValueKey(e),
-                              selectionHeightStyle:
-                                  BoxHeightStyle.includeLineSpacingMiddle,
-                              text:
-                                  '${word.audioUrl == null ? '<dict>Language ($dicName)\n\n\n</dict>><title>${word.title}</title>\n\n' : null}${e}',
-                              style: theme.textTheme.bodySmall!.copyWith(
-                                fontSize: 17 * zoom,
-                                height: 1,
-                                color: theme.textTheme.bodyMedium!.color,
-                                fontFamily: 'BrisaSans',
-                                fontWeight: FontWeight.w300,
+                        },
+                      ),
+                      const SizedBox(height: 40),
+                      StyledText(
+                        text: '<title>${word.title}</title>',
+                        style: baseTextStyle,
+                        tags: {
+                          'title': StyledTextTag(
+                            style: theme.textTheme.headlineSmall!.copyWith(
+                              fontSize: 28 * zoom,
+                              fontFamily: 'BrisaSans',
+                            ),
+                          ),
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+
+                    // Контент по строкам
+                    ...textLines.map((e) {
+                      final spaces = detectIndentSpaces(e);
+                      final leftIndent = spaces * spaceWidth;
+
+                      final cleaned = e
+                          .replaceAll(RegExp(r'<m[1-3]>'), '')
+                          .replaceAll(RegExp(r'</m>'), '')
+                          .replaceAll('<*>', '')
+                          .replaceAll('</*>', '')
+                          .trimLeft();
+
+                      if (isNumberedLine(cleaned)) {
+                        // висячий отступ через Row + Expanded
+                        final match = RegExp(r'^(\d+\))').firstMatch(cleaned);
+                        final numberPart = match?.group(1) ?? '';
+                        final restText =
+                            cleaned.substring(numberPart.length).trimLeft();
+
+                        return Padding(
+                          padding: EdgeInsets.only(left: leftIndent, right: 32),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(numberPart, style: baseTextStyle),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: StyledText.selectable(
+                                  key: ValueKey(e),
+                                  newLineAsBreaks: true,
+                                  selectionHeightStyle:
+                                      BoxHeightStyle.includeLineSpacingMiddle,
+                                  text: restText,
+                                  style: baseTextStyle,
+                                  maxLines: maxLines,
+                                  magnifierConfiguration:
+                                      const TextMagnifierConfiguration(
+                                          shouldDisplayHandlesInMagnifier:
+                                              false),
+                                  tags: tags,
+                                ),
                               ),
-                              magnifierConfiguration:
-                                  TextMagnifierConfiguration(
-                                      shouldDisplayHandlesInMagnifier: false),
-                              maxLines: maxLines,
-                              tags: {
-                                'ref': StyledTextActionTag(
-                                  (String? text, Map<String?, String?> attrs) {
-                                    if (word.refs!.containsKey(text)) {
-                                      try {
-                                        ref.read(splitModeProvider)
-                                            ? ref
-                                                .read(
-                                                    selectedBottomPanelWordIdProvider
-                                                        .notifier)
-                                                .id = word.refs![text]!
-                                            : Navigator.of(context).push(
-                                                NavigateEffects
-                                                    .fadeTransitionToPage(
-                                                        WordPage(word
-                                                            .refs![text]!)));
-                                      } catch (e) {
-                                        print(e);
-                                      }
-                                    } else {
-                                      OutsideFunctions.showRefSnackBar(
-                                          context, text ?? '');
-                                    }
-                                  },
-                                  style: TextStyle(
-                                      fontFamily: 'BrisaSans',
-                                      color: theme.brightness == Brightness.dark
-                                          ? const Color.fromARGB(
-                                              255, 0, 129, 255)
-                                          : const Color.fromARGB(
-                                              255, 0, 0, 238)),
-                                ),
-                                'b': StyledTextTag(
-                                    style: const TextStyle(
-                                  fontFamily: 'BrisaSans',
-                                  height: 1,
-                                  fontWeight: FontWeight.bold,
-                                )),
-                                'trn': StyledTextTag(
-                                  style: TextStyle(
-                                    fontFamily: 'BrisaSans',
-                                    fontSize: 15 * zoom,
-                                    fontWeight: FontWeight.w500,
-                                    color: theme.textTheme.bodyMedium!.color,
-                                    height: 1,
-                                  ),
-                                ),
-                                'm1': StyledTextTag(
-                                    style: TextStyle(
-                                        fontFamily: 'BrisaSans',
-                                        fontSize: 14 * zoom,
-                                        height: 1)),
-                                'u': StyledTextTag(
-                                    style: const TextStyle(
-                                        fontFamily: 'BrisaSans',
-                                        height: 1,
-                                        fontSize: 14,
-                                        decoration: TextDecoration.underline)),
-                                'c': StyledTextTag(
-                                    style: const TextStyle(
-                                        fontFamily: 'BrisaSans',
-                                        height: 1,
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w500,
-                                        color: Color.fromRGBO(1, 127, 1, 1))),
-                                'i': StyledTextTag(
-                                    style: const TextStyle(
-                                        fontFamily: 'BrisaSans',
-                                        fontSize: 14,
-                                        fontStyle: FontStyle.italic,
-                                        height: 1)),
-                                'ex': StyledTextTag(
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w300,
-                                        fontFamily: 'BrisaSans',
-                                        color:
-                                            theme.brightness == Brightness.dark
-                                                ? const Color.fromARGB(
-                                                    255, 206, 207, 255)
-                                                : const Color.fromARGB(
-                                                    255, 0, 0, 97),
-                                        height: 1)),
-                                'm2': StyledTextTag(
-                                    style: TextStyle(
-                                        fontFamily: 'BrisaSans',
-                                        fontSize: 14 * zoom,
-                                        height: 1)),
-                                'm3': StyledTextTag(
-                                    style: TextStyle(
-                                        fontFamily: 'BrisaSans',
-                                        fontSize: 14 * zoom,
-                                        height: 1)),
-                                'title': StyledTextTag(
-                                  style:
-                                      theme.textTheme.headlineSmall!.copyWith(
-                                    fontSize: 28 * zoom,
-                                    fontFamily: 'BrisaSans',
-                                  ),
-                                ),
-                                'dict': StyledTextTag(
-                                    style: theme.textTheme.bodyLarge!.copyWith(
-                                  fontSize: 17 * zoom,
-                                  fontFamily: 'BrisaSans',
-                                )),
-                                "'": StyledTextTag(
-                                    style: const TextStyle(
-                                        fontFamily: 'BrisaSans',
-                                        height: 1,
-                                        fontStyle: FontStyle.italic,
-                                        decoration:
-                                            TextDecoration.lineThrough)),
-                              },
-                            );
-                          }),
-                        ),
-                      )
-                      .toList(),
-                ]),
+                            ],
+                          ),
+                        );
+                      } else {
+                        // обычная строка
+                        return Padding(
+                          padding: EdgeInsets.only(left: leftIndent, right: 32),
+                          child: StyledText.selectable(
+                            key: ValueKey(e),
+                            newLineAsBreaks: true,
+                            selectionHeightStyle:
+                                BoxHeightStyle.includeLineSpacingMiddle,
+                            text: cleaned,
+                            style: baseTextStyle,
+                            maxLines: maxLines,
+                            magnifierConfiguration:
+                                const TextMagnifierConfiguration(
+                                    shouldDisplayHandlesInMagnifier: false),
+                            tags: tags,
+                          ),
+                        );
+                      }
+                    }).toList(),
+                  ],
+                ),
         ],
       ),
     );
-  }
-
-  List<String> splitStringByTab(String textToSplit) {
-    final list = textToSplit
-        .split(utf8.decode([10]))
-        .where((element) => element.trim().isNotEmpty)
-        .map((e) => formatText(e).trim())
-        .toList();
-
-    print(list);
-    return [
-      List.generate(list.length, (index) {
-        final e = list[index];
-        return '${index > 0 ? '\n' : ''}${e.contains('m1') ? '' : e.contains('m2') ? '   ' : e.contains('m3') ? '      ' : ''}$e';
-      }).join('')
-    ];
-  }
-
-  String formatText(String textToFormat) {
-    return textToFormat.replaceAll('[', '<').replaceAll(']', '>');
   }
 }
