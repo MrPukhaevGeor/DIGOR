@@ -91,13 +91,12 @@ class WordCardWidget extends ConsumerWidget {
                   child: IconButton(
                       padding: EdgeInsets.zero,
                       splashRadius: 20,
-                      onPressed: () => OutsideFunctions.showClearHistoryOverlay(
+                      onPressed: () => OutsideFunctions.showClearHistoryDialog(
                             context,
                             () => ref
                                 .read(historyProvider.notifier)
                                 .deleteFromHistory(word),
                             tr('del_this_word'),
-                            ref.read(textFieldValueProvider.notifier).focusNode,
                           ),
                       icon: Icon(Icons.close,
                           color: Theme.of(context).brightness == Brightness.dark

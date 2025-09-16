@@ -174,11 +174,11 @@ class _ClearHistoryButtonState extends ConsumerState<ClearHistoryButton>
   }
 
   void _clearHistory() {
-    OutsideFunctions.showClearHistoryOverlay(
+    OutsideFunctions.showClearHistoryDialog(
       context,
       () => ref.read(historyProvider.notifier).clearHistory,
       tr('del_full_history'),
-      ref.read(textFieldValueProvider.notifier).focusNode,
+     
     );
   }
 

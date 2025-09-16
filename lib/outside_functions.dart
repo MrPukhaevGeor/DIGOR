@@ -437,20 +437,15 @@ class OutsideFunctions {
   }
 
   static Future<void> showClearHistoryDialog(
-    BuildContext context,
-    Function callback,
-    String content,
-    FocusNode focusNode, // передаём фокус
-  ) async {
+      BuildContext context, Function callback, String content) async {
     final scaler = MediaQuery.of(context).textScaler;
-    final systemScale = scaler.scale(1.0);
-    const double dampFactor = 0.25;
+    final systemScale = scaler.scale(1.0); // например 1.0, 1.5, 2.0
+    const double dampFactor = 0.25; // 25% от системного изменения
     final adjustedScale = 1.0 + (systemScale - 1.0) * dampFactor;
+    final height = 133 * adjustedScale;
     final theme = Theme.of(context);
-
     showDialog(
       context: context,
-      barrierDismissible: false, // чтобы тап по фону не снимал фокус
       builder: (BuildContext context) {
         return Center(
           child: Container(
@@ -465,13 +460,11 @@ class OutsideFunctions {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const SizedBox(width: double.infinity),
-                Text(
-                  content,
-                  style: theme.textTheme.bodyMedium!.copyWith(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
+                Text(content,
+                    style: theme.textTheme.bodyMedium!.copyWith(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                    )),
                 const SizedBox(height: 20),
                 SizedBox(
                   height: 30,
@@ -479,11 +472,7 @@ class OutsideFunctions {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          // восстановление фокуса
-                         // focusNode.requestFocus();
-                        },
+                        onPressed: Navigator.of(context).pop,
                         child: Text(
                           l.tr('no').toUpperCase(),
                         ),
@@ -495,8 +484,6 @@ class OutsideFunctions {
                         onPressed: () {
                           callback();
                           Navigator.of(context).pop();
-                          // восстановление фокуса
-                          //focusNode.requestFocus();
                         },
                       ),
                     ],
@@ -508,96 +495,6 @@ class OutsideFunctions {
         );
       },
     );
-  }
-
-  static void showClearHistoryOverlay(
-    BuildContext context,
-    Function callback,
-    String content,
-    FocusNode focusNode, // передаём фокус текстового поля
-  ) {
-    final overlay = Overlay.of(context);
-    final theme = Theme.of(context);
-
-    OverlayEntry? overlayEntry;
-
-    overlayEntry = OverlayEntry(
-      builder: (context) {
-        return Positioned.fill(
-          child: GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onTap: () {
-              overlayEntry?.remove();
-              // возвращаем фокус на поле, клавиатура останется
-              // focusNode.requestFocus();
-              //  SystemChannels.textInput.invokeMethod('TextInput.show');
-            },
-            child: Stack(
-              children: [
-                Container(color: Colors.black38), // затемнённый фон
-                Center(
-                  child: Material(
-                    elevation: 8,
-                    color: theme.scaffoldBackgroundColor,
-                    child: Container(
-                      padding: const EdgeInsets.all(22),
-                      constraints: BoxConstraints(
-                        maxWidth: 360,
-                        minWidth: 200,
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            content,
-                            style: theme.textTheme.bodyMedium!.copyWith(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              TextButton(
-                                onPressed: () {
-                                  overlayEntry?.remove();
-                                  // focusNode.requestFocus();
-                                  //SystemChannels.textInput
-                                  //    .invokeMethod('TextInput.show');
-                                },
-                                child: Text('NO'),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  callback();
-                                  overlayEntry?.remove();
-                                  //  focusNode.requestFocus();
-                                  //   SystemChannels.textInput
-                                  //      .invokeMethod('TextInput.show');
-                                },
-                                child: Text('YES'),
-                              ),
-                            ],
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-
-    overlay?.insert(overlayEntry);
-
-    // принудительно показать клавиатуру сразу
-    //focusNode.requestFocus();
-    //SystemChannels.textInput.invokeMethod('TextInput.show');
   }
 }
 
