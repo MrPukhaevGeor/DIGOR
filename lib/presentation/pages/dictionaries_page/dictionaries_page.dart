@@ -34,6 +34,7 @@ class DictionariesPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // ENGLISH (оставил как было)
                   if (context.locale == const Locale('en', 'US')) ...[
                     const _dictionaryWidget(
                       title: 'Digor-Russian dictionary',
@@ -65,61 +66,65 @@ class DictionariesPage extends StatelessWidget {
                       author: 'Abaev V., 3rd ed. - Vladikavkaz, 2013.',
                     ),
                   ],
-                  if (context.locale == const Locale('uz', 'UZ')) ...[
+
+                  // LN (обновлённый блок — заменил на строки, которые ты прислал для "Дыгурон-..." )
+                  if (context.locale == const Locale('km', 'KM')) ...[
                     const _dictionaryWidget(
                       title: 'Дыгурон-уырыссаг дзырдуат',
-                      description: 'Фыстуацты нымӕц          34657\n'
-                          'Файлы ас                          53,47 MB\n'
-                          'Ӕууӕл                              кусы ✅\n'
-                          'Зӕлгонд                           уыдзӕн',
+                      description: 'Фыстуацты нымӕц  34657\n'
+                          'Файлы ас                         53,47 MB\n'
+                          'Ӕууӕл                                кусы <a>✅</a>\n'
+                          'Зӕлгонд                             уыдзӕн',
                       author:
-                          'Тахъазты Федар. 2-аг рауагъд - Дзӕуджыхъӕу, 2015.',
+                          'Тахъазты Ф., 2-аг рауагъд - Дзӕуджыхъӕу, 2015.',
                     ),
                     const SizedBox(height: 40),
                     const _dictionaryWidget(
                       title: 'Дыгурон-англисаг дзырдуат',
-                      description: 'Фыстуацты нымӕц          18780\n'
-                          'Файлы ас                          3,85 MB\n'
-                          'Ӕууӕл                              кусы ✅\n'
-                          'Зӕлгонд                           уыдзӕн',
+                      description: 'Фыстуацты нымӕц  18780\n'
+                          'Файлы ас                         3,85 MB\n'
+                          'Ӕууӕл                                 кусы <a>✅</a>\n'
+                          'Зӕлгонд                             уыдзӕн',
                       author:
                           'Дыгурон ӕвзагон къорпусӕй ист дзырдуат. <ref>http://corpus-digor.ossetic-studies.org</ref>',
                     ),
                     const SizedBox(height: 40),
                     const _dictionaryWidget(
                       title: 'Ирон-уырыссаг дзырдуат',
-                      description: 'Фыстуацты нымӕц          34657\n'
-                          'Файлы ас                          4,64 МБ\n'
-                          'Ӕууӕл                              кусы ✅\n'
-                          'Зӕлгонд                           уыдзӕн',
+                      description: 'Фыстуацты нымӕц  34657\n'
+                          'Файлы ас                         4,64 МБ\n'
+                          'Ӕууӕл                                кусы <a>✅</a>\n'
+                          'Зӕлгонд                             уыдзӕн',
                       author:
                           'Бигъуылаты Б., Гагкайты К., Гуыриаты Т., Хъуылаты Н., Туаты О., 5-аг рауагъд - Дзӕуджыхъӕу, 2004.',
                     ),
                     const SizedBox(height: 40),
                     const _dictionaryWidget(
                       title: 'Уырыссаг-ирон дзырдуат',
-                      description: 'Фыстуацты нымӕц          18780\n'
-                          'Файлы ас                          4,77 МБ\n'
-                          'Ӕууӕл                              кусы ✅\n'
-                          'Зӕлгонд                           уыдзӕн',
+                      description: 'Фыстуацты нымӕц  18780\n'
+                          'Файлы ас                         4,77 МБ\n'
+                          'Ӕууӕл                                кусы <a>✅</a>\n'
+                          'Зӕлгонд                             уыдзӕн',
                       author: 'Абайты В., 3-аг рауагъд - Дзӕуджыхъӕу, 2013.',
                     ),
                   ],
+
+                  // RU (обновлённый русский блок — заменил на твои новые русские строки)
                   if (context.locale == const Locale('ru', 'RU')) ...[
                     const _dictionaryWidget(
                       title: 'Дигорско-русский словарь',
-                      description: 'Количество статей   34657\n'
+                      description: 'Количество статей  34657\n'
                           'Размер файла           53,47 МБ\n'
-                          'Состояние                  включен ✅\n'
+                          'Состояние                  включен <a>✅</a>\n'
                           'Озвучка                      планируется',
                       author: 'Таказов Ф. М., изд. 2-е. - Владикавказ, 2015.',
                     ),
                     const SizedBox(height: 40),
                     const _dictionaryWidget(
                       title: 'Дигорско-английский словарь',
-                      description: 'Количество статей    18780\n'
-                          'Размер файла            3,85 МБ\n'
-                          'Состояние                  включен ✅\n'
+                      description: 'Количество статей  18780\n'
+                          'Размер файла           3,85 МБ\n'
+                          'Состояние                  включен <a>✅</a>\n'
                           'Озвучка                      планируется',
                       author:
                           'Словарь дигорского языкового корпуса. <ref>http://corpus-digor.ossetic-studies.org</ref>',
@@ -127,23 +132,25 @@ class DictionariesPage extends StatelessWidget {
                     const SizedBox(height: 40),
                     const _dictionaryWidget(
                       title: 'Осетинско (иронско)-русский словарь',
-                      description: 'Количество статей     26775\n'
-                          'Размер файла            4,64 МБ\n'
-                          'Состояние                  включен ✅\n'
+                      description: 'Количество статей  26775\n'
+                          'Размер файла           4,64 МБ\n'
+                          'Состояние                  включен <a>✅</a>\n'
                           'Озвучка                      планируется',
                       author:
-                          'Бигулаев Б. Б., Гагкаев К. Е., Гуриев Т. А., Кулаев Н. Х, Туаева О. Н., изд. 5-е. - Владикавказ, 2004.',
+                          'Бигулаев Б. Б., Гагкаев К. Е., Гуриев Т. А., Кулаев Н. Х., Туаева О. Н., изд. 5-е. - Владикавказ, 2004.',
                     ),
                     const SizedBox(height: 40),
                     const _dictionaryWidget(
                       title: 'Русско-осетинский (иронский) словарь',
-                      description: 'Количество статей     25213\n'
-                          'Размер файла            4,77 МБ\n'
-                          'Состояние                  включен ✅\n'
+                      description: 'Количество статей  25213\n'
+                          'Размер файла           4,77 МБ\n'
+                          'Состояние                  включен <a>✅</a>\n'
                           'Озвучка                      планируется',
                       author: 'Абаев В.И., изд. 3-е. - Владикавказ, 2013.',
                     ),
                   ],
+
+                  // TR (оставил как было)
                   if (context.locale == const Locale('tr', 'TR')) ...[
                     const _dictionaryWidget(
                       title: 'Digoronca-Rusça sözlük',
@@ -167,7 +174,7 @@ class DictionariesPage extends StatelessWidget {
                     const _dictionaryWidget(
                       title: 'İronca-Rusça sözlük',
                       description: 'Makale sayısı            26775\n'
-                          'Dosya boyutu            4,64 MB\n'
+                          'Dosya boyutu           4,64 MB\n'
                           'Durum                       aktif <a>✅</a>\n'
                           'Ses                            planlandı',
                       author:
@@ -183,12 +190,14 @@ class DictionariesPage extends StatelessWidget {
                       author: 'Abaev V., 3. Baskı. - Vladikavkaz, 2013.',
                     ),
                   ],
-                  if (context.locale == const Locale('de', 'DE')) ...[
+
+                  // SG (обновлённый — заменил на предоставленные тобой строки "Дигорон-уруссаг..." )
+                  if (context.locale == const Locale('sw', 'SW')) ...[
                     const _dictionaryWidget(
                       title: 'Дигорон-уруссаг дзурдуат',
                       description: 'Финстуацти нимӕдзӕ      34657\n'
                           'Файли асӕ                         53,47 MB\n'
-                          'Ӕууӕл                                косуй ✅\n'
+                          'Ӕууӕл                                косуй <a>✅</a>\n'
                           'Зӕлгонд                             уодзӕнӕй',
                       author:
                           'Тахъазти Федар. Дигорон-уруссаг дзурдуат. Уруссаг-дигорон дзурдуат. - Дзӕуӕгигъӕу, 2015.',
@@ -198,7 +207,7 @@ class DictionariesPage extends StatelessWidget {
                       title: 'Дигорон-англисаг дзурдуат',
                       description: 'Финстуацти нимӕдзӕ      18780\n'
                           'Файли асӕ                         3,85 MB\n'
-                          'Ӕууӕл                                косуй ✅\n'
+                          'Ӕууӕл                                косуй <a>✅</a>\n'
                           'Зӕлгонд                             уодзӕнӕй',
                       author:
                           'Дигорон ӕвзагон къорпусӕй ист дзурдуат. http://corpus-digor.ossetic-studies.org',
@@ -208,7 +217,7 @@ class DictionariesPage extends StatelessWidget {
                       title: 'Ирон-уруссаг дзурдуат',
                       description: 'Финстуацти нимӕдзӕ      26775\n'
                           'Файли асӕ                         4,64 MB\n'
-                          'Ӕууӕл                                косуй ✅\n'
+                          'Ӕууӕл                                косуй <a>✅</a>\n'
                           'Зӕлгонд                             уодзӕнӕй',
                       author:
                           'Бигъулати Б., Гагкайти К., Гуриати Т., Хъулати Н., Туати О., 5-аг рауагъд - Дзӕуӕгигъӕу, 2004.',
@@ -218,7 +227,7 @@ class DictionariesPage extends StatelessWidget {
                       title: 'Уруссаг-ирон дзурдуат',
                       description: 'Финстуацти нимӕдзӕ      25213\n'
                           'Файли асӕ                         4,77 MB\n'
-                          'Ӕууӕл                                косуй ✅\n'
+                          'Ӕууӕл                                косуй <a>✅</a>\n'
                           'Зӕлгонд                             уодзӕнӕй',
                       author: 'Абайти В., 3-аг рауагъд - Дзӕуӕгигъӕу, 2013.',
                     ),

@@ -95,11 +95,11 @@ class _ClearHistoryButtonState extends ConsumerState<ClearHistoryButton>
                                         _clearHistory();
                                         _removeOverlay();
                                       }
+                                    
                                     },
                               child: ConstrainedBox(
                                 constraints: BoxConstraints(
                                   minWidth: minWidth,
-                                 
                                 ),
                                 child: Container(
                                   alignment: Alignment.centerLeft,
@@ -116,14 +116,12 @@ class _ClearHistoryButtonState extends ConsumerState<ClearHistoryButton>
                                             ref
                                                 .read(textFieldValueProvider)
                                                 .isNotEmpty
-                                        ? theme.textTheme.bodyMedium!
-                                            .copyWith(
+                                        ? theme.textTheme.bodyMedium!.copyWith(
                                             color: Colors.grey,
                                             fontSize: 16,
                                             fontWeight: FontWeight.w500,
                                           )
-                                        : theme.textTheme.bodyMedium!
-                                            .copyWith(
+                                        : theme.textTheme.bodyMedium!.copyWith(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w500,
                                           ),
@@ -176,12 +174,12 @@ class _ClearHistoryButtonState extends ConsumerState<ClearHistoryButton>
   }
 
   void _clearHistory() {
-    OutsideFunctions.showClearHistoryDialog(
+    OutsideFunctions.showClearHistoryOverlay(
       context,
-      ref.read(historyProvider.notifier).clearHistory,
+      () => ref.read(historyProvider.notifier).clearHistory,
       tr('del_full_history'),
-    ).whenComplete(() =>
-        ref.read(textFieldValueProvider.notifier).focusNode.requestFocus());
+      ref.read(textFieldValueProvider.notifier).focusNode,
+    );
   }
 
   @override

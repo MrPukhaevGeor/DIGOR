@@ -29,9 +29,9 @@ class LocalizationModeNotifier extends StateNotifier<LocalizationLanguage> {
       case 'tr_TR':
         state = LocalizationLanguage.turkish;
         break;
-      case 'uz_UZ':
+      case 'km_KM':
         state = LocalizationLanguage.iron;
-      case 'de_DE':
+      case 'sw_SW':
         state = LocalizationLanguage.digor;
         break;
     }
@@ -52,10 +52,10 @@ class LocalizationModeNotifier extends StateNotifier<LocalizationLanguage> {
         sharedPreferences.setString('localLang', 'tr_TR');
         break;
       case LocalizationLanguage.digor:
-        sharedPreferences.setString('localLang', 'de_DE');
+        sharedPreferences.setString('localLang', 'sw_SW');
         break;
       case LocalizationLanguage.iron:
-        sharedPreferences.setString('localLang', 'uz_UZ');
+        sharedPreferences.setString('localLang', 'km_KM');
         break;
     }
     state = locale;

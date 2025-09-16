@@ -29,9 +29,6 @@ class SearchTextfield extends ConsumerWidget {
         child: Column(
           children: [
             TextField(
-              onTapUpOutside: (_) {
-                //FocusScope.of(context).unfocus();
-              },
               magnifierConfiguration: const TextMagnifierConfiguration(
                   shouldDisplayHandlesInMagnifier: false),
               contextMenuBuilder:
@@ -44,20 +41,45 @@ class SearchTextfield extends ConsumerWidget {
 
                 // Оставляем только copy, selectAll и share
                 final wanted = <ContextMenuButtonType>{
-                  ContextMenuButtonType.cut,
                   ContextMenuButtonType.selectAll,
-                  ContextMenuButtonType.paste
+                  ContextMenuButtonType.paste,
+                  ContextMenuButtonType.copy,
+            
                 };
 
                 final filtered = allItems
                     .where((item) => wanted.contains(item.type))
                     .toList();
 
-                // Получаем платформо-адаптивные кнопки
-                final buttons = AdaptiveTextSelectionToolbar.getAdaptiveButtons(
-                        ctx, filtered)
-                    .toList();
+                final buttons = filtered.map((item) {
+                  String title;
+                  switch (item.type) {
+                    case ContextMenuButtonType.copy:
+                      title = tr('copy'); // твоя локаль
+                      break;
+                    case ContextMenuButtonType.paste:
+                      title = tr('paste'); // твоя локаль
+                      break;
+                    case ContextMenuButtonType.selectAll:
+                      title = tr('select_all');
+                      break;
 
+                    default:
+                      title = item.label ?? '';
+                  }
+
+                  return TextButton(
+                    onPressed: item.onPressed,
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 8),
+                    ),
+                    child: Text(
+                      title,
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  );
+                }).toList();
                 // Возвращаем стандартный TextSelectionToolbar, но с нашим Material (для скругления)
                 return TextSelectionToolbar(
                   anchorAbove: anchors.primaryAnchor,

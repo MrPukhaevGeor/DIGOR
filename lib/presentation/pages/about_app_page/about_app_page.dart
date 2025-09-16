@@ -53,7 +53,7 @@ class _AboutAppPageState extends State<AboutAppPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (context.locale == const Locale('uz', 'UZ')) ...[
+              if (context.locale == const Locale('km', 'KM')) ...[
                 Text(
                   'Дзырдуӕттӕ Digor®',
                   style: theme.textTheme.headlineSmall!.copyWith(
@@ -162,7 +162,7 @@ class _AboutAppPageState extends State<AboutAppPage> {
                   ),
                 ),
               ],
-              if (context.locale == const Locale('de', 'DE')) ...[
+              if (context.locale == const Locale('sw', 'SW')) ...[
                 Text(
                   'Дзурдуӕттӕ Digor®',
                   style: theme.textTheme.headlineSmall!.copyWith(

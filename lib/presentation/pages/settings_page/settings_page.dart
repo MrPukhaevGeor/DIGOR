@@ -431,9 +431,9 @@ class SettingsPage extends ConsumerWidget {
                   case LocalizationLanguage.turkish:
                     context.setLocale(const Locale('tr', 'TR'));
                   case LocalizationLanguage.digor:
-                    context.setLocale(const Locale('de', 'DE'));
+                    context.setLocale(const Locale('sw', 'SW'));
                   case LocalizationLanguage.iron:
-                    context.setLocale(const Locale('uz', 'UZ'));
+                    context.setLocale(const Locale('km', 'KM'));
                   default:
                 }
               },

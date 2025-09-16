@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:easy_localization/easy_localization.dart' as l;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -5,23 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'app.dart';
 import 'domain/models/word_model.dart';
-import 'presentation/providers/api_provider.dart';
-import 'presentation/providers/localization.dart';
-import 'presentation/providers/search.dart';
-import 'presentation/providers/search_mode.dart';
-import 'package:flutter/material.dart';
-
-/// Виджет: обрезает строку по ширине и добавляет ".." вместо стандартного "…"
-import 'package:flutter/material.dart';
-import 'dart:async';
-import 'package:flutter/material.dart';
-
-// Использует глобальную локализацию 'l.tr' и assets как в твоём проекте.
-// Класс управляет единственным OverlayEntry и обновляет только число.
-import 'dart:async';
-import 'package:flutter/material.dart';
 
 class ZoomOverlay {
   static OverlayEntry? _entry;
@@ -42,7 +28,7 @@ class ZoomOverlay {
 
     if (_entry == null) {
       _controller = AnimationController(
-        vsync: overlay,
+        vsync: Navigator.of(context),
         duration: const Duration(milliseconds: 800),
         reverseDuration: const Duration(milliseconds: 800),
       );
@@ -56,8 +42,7 @@ class ZoomOverlay {
           data: MediaQuery.of(context)
               .copyWith(textScaler: TextScaler.linear(1), boldText: false),
           child: Positioned(
-            bottom: MediaQuery.of(context).size.height / 9 +
-                MediaQuery.of(ctx).viewInsets.bottom,
+            bottom: MediaQuery.of(context).size.height / 9,
             left: 0,
             right: 0,
             child: IgnorePointer(
@@ -337,7 +322,7 @@ class OutsideFunctions {
         ),
         behavior: SnackBarBehavior.floating,
         content: Text('${l.tr('word')} $word ${l.tr('not_found')}',
-            style: theme.textTheme.bodySmall!.copyWith(color: Colors.white)),
+            style: theme.textTheme.bodySmall!.copyWith(color: Colors.white,fontSize: 14)),
       ),
     );
   }
@@ -452,15 +437,20 @@ class OutsideFunctions {
   }
 
   static Future<void> showClearHistoryDialog(
-      BuildContext context, Function callback, String content) async {
+    BuildContext context,
+    Function callback,
+    String content,
+    FocusNode focusNode, // передаём фокус
+  ) async {
     final scaler = MediaQuery.of(context).textScaler;
-    final systemScale = scaler.scale(1.0); // например 1.0, 1.5, 2.0
-    const double dampFactor = 0.25; // 25% от системного изменения
+    final systemScale = scaler.scale(1.0);
+    const double dampFactor = 0.25;
     final adjustedScale = 1.0 + (systemScale - 1.0) * dampFactor;
-    final height = 133 * adjustedScale;
     final theme = Theme.of(context);
+
     showDialog(
       context: context,
+      barrierDismissible: false, // чтобы тап по фону не снимал фокус
       builder: (BuildContext context) {
         return Center(
           child: Container(
@@ -475,11 +465,13 @@ class OutsideFunctions {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const SizedBox(width: double.infinity),
-                Text(content,
-                    style: theme.textTheme.bodyMedium!.copyWith(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                    )),
+                Text(
+                  content,
+                  style: theme.textTheme.bodyMedium!.copyWith(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
                 const SizedBox(height: 20),
                 SizedBox(
                   height: 30,
@@ -487,7 +479,11 @@ class OutsideFunctions {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       TextButton(
-                        onPressed: Navigator.of(context).pop,
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          // восстановление фокуса
+                         // focusNode.requestFocus();
+                        },
                         child: Text(
                           l.tr('no').toUpperCase(),
                         ),
@@ -499,6 +495,8 @@ class OutsideFunctions {
                         onPressed: () {
                           callback();
                           Navigator.of(context).pop();
+                          // восстановление фокуса
+                          //focusNode.requestFocus();
                         },
                       ),
                     ],
@@ -510,6 +508,96 @@ class OutsideFunctions {
         );
       },
     );
+  }
+
+  static void showClearHistoryOverlay(
+    BuildContext context,
+    Function callback,
+    String content,
+    FocusNode focusNode, // передаём фокус текстового поля
+  ) {
+    final overlay = Overlay.of(context);
+    final theme = Theme.of(context);
+
+    OverlayEntry? overlayEntry;
+
+    overlayEntry = OverlayEntry(
+      builder: (context) {
+        return Positioned.fill(
+          child: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: () {
+              overlayEntry?.remove();
+              // возвращаем фокус на поле, клавиатура останется
+              // focusNode.requestFocus();
+              //  SystemChannels.textInput.invokeMethod('TextInput.show');
+            },
+            child: Stack(
+              children: [
+                Container(color: Colors.black38), // затемнённый фон
+                Center(
+                  child: Material(
+                    elevation: 8,
+                    color: theme.scaffoldBackgroundColor,
+                    child: Container(
+                      padding: const EdgeInsets.all(22),
+                      constraints: BoxConstraints(
+                        maxWidth: 360,
+                        minWidth: 200,
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            content,
+                            style: theme.textTheme.bodyMedium!.copyWith(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              TextButton(
+                                onPressed: () {
+                                  overlayEntry?.remove();
+                                  // focusNode.requestFocus();
+                                  //SystemChannels.textInput
+                                  //    .invokeMethod('TextInput.show');
+                                },
+                                child: Text('NO'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  callback();
+                                  overlayEntry?.remove();
+                                  //  focusNode.requestFocus();
+                                  //   SystemChannels.textInput
+                                  //      .invokeMethod('TextInput.show');
+                                },
+                                child: Text('YES'),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    overlay?.insert(overlayEntry);
+
+    // принудительно показать клавиатуру сразу
+    //focusNode.requestFocus();
+    //SystemChannels.textInput.invokeMethod('TextInput.show');
   }
 }
 
@@ -531,11 +619,27 @@ Widget wordPageContextMenuBuilder(
   final filteredItems =
       allItems.where((item) => wantedTypes.contains(item.type)).toList();
 
-  // Получаем платформо-адаптированные виджеты-кнопки
-  final buttons =
-      AdaptiveTextSelectionToolbar.getAdaptiveButtons(ctx, filteredItems)
-          .toList();
+  final buttons = filteredItems.map((item) {
+    String title;
+    switch (item.type) {
+      case ContextMenuButtonType.copy:
+        title = l.tr('copy'); // твоя локаль
+        break;
+      case ContextMenuButtonType.selectAll:
+        title = l.tr('select_all');
+        break;
+      case ContextMenuButtonType.share:
+        title = l.tr('share');
+        break;
+      default:
+        title = item.label ?? '';
+    }
 
+    return InkWell(
+      onTap: item.onPressed,
+      child: Text(title),
+    );
+  }).toList();
   // Строим тулбар, но оборачиваем содержимое в Material с нашей формой (скруглением)
   return TextSelectionToolbar(
     anchorAbove: anchors.primaryAnchor,

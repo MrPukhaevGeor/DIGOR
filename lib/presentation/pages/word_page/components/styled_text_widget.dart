@@ -101,7 +101,14 @@ class StyledTextWidget extends ConsumerWidget {
           color: theme.brightness == Brightness.dark
               ? const Color.fromARGB(255, 0, 129, 255)
               : const Color.fromARGB(255, 0, 0, 238),
-          fontSize: 14 * zoom, // ref всегда особый
+        ),
+      ),
+      '*': StyledTextTag(
+        style: TextStyle(
+          fontSize: 14 * zoom, 
+          color: theme.brightness == Brightness.dark
+              ? const Color.fromARGB(255, 0, 129, 255)
+              : const Color.fromARGB(255, 0, 0, 238),
         ),
       ),
       'b': StyledTextTag(
@@ -166,103 +173,94 @@ class StyledTextWidget extends ConsumerWidget {
           // Оборачиваем всё в SelectionArea, чтобы можно было выделять весь текст целиком
           textLines.isEmpty
               ? const SizedBox.shrink()
-              : SelectionArea(
-                contextMenuBuilder: wordPageContextMenuBuilder,
-                  magnifierConfiguration: const TextMagnifierConfiguration(
-                      shouldDisplayHandlesInMagnifier: false),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 14),
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 14),
 
-                      if (word.audioUrl == null) ...[
-                        StyledText(
-                          text: '<dict>Language ($dicName)</dict>',
-                          style: baseTextStyle,
-                          tags: {
-                            'dict': StyledTextTag(
-                              style: theme.textTheme.bodyLarge!.copyWith(
-                                  fontSize: 17 * zoom,
-                                  fontFamily: 'Araboto',
-                                  fontWeight: FontWeight.w400),
-                            ),
-                          },
-                        ),
-                        const SizedBox(height: 40),
-                        StyledText(
-                          text: '<title>${word.title}</title>',
-                          style: baseTextStyle,
-                          tags: {
-                            'title': StyledTextTag(
-                              style: theme.textTheme.headlineSmall!.copyWith(
-                                fontSize: 30 * zoom,
+                    if (word.audioUrl == null) ...[
+                      StyledText(
+                        text: '<dict>Language ($dicName)</dict>',
+                        style: baseTextStyle,
+                        tags: {
+                          'dict': StyledTextTag(
+                            style: theme.textTheme.bodyLarge!.copyWith(
+                                fontSize: 17 * zoom,
                                 fontFamily: 'Araboto',
-                              ),
+                                fontWeight: FontWeight.w400),
+                          ),
+                        },
+                      ),
+                      const SizedBox(height: 40),
+                      StyledText(
+                        text: '<title>${word.title}</title>',
+                        style: baseTextStyle,
+                        tags: {
+                          'title': StyledTextTag(
+                            style: theme.textTheme.headlineSmall!.copyWith(
+                              fontSize: 30 * zoom,
+                              fontFamily: 'Araboto',
                             ),
-                          },
-                        ),
-                        const SizedBox(height: 28),
-                      ],
-
-                      // Контент по строкам
-                      ...textLines.map((e) {
-                        final spaces = detectIndentSpaces(e);
-                        final leftIndent = spaces * spaceWidth;
-
-                        final cleaned = e
-                            .replaceAll(RegExp(r'<m[1-3]>'), '')
-                            .replaceAll(RegExp(r'</m>'), '')
-                            .replaceAll('<*>', '')
-                            .replaceAll('</*>', '')
-                            .trimLeft();
-
-                        if (isNumberedLine(cleaned)) {
-                          // висячий отступ через Row + Expanded
-                          final match = RegExp(r'^(\d+\))').firstMatch(cleaned);
-                          final numberPart = match?.group(1) ?? '';
-                          final restText =
-                              cleaned.substring(numberPart.length).trimLeft();
-
-                          return Padding(
-                            padding:
-                                EdgeInsets.only(left: leftIndent, right: 32),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Номер отдельным Text — SelectionArea позволит выделять между ним и остальным текстом
-                                Text(numberPart, style: baseTextStyle),
-                                const SizedBox(width: 6),
-                                Expanded(
-                                  child: StyledText(
-                                    key: ValueKey(e),
-                                    newLineAsBreaks: true,
-                                    text: restText,
-                                    style: baseTextStyle,
-                                    maxLines: maxLines,
-                                    tags: tags,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        } else {
-                          // обычная строка
-                          return Padding(
-                            padding:
-                                EdgeInsets.only(left: leftIndent, right: 32),
-                            child: StyledText(
-                              key: ValueKey(e),
-                              newLineAsBreaks: true,
-                              text: cleaned,
-                              style: baseTextStyle,
-                              maxLines: maxLines,
-                              tags: tags,
-                            ),
-                          );
-                        }
-                      }).toList(),
+                          ),
+                        },
+                      ),
+                      const SizedBox(height: 28),
                     ],
-                  ),
+
+                    // Контент по строкам
+                    ...textLines.map((e) {
+                      final spaces = detectIndentSpaces(e);
+                      final leftIndent = spaces * spaceWidth;
+
+                      final cleaned = e
+                          .replaceAll(RegExp(r'<m[1-3]>'), '')
+                          .replaceAll(RegExp(r'</m>'), '')
+                          .trimLeft();
+
+                      if (isNumberedLine(cleaned)) {
+                        // висячий отступ через Row + Expanded
+                        final match = RegExp(r'^(\d+\))').firstMatch(cleaned);
+                        final numberPart = match?.group(1) ?? '';
+                        final restText =
+                            cleaned.substring(numberPart.length).trimLeft();
+
+                        return Padding(
+                          padding: EdgeInsets.only(left: leftIndent, right: 32),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Номер отдельным Text — SelectionArea позволит выделять между ним и остальным текстом
+                              Text(numberPart, style: baseTextStyle),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: StyledText(
+                                  key: ValueKey(e),
+                                  newLineAsBreaks: true,
+                                  text: restText,
+                                  style: baseTextStyle,
+                                  maxLines: maxLines,
+                                  tags: tags,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      } else {
+                        // обычная строка
+                        return Padding(
+                          padding: EdgeInsets.only(left: leftIndent, right: 32),
+                          child: StyledText(
+                            key: ValueKey(e),
+                            newLineAsBreaks: true,
+                            text: cleaned,
+                            style: baseTextStyle,
+                            maxLines: maxLines,
+                            tags: tags,
+                          ),
+                        );
+                      }
+                    }).toList(),
+                  ],
                 ),
         ],
       ),
