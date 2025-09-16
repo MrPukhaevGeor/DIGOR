@@ -498,6 +498,33 @@ class OutsideFunctions {
   }
 }
 
+class BlockFirstCharIfPopupOpenFormatter extends TextInputFormatter {
+  final bool Function() isPopupOpen;
+  final VoidCallback onFirstKeyWhenPopupOpen;
+
+  BlockFirstCharIfPopupOpenFormatter({
+    required this.isPopupOpen,
+    required this.onFirstKeyWhenPopupOpen,
+  });
+
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    // Если попап открыт и произошла вставка/ввод (увеличение длины)
+    // — считаем это "первым символом"
+    if (isPopupOpen() && newValue.text.length > oldValue.text.length) {
+      // Закрываем попап (коллбэк должен быть без побочных эффектов, которые снимут фокус)
+      try {
+        onFirstKeyWhenPopupOpen();
+      } catch (_) {}
+      // Возвращаем старое значение — символ не попадёт в поле
+      return oldValue;
+    }
+
+    return newValue;
+  }
+}
+
 Widget wordPageContextMenuBuilder(
     BuildContext ctx, SelectableRegionState selectableRegionState) {
   // anchors (позиционирование тулбара)

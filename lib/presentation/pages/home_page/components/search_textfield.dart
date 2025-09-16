@@ -16,6 +16,17 @@ class SearchTextfield extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final popupOpen = ref.watch(popupMenuOpenProvider);
+    final blockFormatter = BlockFirstCharIfPopupOpenFormatter(
+      // читает текущее состояние попапа
+      isPopupOpen: () => ref.read(popupMenuOpenProvider),
+      // тут — действие, закрывающее попап. Подставь свою реализацию:
+      onFirstKeyWhenPopupOpen: () {
+        ref.read(popupMenuOpenProvider.notifier).state = false;
+
+        ref.read(popupMenuClearTextOpenProvider).call();
+      },
+    );
     final isCursorShow = !ref.watch(popupMenuOpenProvider);
     print(isCursorShow);
     final theme = Theme.of(context);
@@ -29,6 +40,9 @@ class SearchTextfield extends ConsumerWidget {
         child: Column(
           children: [
             TextField(
+              inputFormatters: [
+                blockFormatter,
+              ],
               magnifierConfiguration: const TextMagnifierConfiguration(
                   shouldDisplayHandlesInMagnifier: false),
               contextMenuBuilder:
@@ -44,7 +58,6 @@ class SearchTextfield extends ConsumerWidget {
                   ContextMenuButtonType.selectAll,
                   ContextMenuButtonType.paste,
                   ContextMenuButtonType.copy,
-            
                 };
 
                 final filtered = allItems
