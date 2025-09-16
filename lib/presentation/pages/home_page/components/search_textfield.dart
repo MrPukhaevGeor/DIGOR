@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../navigator/navigate_effect.dart';
+import '../../../../outside_functions.dart';
 import '../../../providers/search.dart';
 import '../../../providers/textfield_provider.dart';
 import '../../word_page/word_page.dart';
@@ -31,44 +32,47 @@ class SearchTextfield extends ConsumerWidget {
               onTapUpOutside: (_) {
                 //FocusScope.of(context).unfocus();
               },
-              contextMenuBuilder: (context, editableTextState) {
-                return AdaptiveTextSelectionToolbar(
-                  anchors: editableTextState.contextMenuAnchors,
-                  children: [
-                    if (editableTextState.textEditingValue.text.isNotEmpty)
-                      TextButton(
-                        onPressed: () {
-                          editableTextState
-                              .copySelection(SelectionChangedCause.toolbar);
-                        },
-                        child: Text(
-                          tr('copy'),
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
+              magnifierConfiguration: const TextMagnifierConfiguration(
+                  shouldDisplayHandlesInMagnifier: false),
+              contextMenuBuilder:
+                  (BuildContext ctx, EditableTextState editableTextState) {
+                // координаты тулбара
+                final anchors = editableTextState.contextMenuAnchors;
+                // все возможные кнопки (cut/copy/paste/selectAll/share и т.д.)
+                final List<ContextMenuButtonItem> allItems =
+                    editableTextState.contextMenuButtonItems;
+
+                // Оставляем только copy, selectAll и share
+                final wanted = <ContextMenuButtonType>{
+                  ContextMenuButtonType.cut,
+                  ContextMenuButtonType.selectAll,
+                  ContextMenuButtonType.paste
+                };
+
+                final filtered = allItems
+                    .where((item) => wanted.contains(item.type))
+                    .toList();
+
+                // Получаем платформо-адаптивные кнопки
+                final buttons = AdaptiveTextSelectionToolbar.getAdaptiveButtons(
+                        ctx, filtered)
+                    .toList();
+
+                // Возвращаем стандартный TextSelectionToolbar, но с нашим Material (для скругления)
+                return TextSelectionToolbar(
+                  anchorAbove: anchors.primaryAnchor,
+                  anchorBelow: anchors.secondaryAnchor ?? anchors.primaryAnchor,
+                  toolbarBuilder: (BuildContext ctx, Widget child) {
+                    return Material(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                            12), // <-- здесь меняй скругление
                       ),
-                    TextButton(
-                      onPressed: () {
-                        editableTextState
-                            .pasteText(SelectionChangedCause.toolbar);
-                      },
-                      child: Text(
-                        tr('paste'),
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ),
-                    if (editableTextState.textEditingValue.text.isNotEmpty)
-                      TextButton(
-                        onPressed: () {
-                          editableTextState.selectAll(
-                            SelectionChangedCause.toolbar,
-                          );
-                        },
-                        child: Text(
-                          tr('select_all'),
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                      ),
-                  ],
+                      child: child,
+                    );
+                  },
+                  children: buttons,
                 );
               },
               cursorHeight: MediaQuery.of(context).textScaler.scale(24),

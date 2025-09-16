@@ -512,3 +512,45 @@ class OutsideFunctions {
     );
   }
 }
+
+Widget wordPageContextMenuBuilder(
+    BuildContext ctx, SelectableRegionState selectableRegionState) {
+  // anchors (позиционирование тулбара)
+  final anchors = selectableRegionState.contextMenuAnchors;
+  // все предложенные стандартные кнопки для этой selection area
+  final List<ContextMenuButtonItem> allItems =
+      selectableRegionState.contextMenuButtonItems;
+
+  // Оставляем только нужные типы кнопок: copy, selectAll, share
+  final wantedTypes = <ContextMenuButtonType>{
+    ContextMenuButtonType.copy,
+    ContextMenuButtonType.selectAll,
+    ContextMenuButtonType.share,
+  };
+
+  final filteredItems =
+      allItems.where((item) => wantedTypes.contains(item.type)).toList();
+
+  // Получаем платформо-адаптированные виджеты-кнопки
+  final buttons =
+      AdaptiveTextSelectionToolbar.getAdaptiveButtons(ctx, filteredItems)
+          .toList();
+
+  // Строим тулбар, но оборачиваем содержимое в Material с нашей формой (скруглением)
+  return TextSelectionToolbar(
+    anchorAbove: anchors.primaryAnchor,
+    anchorBelow: anchors.secondaryAnchor ?? anchors.primaryAnchor,
+    toolbarBuilder: (BuildContext ctx, Widget child) {
+      return Material(
+        elevation: 2,
+        // <-- тут меняем скругление
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+
+        child: child,
+      );
+    },
+    children: buttons,
+  );
+}

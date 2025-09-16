@@ -38,6 +38,8 @@ dependencies:
   fuzzywuzzy: ^1.2.0
   flutter_inappwebview: ^6.1.5
   vibration: ^3.1.3
+  selectable: ^0.5.2
+  flutter_widget_from_html: ^0.17.1
 
 dev_dependencies:
   flutter_test:
@@ -56,6 +58,19 @@ flutter:
     - assets/
     - assets/db/exported_digor.db
   fonts:
+    - family: Araboto
+      fonts:
+        - asset: assets/fonts/Araboto/araboto_normal.ttf
+          weight: 400
+        - asset: assets/fonts/Araboto/araboto_medium.ttf
+          weight: 500
+        - asset: assets/fonts/Araboto/araboto_light.ttf
+          weight: 300
+        - asset: assets/fonts/Araboto/araboto_bold.ttf
+          weight: 700
+        - asset: assets/fonts/Araboto/roboto_italic.ttf
+          weight: 400
+          style: italic
     - family: BrisaSans
       fonts:
         - asset: assets/fonts/Sans/BrisaSans-Thin.otf
