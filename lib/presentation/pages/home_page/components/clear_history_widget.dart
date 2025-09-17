@@ -5,6 +5,7 @@ import 'package:easy_localization/easy_localization.dart';
 import '../../../../outside_functions.dart';
 import '../../../providers/history.dart';
 import '../../../providers/textfield_provider.dart';
+import 'search_textfield.dart';
 
 class ClearHistoryButton extends ConsumerStatefulWidget {
   const ClearHistoryButton({super.key});
@@ -89,42 +90,48 @@ class _ClearHistoryButtonState extends ConsumerState<ClearHistoryButton>
                               onTap: isEmpty
                                   ? null
                                   : () {
+                                  
                                       if (ref
                                           .read(textFieldValueProvider)
                                           .isEmpty) {
                                         _clearHistory();
                                         _removeOverlay();
                                       }
-                                    
                                     },
                               child: ConstrainedBox(
                                 constraints: BoxConstraints(
-                                  minWidth: minWidth,
-                                ),
+                                    minWidth: minWidth,
+                                    maxWidth:
+                                        MediaQuery.of(context).size.width+4),
                                 child: Container(
-                                  alignment: Alignment.centerLeft,
                                   height: kToolbarHeight - 8,
                                   padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
+                                    horizontal: 12,
                                     vertical: 2,
                                   ),
-                                  child: Text(
-                                    overflow: TextOverflow.ellipsis,
-                                    'clear_history'.tr(),
-                                    maxLines: 1,
-                                    style: isEmpty ||
-                                            ref
-                                                .read(textFieldValueProvider)
-                                                .isNotEmpty
-                                        ? theme.textTheme.bodyMedium!.copyWith(
-                                            color: Colors.grey,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w500,
-                                          )
-                                        : theme.textTheme.bodyMedium!.copyWith(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w500,
-                                          ),
+                                  child: Row(mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Flexible(
+                                        child: TwoDotEllipsis(
+                                         text:
+                                          'clear_history'.tr(),
+                                          maxLines: 1,
+                                          style: isEmpty ||
+                                                  ref
+                                                      .read(textFieldValueProvider)
+                                                      .isNotEmpty
+                                              ? theme.textTheme.bodyMedium!.copyWith(
+                                                  color: Colors.grey,
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w500,
+                                                )
+                                              : theme.textTheme.bodyMedium!.copyWith(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
@@ -176,10 +183,10 @@ class _ClearHistoryButtonState extends ConsumerState<ClearHistoryButton>
   void _clearHistory() {
     OutsideFunctions.showClearHistoryDialog(
       context,
-      () => ref.read(historyProvider.notifier).clearHistory,
+      ref.read(historyProvider.notifier).clearHistory,
       tr('del_full_history'),
-     
-    );
+    ).whenComplete(() =>
+        ref.read(textFieldValueProvider.notifier).focusNode.requestFocus());
   }
 
   @override

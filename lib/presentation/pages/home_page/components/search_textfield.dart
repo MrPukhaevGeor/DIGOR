@@ -45,71 +45,75 @@ class SearchTextfield extends ConsumerWidget {
               ],
               magnifierConfiguration: const TextMagnifierConfiguration(
                   shouldDisplayHandlesInMagnifier: false),
-              contextMenuBuilder:
-                  (BuildContext ctx, EditableTextState editableTextState) {
-                // координаты тулбара
-                final anchors = editableTextState.contextMenuAnchors;
-                // все возможные кнопки (cut/copy/paste/selectAll/share и т.д.)
-                final List<ContextMenuButtonItem> allItems =
-                    editableTextState.contextMenuButtonItems;
+              contextMenuBuilder: ref.read(popupMenuOpenProvider.notifier).state
+                  ? null
+                  : (BuildContext ctx, EditableTextState editableTextState) {
+                      // координаты тулбара
+                      final anchors = editableTextState.contextMenuAnchors;
+                      // все возможные кнопки (cut/copy/paste/selectAll/share и т.д.)
+                      final List<ContextMenuButtonItem> allItems =
+                          editableTextState.contextMenuButtonItems;
 
-                // Оставляем только copy, selectAll и share
-                final wanted = <ContextMenuButtonType>{
-                  ContextMenuButtonType.selectAll,
-                  ContextMenuButtonType.paste,
-                  ContextMenuButtonType.copy,
-                };
+                      // Оставляем только copy, selectAll и share
+                      final wanted = <ContextMenuButtonType>{
+                        ContextMenuButtonType.selectAll,
+                        ContextMenuButtonType.paste,
+                        ContextMenuButtonType.copy,
+                      };
 
-                final filtered = allItems
-                    .where((item) => wanted.contains(item.type))
-                    .toList();
+                      final filtered = allItems
+                          .where((item) => wanted.contains(item.type))
+                          .toList();
+                      if (filtered.isEmpty) {
+                        return const SizedBox.shrink();
+                      }
+                      final buttons = filtered.map((item) {
+                        String title;
+                        switch (item.type) {
+                          case ContextMenuButtonType.copy:
+                            title = tr('copy'); // твоя локаль
+                            break;
+                          case ContextMenuButtonType.paste:
+                            title = tr('paste'); // твоя локаль
+                            break;
+                          case ContextMenuButtonType.selectAll:
+                            title = tr('select_all');
+                            break;
 
-                final buttons = filtered.map((item) {
-                  String title;
-                  switch (item.type) {
-                    case ContextMenuButtonType.copy:
-                      title = tr('copy'); // твоя локаль
-                      break;
-                    case ContextMenuButtonType.paste:
-                      title = tr('paste'); // твоя локаль
-                      break;
-                    case ContextMenuButtonType.selectAll:
-                      title = tr('select_all');
-                      break;
+                          default:
+                            title = item.label ?? '';
+                        }
 
-                    default:
-                      title = item.label ?? '';
-                  }
-
-                  return TextButton(
-                    onPressed: item.onPressed,
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 8, horizontal: 8),
-                    ),
-                    child: Text(
-                      title,
-                      style: TextStyle(color: Colors.black),
-                    ),
-                  );
-                }).toList();
-                // Возвращаем стандартный TextSelectionToolbar, но с нашим Material (для скругления)
-                return TextSelectionToolbar(
-                  anchorAbove: anchors.primaryAnchor,
-                  anchorBelow: anchors.secondaryAnchor ?? anchors.primaryAnchor,
-                  toolbarBuilder: (BuildContext ctx, Widget child) {
-                    return Material(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                            12), // <-- здесь меняй скругление
-                      ),
-                      child: child,
-                    );
-                  },
-                  children: buttons,
-                );
-              },
+                        return TextButton(
+                          onPressed: item.onPressed,
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 8, horizontal: 8),
+                          ),
+                          child: Text(
+                            title,
+                            style: TextStyle(color: Colors.black),
+                          ),
+                        );
+                      }).toList();
+                      // Возвращаем стандартный TextSelectionToolbar, но с нашим Material (для скругления)
+                      return TextSelectionToolbar(
+                        anchorAbove: anchors.primaryAnchor,
+                        anchorBelow:
+                            anchors.secondaryAnchor ?? anchors.primaryAnchor,
+                        toolbarBuilder: (BuildContext ctx, Widget child) {
+                          return Material(
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                  12), // <-- здесь меняй скругление
+                            ),
+                            child: child,
+                          );
+                        },
+                        children: buttons,
+                      );
+                    },
               cursorHeight: MediaQuery.of(context).textScaler.scale(24),
               onSubmitted: (_) {
                 if (ref.read(translateModeProvider) &&
