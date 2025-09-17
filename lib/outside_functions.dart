@@ -167,7 +167,7 @@ class TwoDotEllipsis extends StatelessWidget {
     final double textScaleFactor = effectiveTextScaler.scale(1.0);
 
     return LayoutBuilder(builder: (context, constraints) {
-      final double maxWidth = maxWidthOverride ?? constraints.maxWidth - 4;
+      final double maxWidth = maxWidthOverride ?? constraints.maxWidth - 6;
 
       // Если ширина бесконечна, просто рисуем текст — нет ограничений.
       if (maxWidth.isInfinite) {

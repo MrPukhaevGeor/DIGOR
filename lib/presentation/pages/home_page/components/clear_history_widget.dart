@@ -102,7 +102,7 @@ class _ClearHistoryButtonState extends ConsumerState<ClearHistoryButton>
                                 constraints: BoxConstraints(
                                     minWidth: minWidth,
                                     maxWidth:
-                                        MediaQuery.of(context).size.width+4),
+                                        MediaQuery.of(context).size.width),
                                 child: Container(
                                   height: kToolbarHeight - 8,
                                   padding: const EdgeInsets.symmetric(
@@ -113,6 +113,7 @@ class _ClearHistoryButtonState extends ConsumerState<ClearHistoryButton>
                                     children: [
                                       Flexible(
                                         child: TwoDotEllipsis(
+                                          maxWidthOverride: MediaQuery.of(context).size.width-40,
                                          text:
                                           'clear_history'.tr(),
                                           maxLines: 1,
@@ -122,7 +123,7 @@ class _ClearHistoryButtonState extends ConsumerState<ClearHistoryButton>
                                                       .isNotEmpty
                                               ? theme.textTheme.bodyMedium!.copyWith(
                                                   color: Colors.grey,
-                                                  fontSize: 16,
+                                                  fontSize:16,
                                                   fontWeight: FontWeight.w500,
                                                 )
                                               : theme.textTheme.bodyMedium!.copyWith(

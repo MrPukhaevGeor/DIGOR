@@ -45,7 +45,7 @@ class SearchTextfield extends ConsumerWidget {
               ],
               magnifierConfiguration: const TextMagnifierConfiguration(
                   shouldDisplayHandlesInMagnifier: false),
-              contextMenuBuilder: ref.read(popupMenuOpenProvider.notifier).state
+              contextMenuBuilder: ref.read(popupMenuOpenProvider)
                   ? null
                   : (BuildContext ctx, EditableTextState editableTextState) {
                       // координаты тулбара

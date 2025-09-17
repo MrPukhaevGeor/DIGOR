@@ -29,14 +29,12 @@ class GratitudesPage extends StatelessWidget {
         body: MediaQuery(
           data: MediaQuery.of(context).copyWith(
               boldText: false, textScaler: const TextScaler.linear(1)),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(18.0),
-                child: StyledText(
-                  text: context.locale == const Locale('ru', 'RU')
-                      ? '''
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 18,horizontal: 24),
+              child: StyledText(
+                text: context.locale == const Locale('ru', 'RU')
+                    ? '''
 Данное приложение появилось благодаря поддержке людей, неравнодушных к положению и судьбе дигорского языка.
  
 От имени руководителя проекта хотелось бы выразить огромную благодарность людям, внесшим вклад в создание мобильного приложения:
@@ -49,7 +47,7 @@ class GratitudesPage extends StatelessWidget {
  
 <b>Кудзаеву Аслану</b> - создателю электронной библиотеки в группе Вконтакте "Bærzæfcæg" <ref>https://vk.com/barzafcag</ref> за сканирование дигорского-русского и русского-дигорского словаря 2003, 2015.
  
-<b>Магомедову Магомеду</b> - создателю приложения мультиязычного словаря северокавказских языков "Bazur" <ref>https://play.google.com/store/apps/details?id=com.alkaitagi.avzag</ref> и "Avdan" <ref>https://play.google.com/store/apps/details?id=com.alkaitagi.avdan</ref> за консультативную помощь при создании проекта.
+<b>Магомедову Магомеду</b> - создателю приложения мультиязычного словаря северокавказских языков "Bazur" и "Avdan" <ref>https://play.google.com/store/apps/details?id=com.alkaitagi.avdan</ref> за консультативную помощь при создании проекта.
  
 <b>Макаренко Марии Дмитриевне</b> - за лингвистическую помощь в оформлении структуры словарей.
  
@@ -180,9 +178,9 @@ class GratitudesPage extends StatelessWidget {
 Елена Александровна Г.
 Лида Александровна З.
                       '''
-                      : context.locale == const Locale('en', 'US')
-                          ? '''
-This application appeared thanks to the support of people who care about the situation and fate of the Digor langua
+                    : context.locale == const Locale('en', 'US')
+                        ? '''
+This application appeared thanks to the support of people who care about the situation and fate of the Digor language
 
 On behalf of the project manager, I would like to express my deep gratitude to the people who contributed to the creation of the mobile application:
 
@@ -194,13 +192,13 @@ On behalf of the project manager, I would like to express my deep gratitude to t
 
 <b>Aslan Kudzaev</b> - creator of the electronic library in the VKontakte group "Bærzæfcæg" <ref>https://vk.com/barzafcag</ref> for scanning the Digor-Russian and Russian-Digor dictionary 2003, 2015.
 
-<b>Magomedov Magomed</b> - creator of the application of the multilingual dictionary of North Caucasian languages "Bazur" <ref>https://play.google.com/store/apps/details?id=com.alkaitagi.avzag</ref> and "Avdan" <ref>https://play.google.com/store/apps/details?id=com.alkaitagi.avdan</ref> for consultative assistance in creating the project.
+<b>Magomedov Magomed</b> - creator of the application of the multilingual dictionary of North Caucasian languages "Bazur" and "Avdan" <ref>https://play.google.com/store/apps/details?id=com.alkaitagi.avdan</ref> for consultative assistance in creating the project.
 
 <b>Makarenko Maria Dmitrievna</b> - for linguistic assistance in the design of the dictionary structure.
 
 <b>Dzutseva Lana</b> - for technical work on the Digor-Russian and Digor-English dictionaries.
 
-<b>Zoloti Aliykhsan</b> - for the enormous work done in compiling the Turkish-Digor dictionary.
+<b>Zoloiti Aliihsan</b> - for the enormous work done in compiling the Turkish-Digor dictionary.
 
 <b>To the staff of the newspaper "Digora"</b> - for distributing the news about the creation of a mobile application. <ref>https://gazeta-digora.ru/</ref>
 
@@ -325,8 +323,8 @@ Alan Nikolaevich K.
 Elena Alexandrovna G.
 Lida Alexandrovna Z.
                       '''
-                          : context.locale == const Locale('tr', 'TR')
-                              ? '''
+                        : context.locale == const Locale('tr', 'TR')
+                            ? '''
 Bu uygulama Digor dilinin durumu ve kaderiyle ilgilenen kişilerin desteği sayesinde ortaya çıktı.
  
 Mobil uygulamanın oluşturulmasında emeği geçenlere proje yöneticisi adına en derin şükranlarımı sunmak isterim:
@@ -339,13 +337,13 @@ Mobil uygulamanın oluşturulmasında emeği geçenlere proje yöneticisi adına
  
 <b>Kudzaev Aslan</b> - VKontakte grubu "Bærzæfcæg" elektronik kütüphanesinin yaratıcısı <ref>https://vk.com/barzafcag</ref> Digoronca-Rusça ve Rusça-Digoronca sözlüğünün 2003, 2015'te taranması için.
  
-<b>Magomedov Magomed</b> - Kuzey Kafkas dilleri "Bazur" <ref>https://play.google.com/store/apps/details?id=com.alkaitagi.avzag</ref> ve "Avdan" <ref>https://play.google.com/store/apps/details?id=com.alkaitagi.avdan</ref> çok dilli sözlüğünün uygulamasının yaratıcısı, projenin oluşturulmasında danışmanlık yardımı için.
+<b>Magomedov Magomed</b> - Kuzey Kafkas dilleri "Bazur" ve "Avdan" <ref>https://play.google.com/store/apps/details?id=com.alkaitagi.avdan</ref> çok dilli sözlüğünün uygulamasının yaratıcısı, projenin oluşturulmasında danışmanlık yardımı için.
  
 <b>Makarenko Maria Dmitrievna</b> - Sözlük yapısının tasarımında dilsel yardımlarından dolayı.
  
 <b>Dzutseva Lana</b> - Digoronca-Rusça ve Digoronca-İngilizce sözlükleri üzerindeki teknik çalışmalarından dolayı.
  
-<b>Zoloti Aliyhsan</b> - Türkçe-Digoronca sözlüğünün derlenmesinde yaptığı muazzam çalışmadan dolayı.
+<b>Zoloyti Ali İhsan</b> - Türkçe-Digoronca sözlüğünün derlenmesinde yaptığı muazzam çalışmadan dolayı.
  
 <b>"Digora" gazetesi çalışanlarına</b> - Mobil uygulama oluşturma haberini dağıttıkları için. <ref>https://gazeta-digora.ru/</ref>
  
@@ -470,7 +468,7 @@ Bu uygulamayı mümkün kılan herkese özellikle teşekkür etmek ve onları vu
  Elena Aleksandrovna G.
  Lida Aleksandrovna Z.
                       '''
-                              : '''
+                            : '''
 Ӕнхасӕн "Digor" фӕззиндтӕй ӕнӕвгъау адӕми ӕнхусӕй, дигорон ӕвзаги исонбонбӕл ка тухсуй, уони фӕрци.
  
 Проекти разамонӕги номӕй, мӕн фӕндуй устур арфӕ ракӕнун аци ӕнхасӕнмӕ ӕ хай ка бахаста, уонӕн:
@@ -483,7 +481,7 @@ Bu uygulamayı mümkün kılan herkese özellikle teşekkür etmek ve onları vu
  
 <b>Кудзати Асланӕн</b> - электрон киунугӕдонӕ "Bærzæfcæg" - и аразӕгӕн <ref>https://vk.com/barzafcag</ref> дигорон-уруссаг, уруссаг-дигорон дзурдуӕттӕ ке рапарахат кодта социалон хизӕгти.
  
-<b>Магомедову Магомеду</b> - Цӕгат Кавкази адӕмти ӕвзӕгутӕн электрон дзурдуат "Bazur" <ref>https://play.google.com/store/apps/details?id=com.alkaitagi.avzag</ref> ӕма "Avdan" <ref>https://play.google.com/store/apps/details?id=com.alkaitagi.avdan</ref> аразӕгӕн, ке амудта зин фарстати ӕнхасӕн куд аразгӕ ’й, е.
+<b>Магомедову Магомеду</b> - Цӕгат Кавкази адӕмти ӕвзӕгутӕн электрон дзурдуат "Bazur" ӕма "Avdan" <ref>https://play.google.com/store/apps/details?id=com.alkaitagi.avdan</ref> аразӕгӕн, ке амудта зин фарстати ӕнхасӕн куд аразгӕ ’й, е.
  
 <b>Макаренко Марии Дмитриевне</b> - лингвистикон ӕнхус дзурдуӕтти арӕзтӕн.
  
@@ -614,29 +612,29 @@ Bu uygulamayı mümkün kılan herkese özellikle teşekkür etmek ve onları vu
 Елена Александровна Г.
 Лида Александровна З.
                       ''',
-                  // textAlign: TextAlign.justify,
-                  style: theme.textTheme.headlineSmall!.copyWith(
-                    fontSize: 14,
-                  ),
-                  textAlign: TextAlign.justify,
-                  tags: {
-                    'b': StyledTextActionTag(
-                      (String? text, Map<String?, String?> attrs) {},
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          textBaseline: TextBaseline.ideographic),
-                    ),
-                    'ref': StyledTextActionTag(
-                      (String? text, Map<String?, String?> attrs) {
-                        _launchUrl(Uri.parse(text!));
-                      },
-                      style: TextStyle(
-                          color: theme.brightness == Brightness.dark
-                              ? const Color.fromARGB(255, 0, 129, 255)
-                              : const Color.fromARGB(255, 0, 0, 238)),
-                    ),
-                  },
+                // textAlign: TextAlign.justify,
+                style: theme.textTheme.headlineSmall!.copyWith(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500
                 ),
+                textAlign: TextAlign.justify,
+                tags: {
+                  'b': StyledTextActionTag(
+                    (String? text, Map<String?, String?> attrs) {},
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        textBaseline: TextBaseline.ideographic),
+                  ),
+                  'ref': StyledTextActionTag(
+                    (String? text, Map<String?, String?> attrs) {
+                      _launchUrl(Uri.parse(text!));
+                    },
+                    style: TextStyle(
+                        color: theme.brightness == Brightness.dark
+                            ? const Color.fromARGB(255, 0, 129, 255)
+                            : const Color.fromARGB(255, 0, 0, 238)),
+                  ),
+                },
               ),
             ),
           ),

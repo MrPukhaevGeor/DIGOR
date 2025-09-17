@@ -305,7 +305,7 @@ class AppBarWidget extends ConsumerWidget {
                           textScaler: adjustedScaler,
                           style: theme.textTheme.bodyMedium!.copyWith(
                             color: Colors.white,
-                            fontSize: 13,
+                            fontSize: 12.5,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -384,7 +384,7 @@ class AppBarWidget extends ConsumerWidget {
                           maxLines: 1,
                           style: theme.textTheme.bodyMedium!.copyWith(
                             color: Colors.white,
-                            fontSize: 13,
+                            fontSize: 12.5,
                             fontWeight: FontWeight.w500,
                           ),
                         ),

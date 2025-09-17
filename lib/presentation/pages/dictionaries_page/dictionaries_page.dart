@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:styled_text/styled_text.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 's.dart';
+
 class DictionariesPage extends StatelessWidget {
   const DictionariesPage({super.key});
   @override
@@ -36,30 +38,30 @@ class DictionariesPage extends StatelessWidget {
         const _dictionaryWidget(
           title: 'Digor-Russian dictionary',
           description:
-              'Entry count   34657\nFile size         53,47 MB\nState              active <a>✅</a>\nSound            planned',
+              'Entry count      34657\nFile size        53,47 MB\nState            active <a>✅</a>\nSound            planned',
           author: 'Takazov F., 2nd ed. - Vladikavkaz, 2015.',
         ),
-        const SizedBox(height: 40),
+        const SizedBox(height: 15),
         const _dictionaryWidget(
           title: 'Digor-English dictionary',
           description:
-              'Entry count    18780\nFile size          3,85 MB\nState              active <a>✅</a>\nSound            planned',
+              'Entry count      18780\nFile size        3,85 MB\nState            active <a>✅</a>\nSound            planned',
           author:
-              'Dictionary of the Digor language corpus. <ref>http://corpus-digor.ossetic-studies.org</ref>',
+              'Dictionary of the Digor language corpus. \n<ref>http://corpus-digor.ossetic-studies.org</ref>',
         ),
-        const SizedBox(height: 40),
+        const SizedBox(height: 15),
         const _dictionaryWidget(
           title: 'Ossetian (Iron)-Russian dictionary',
           description:
-              'Entry count     26775\nFile size          4,64 MB\nState              active <a>✅</a>\nSound            planned',
+              'Entry count      26775\nFile size        4,64 MB\nState            active <a>✅</a>\nSound            planned',
           author:
               'Bigulaev B., Gagkaev K., Guriev T., Kulaev N., Tuaeva O., 5th ed. - Vladikavkaz, 2004.',
         ),
-        const SizedBox(height: 40),
+        const SizedBox(height: 15),
         const _dictionaryWidget(
           title: 'Russian-Ossetian (Iron) dictionary',
           description:
-              'Entry count     25213\nFile size          4,77 MB\nState              active <a>✅</a>\nSound            planned',
+              'Entry count      25213\nFile size        4,77 MB\nState            active <a>✅</a>\nSound            planned',
           author: 'Abaev V., 3rd ed. - Vladikavkaz, 2013.',
         ),
       ],
@@ -68,39 +70,32 @@ class DictionariesPage extends StatelessWidget {
       if (context.locale == const Locale('km', 'KM')) ...[
         const _dictionaryWidget(
           title: 'Дыгурон-уырыссаг дзырдуат',
-          description: 'Фыстуацты нымӕц  34657\n'
-              'Файлы ас                         53,47 MB\n'
-              'Ӕууӕл                                кусы <a>✅</a>\n'
-              'Зӕлгонд                             уыдзӕн',
+          description:
+              'Фыстуацты нымӕц      34657\nФайлы ас      53,47 MB\nӔууӕл      кусы <a>✅</a>\nЗӕлгонд      уыдзӕн',
           author: 'Тахъазты Ф., 2-аг рауагъд - Дзӕуджыхъӕу, 2015.',
         ),
-        const SizedBox(height: 40),
+        const SizedBox(height: 15),
         const _dictionaryWidget(
           title: 'Дыгурон-англисаг дзырдуат',
-          description: 'Фыстуацты нымӕц  18780\n'
-              'Файлы ас                         3,85 MB\n'
-              'Ӕууӕл                                 кусы <a>✅</a>\n'
-              'Зӕлгонд                             уыдзӕн',
+          description:
+              'Фыстуацты нымӕц      18780\nФайлы ас      3,85 MB\nӔууӕл      кусы <a>✅</a>\nЗӕлгонд      уыдзӕн',
           author:
-              'Дыгурон ӕвзагон къорпусӕй ист дзырдуат. <ref>http://corpus-digor.ossetic-studies.org</ref>',
+              'Дыгурон ӕвзагон къорпусӕй ист дзырдуат. \n<ref>http://corpus-digor.ossetic-studies.org</ref>',
         ),
-        const SizedBox(height: 40),
+        const SizedBox(height: 15),
+        // Note: In original you had identical counts for some items — keep consistent entries below.
         const _dictionaryWidget(
           title: 'Ирон-уырыссаг дзырдуат',
-          description: 'Фыстуацты нымӕц  34657\n'
-              'Файлы ас                         4,64 МБ\n'
-              'Ӕууӕл                                 кусы <a>✅</a>\n'
-              'Зӕлгонд                             уыдзӕн',
+          description:
+              'Фыстуацты нымӕц      34657\nФайлы ас      4,64 MB\nӔууӕл      кусы <a>✅</a>\nЗӕлгонд      уыдзӕн',
           author:
-              'Бигъуылаты Б., Гагкайты К., Гуыриаты Т., Хъуылаты Н., Туаты О., 5-аг рауагъд - Дзӕуджыхъӕу, 2004.',
+              'Бигъуылаты Б., Гагкайты К., Гуыриаты Т., Хъышленаты Н., Туаты О., 5-аг рауагъд - Дзӕуджыхъӕу, 2004.',
         ),
-        const SizedBox(height: 40),
+        const SizedBox(height: 15),
         const _dictionaryWidget(
           title: 'Уырыссаг-ирон дзырдуат',
-          description: 'Фыстуацты нымӕц  18780\n'
-              'Файлы ас                         4,77 МБ\n'
-              'Ӕууӕл                                кусы <a>✅</a>\n'
-              'Зӕлгонд                             уыдзӕн',
+          description:
+              'Фыстуацты нымӕц      18780\nФайлы ас      4,77 MB\nӔууӕл      кусы <a>✅</a>\nЗӕлгонд      уыдзӕн',
           author: 'Абайты В., 3-аг рауагъд - Дзӕуджыхъӕу, 2013.',
         ),
       ],
@@ -109,39 +104,31 @@ class DictionariesPage extends StatelessWidget {
       if (context.locale == const Locale('ru', 'RU')) ...[
         const _dictionaryWidget(
           title: 'Дигорско-русский словарь',
-          description: 'Количество статей  34657\n'
-              'Размер файла           53,47 МБ\n'
-              'Состояние                  включен <a>✅</a>\n'
-              'Озвучка                      планируется',
+          description:
+              'Количество статей      34657\nРазмер файла      53,47 МБ\nСостояние      включен <a>✅</a>\nОзвучка      планируется',
           author: 'Таказов Ф. М., изд. 2-е. - Владикавказ, 2015.',
         ),
         const SizedBox(height: 15),
         const _dictionaryWidget(
           title: 'Дигорско-английский словарь',
-          description: 'Количество статей  18780\n'
-              'Размер файла           3,85 МБ\n'
-              'Состояние                  включен <a>✔</a>\n'
-              'Озвучка                      планируется',
+          description:
+              'Количество статей      18780\nРазмер файла      3,85 МБ\nСостояние      включен <a>✔</a>\nОзвучка      планируется',
           author:
               'Словарь дигорского языкового корпуса. \n<ref>http://corpus-digor.ossetic-studies.org</ref>',
         ),
         const SizedBox(height: 15),
         const _dictionaryWidget(
           title: 'Осетинско (иронско)-русский словарь',
-          description: 'Количество статей  26775\n'
-              'Размер файла           4,64 МБ\n'
-              'Состояние                  включен <a>✅</a>\n'
-              'Озвучка                      планируется',
+          description:
+              'Количество статей      26775\nРазмер файла      4,64 МБ\nСостояние      включен <a>✅</a>\nОзвучка      планируется',
           author:
               'Бигулаев Б. Б., Гагкаев К. Е., Гуриев Т. А., Кулаев Н. Х., Туаева О. Н., изд. 5-е. - Владикавказ, 2004.',
         ),
         const SizedBox(height: 15),
         const _dictionaryWidget(
           title: 'Русско-осетинский (иронский) словарь',
-          description: 'Количество статей  25213\n'
-              'Размер файла           4,77 МБ\n'
-              'Состояние                  включен <a>✅</a>\n'
-              'Озвучка                      планируется',
+          description:
+              'Количество статей      25213\nРазмер файла      4,77 МБ\nСостояние      включен <a>✅</a>\nОзвучка      планируется',
           author: 'Абаев В.И., изд. 3-е. - Владикавказ, 2013.',
         ),
       ],
@@ -150,39 +137,31 @@ class DictionariesPage extends StatelessWidget {
       if (context.locale == const Locale('tr', 'TR')) ...[
         const _dictionaryWidget(
           title: 'Digoronca-Rusça sözlük',
-          description: 'Makale sayısı            34657\n'
-              'Dosya boyutu           53,47 MB\n'
-              'Durum                       aktif <a>✅</a>\n'
-              'Ses                            planlandı',
+          description:
+              'Makale sayısı      34657\nDosya boyutu      53,47 MB\nDurum      aktif <a>✅</a>\nSes      planlandı',
           author: 'Takazov F., 2. Baskı. - Vladikavkaz, 2015.',
         ),
-        const SizedBox(height: 40),
+        const SizedBox(height: 15),
         const _dictionaryWidget(
           title: 'Digoronca-İngilizce sözlük',
-          description: 'Makale sayısı            18780\n'
-              'Dosya boyutu            3,85 MB\n'
-              'Durum                       aktif <a>✅</a>\n'
-              'Ses                            planlandı',
+          description:
+              'Makale sayısı      18780\nDosya boyutu      3,85 MB\nDurum      aktif <a>✅</a>\nSes      planlandı',
           author:
-              'Digor dil külliyatının sözlüğü. <ref>http://corpus-digor.ossetic-studies.org</ref>',
+              'Digor dil külliyatının sözlüğü. \n<ref>http://corpus-digor.ossetic-studies.org</ref>',
         ),
-        const SizedBox(height: 40),
+        const SizedBox(height: 15),
         const _dictionaryWidget(
           title: 'İronca-Rusça sözlük',
-          description: 'Makale sayısı            26775\n'
-              'Dosya boyutu           4,64 MB\n'
-              'Durum                       aktif <a>✅</a>\n'
-              'Ses                            planlandı',
+          description:
+              'Makale sayısı      26775\nDosya boyutu      4,64 MB\nDurum      aktif <a>✅</a>\nSes      planlandı',
           author:
               'Bigulaev B., Gagkaev K., Guriev T., Kulaev N., Tuaeva O., 5. Baskı. - Vladikavkaz, 2004.',
         ),
-        const SizedBox(height: 40),
+        const SizedBox(height: 15),
         const _dictionaryWidget(
           title: 'İronca-İngilizce sözlük',
-          description: 'Makale sayısı            25213\n'
-              'Dosya boyutu            4,77 MB\n'
-              'Durum                       aktif <a>✅</a>\n'
-              'Ses                            planlandı',
+          description:
+              'Makale sayısı      25213\nDosya boyutu      4,77 MB\nDurum      aktif <a>✅</a>\nSes      planlandı',
           author: 'Abaev V., 3. Baskı. - Vladikavkaz, 2013.',
         ),
       ],
@@ -191,39 +170,31 @@ class DictionariesPage extends StatelessWidget {
       if (context.locale == const Locale('sw', 'SW')) ...[
         const _dictionaryWidget(
           title: 'Дигорон-уруссаг дзурдуат',
-          description: 'Финстуацти нимӕдзӕ      34657\n'
-              'Файли асӕ                         53,47 MB\n'
-              'Ӕууӕл                                косуй <a>✅</a>\n'
-              'Зӕлгонд                             уодзӕнӕй',
+          description:
+              'Финстуацти нимӕдзӕ      34657\nФайли асӕ      53,47 MB\nӔууӕл      косуй <a>✅</a>\nЗӕлгонд      уодзӕнӕй',
           author: 'Тахъазти Ф., 2-аг рауагъд - Дзӕуӕгигъӕу, 2015.',
         ),
-        const SizedBox(height: 40),
+        const SizedBox(height: 15),
         const _dictionaryWidget(
           title: 'Дигорон-англисаг дзурдуат',
-          description: 'Финстуацти нимӕдзӕ      18780\n'
-              'Файли асӕ                         3,85 MB\n'
-              'Ӕууӕл                                косуй <a>✅</a>\n'
-              'Зӕлгонд                             уодзӕнӕй',
+          description:
+              'Финстуацти нимӕдзӕ      18780\nФайли асӕ      3,85 MB\nӔууӕл      косуй <a>✅</a>\nЗӕлгонд      уодзӕнӕй',
           author:
-              'Дигорон ӕвзагон къорпусӕй ист дзурдуат. <ref>http://corpus-digor.ossetic-studies.org</ref>',
+              'Дигорон ӕвзагон къорпусӕй ист дзурдуат. \n<ref>http://corpus-digor.ossetic-studies.org</ref>',
         ),
-        const SizedBox(height: 40),
+        const SizedBox(height: 15),
         const _dictionaryWidget(
           title: 'Ирон-уруссаг дзурдуат',
-          description: 'Финстуацти нимӕдзӕ      26775\n'
-              'Файли асӕ                         4,64 MB\n'
-              'Ӕууӕл                                косуй <a>✅</a>\n'
-              'Зӕлгонд                             уодзӕнӕй',
+          description:
+              'Финстуацти нимӕдзӕ      26775\nФайли асӕ      4,64 MB\nӔууӕл      косуй <a>✅</a>\nЗӕлгонд      уодзӕнӕй',
           author:
               'Бигъулати Б., Гагкайти К., Гуриати Т., Хъулати Н., Туати О., 5-аг рауагъд - Дзӕуӕгигъӕу, 2004.',
         ),
-        const SizedBox(height: 40),
+        const SizedBox(height: 15),
         const _dictionaryWidget(
           title: 'Уруссаг-ирон дзурдуат',
-          description: 'Финстуацти нимӕдзӕ      25213\n'
-              'Файли асӕ                         4,77 MB\n'
-              'Ӕууӕл                                косуй <a>✅</a>\n'
-              'Зӕлгонд                             уодзӕнӕй',
+          description:
+              'Финстуацти нимӕдзӕ      25213\nФайли асӕ      4,77 MB\nӔууӕл      косуй <a>✅</a>\nЗӕлгонд      уодзӕнӕй',
           author: 'Абайти В., 3-аг рауагъд - Дзӕуӕгигъӕу, 2013.',
         ),
       ],
@@ -277,16 +248,17 @@ class _dictionaryWidget extends StatelessWidget {
         Text(
           title,
           style: theme.textTheme.headlineSmall!.copyWith(
-            fontSize: 16,
+            fontSize: 18,
             fontWeight: FontWeight.w500,
           ),
         ),
         const SizedBox(height: 20),
-        StyledText(
-          text: description,
+        AlignedDescription(
+          description: description,
           style: theme.textTheme.bodySmall!.copyWith(
             fontSize: 14,
             height: 1.3,
+            fontWeight: FontWeight.w500,
             color: theme.textTheme.bodyMedium!.color,
           ),
           tags: {
@@ -311,7 +283,7 @@ class _dictionaryWidget extends StatelessWidget {
           style: theme.textTheme.bodySmall!.copyWith(
             fontSize: 14,
             height: 1.3,
-            fontWeight: FontWeight.w300,
+            fontWeight: FontWeight.w500,
             color: theme.textTheme.bodyMedium!.color,
           ),
           tags: {

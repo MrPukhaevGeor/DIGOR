@@ -49,33 +49,33 @@ class HomePage extends ConsumerWidget {
           resizeToAvoidBottomInset: false,
           drawer: const DrawerWidget(),
           body: Column(
-              children: [
-                AppBarWidget(
-                  scaffoldKey: homePageKey,
+            children: [
+              AppBarWidget(
+                scaffoldKey: homePageKey,
+              ),
+              Expanded(
+                child: Column(
+                  children: [
+                    SearchTextfield(),
+                    LastTranslationsWidget(),
+                    WordListWidget(),
+                  ],
                 ),
-                const Expanded(
-                  child: Column(
-                    children: [
-                      SearchTextfield(),
-                      LastTranslationsWidget(),
-                      WordListWidget(),
-                    ],
-                  ),
+              ),
+              if (ref.watch(splitModeProvider)) ...[
+                SizedBox(
+                    height: 2,
+                    child: Divider(
+                        thickness: 2, color: Theme.of(context).primaryColor)),
+                Expanded(
+                  child: WordPage(ref.watch(selectedBottomPanelWordIdProvider),
+                      needAppBar: false),
                 ),
-                if (ref.watch(splitModeProvider)) ...[
-                  SizedBox(
-                      height: 2,
-                      child: Divider(
-                          thickness: 2, color: Theme.of(context).primaryColor)),
-                  Expanded(
-                    child: WordPage(ref.watch(selectedBottomPanelWordIdProvider),
-                        needAppBar: false),
-                  ),
-                ]
-              ],
-            ),
+              ]
+            ],
           ),
         ),
+      ),
     );
   }
 }
