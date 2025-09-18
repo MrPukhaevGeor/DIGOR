@@ -90,7 +90,6 @@ class _ClearHistoryButtonState extends ConsumerState<ClearHistoryButton>
                               onTap: isEmpty
                                   ? null
                                   : () {
-                                  
                                       if (ref
                                           .read(textFieldValueProvider)
                                           .isEmpty) {
@@ -109,24 +108,27 @@ class _ClearHistoryButtonState extends ConsumerState<ClearHistoryButton>
                                     horizontal: 12,
                                     vertical: 2,
                                   ),
-                                  child: Row(mainAxisSize: MainAxisSize.min,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Flexible(
-                                        child: TwoDotEllipsis(
-                                          maxWidthOverride: MediaQuery.of(context).size.width-40,
-                                         text:
+                                        child: Text(
                                           'clear_history'.tr(),
                                           maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
                                           style: isEmpty ||
                                                   ref
-                                                      .read(textFieldValueProvider)
+                                                      .read(
+                                                          textFieldValueProvider)
                                                       .isNotEmpty
-                                              ? theme.textTheme.bodyMedium!.copyWith(
+                                              ? theme.textTheme.bodyMedium!
+                                                  .copyWith(
                                                   color: Colors.grey,
-                                                  fontSize:16,
+                                                  fontSize: 40,
                                                   fontWeight: FontWeight.w500,
                                                 )
-                                              : theme.textTheme.bodyMedium!.copyWith(
+                                              : theme.textTheme.bodyMedium!
+                                                  .copyWith(
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.w500,
                                                 ),

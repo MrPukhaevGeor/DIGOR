@@ -88,7 +88,7 @@ class SearchTextfield extends ConsumerWidget {
                           onPressed: item.onPressed,
                           style: TextButton.styleFrom(
                             padding: const EdgeInsets.symmetric(
-                                vertical: 8, horizontal: 8),
+                                vertical: 2, horizontal: 8),
                           ),
                           child: Text(
                             title,
@@ -96,7 +96,7 @@ class SearchTextfield extends ConsumerWidget {
                           ),
                         );
                       }).toList();
-                      // Возвращаем стандартный TextSelectionToolbar, но с нашим Material (для скругления)
+                      
                       return TextSelectionToolbar(
                         anchorAbove: anchors.primaryAnchor,
                         anchorBelow:
@@ -106,7 +106,7 @@ class SearchTextfield extends ConsumerWidget {
                             elevation: 2,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(
-                                  12), // <-- здесь меняй скругление
+                                  12),
                             ),
                             child: child,
                           );

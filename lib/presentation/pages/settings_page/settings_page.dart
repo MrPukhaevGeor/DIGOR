@@ -72,7 +72,8 @@ class SettingsPage extends ConsumerWidget {
                                         .copyWith(fontSize: 20)),
                               ),
                               ListTile(
-                                contentPadding: const EdgeInsets.only(left: 8,right: 24),
+                                contentPadding:
+                                    const EdgeInsets.only(left: 8, right: 24),
                                 onTap: () {
                                   ref
                                       .read(localizationModeProvider.notifier)
@@ -111,7 +112,8 @@ class SettingsPage extends ConsumerWidget {
                                 ),
                               ),
                               ListTile(
-                                contentPadding: const EdgeInsets.only(left: 8,right: 24),
+                                contentPadding:
+                                    const EdgeInsets.only(left: 8, right: 24),
                                 onTap: () {
                                   ref
                                       .read(localizationModeProvider.notifier)
@@ -150,7 +152,8 @@ class SettingsPage extends ConsumerWidget {
                                 ),
                               ),
                               ListTile(
-                                contentPadding: const EdgeInsets.only(left: 8,right: 24),
+                                contentPadding:
+                                    const EdgeInsets.only(left: 8, right: 24),
                                 onTap: () {
                                   ref
                                       .read(localizationModeProvider.notifier)
@@ -189,7 +192,8 @@ class SettingsPage extends ConsumerWidget {
                                 ),
                               ),
                               ListTile(
-                                contentPadding: const EdgeInsets.only(left: 8,right: 24),
+                                contentPadding:
+                                    const EdgeInsets.only(left: 8, right: 24),
                                 onTap: () {
                                   final searchMode =
                                       ref.read(searchModeProvider).value;
@@ -259,7 +263,8 @@ class SettingsPage extends ConsumerWidget {
                                 ),
                               ),
                               ListTile(
-                                contentPadding: const EdgeInsets.only(left: 8,right: 24),
+                                contentPadding:
+                                    const EdgeInsets.only(left: 8, right: 24),
                                 onTap: () {
                                   final searchMode =
                                       ref.read(searchModeProvider).value;
@@ -329,7 +334,8 @@ class SettingsPage extends ConsumerWidget {
                                 ),
                               ),
                               ListTile(
-                                contentPadding: const EdgeInsets.only(left: 8,right: 24),
+                                contentPadding:
+                                    const EdgeInsets.only(left: 8, right: 24),
                                 onTap: () {
                                   final searchMode =
                                       ref.read(searchModeProvider).value;
@@ -471,7 +477,8 @@ class SettingsPage extends ConsumerWidget {
                               ListTile(
                                 visualDensity:
                                     const VisualDensity(vertical: -.3),
-                                contentPadding: const EdgeInsets.only(left: 8,right: 24),
+                                contentPadding:
+                                    const EdgeInsets.only(left: 8, right: 24),
                                 onTap: () {
                                   if (theme.brightness == Brightness.dark)
                                     AdaptiveTheme.of(context).setLight();
@@ -507,7 +514,8 @@ class SettingsPage extends ConsumerWidget {
                               ListTile(
                                 visualDensity:
                                     const VisualDensity(vertical: -.3),
-                                contentPadding: const EdgeInsets.only(left: 8,right: 24),
+                                contentPadding:
+                                    const EdgeInsets.only(left: 8, right: 24),
                                 onTap: () {
                                   if (theme.brightness == Brightness.light)
                                     AdaptiveTheme.of(context).setDark();
@@ -562,30 +570,58 @@ class SettingsPage extends ConsumerWidget {
                       );
                     })),
           ),
-          ListTile(
+          InkWell(
             onTap: () {
               ref.read(splitModeProvider.notifier).newState =
                   !ref.read(splitModeProvider.notifier).state;
             },
-            visualDensity: const VisualDensity(vertical: 4),
-            title: Text(
-              tr('split_screen'),
-              style: theme.textTheme.bodyMedium!.copyWith(
-                fontSize: 17,
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(color: Colors.grey.withOpacity(0.3)),
+                ),
               ),
-            ),
-            subtitle: Text(
-              tr('split_screen_subtitle'),
-              style: theme.textTheme.bodyMedium!.copyWith(
-                fontSize: 15,
+              child: Row(
+                children: [
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Заголовок
+                        Text(
+                          tr('split_screen'),
+                          style:
+                              theme.textTheme.bodyMedium!.copyWith(fontSize: 17),
+                        ),
+                        // Подзаголовок (если нужен)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4.0, bottom: 8.0),
+                          child: Text(
+                            tr('split_screen_subtitle'),
+                            style: theme.textTheme.bodyMedium!
+                                .copyWith(fontSize: 15),
+                          ),
+                        ),
+                    
+                        // Сам чекбокс по центру
+                      ],
+                    ),
+                  ),
+                  Center(
+                    child: Checkbox(
+                      value: ref.watch(splitModeProvider),
+                      onChanged: (value) => ref
+                          .read(splitModeProvider.notifier)
+                          .newState = value!,
+                      // дополнительные настройки, если нужно:
+                      overlayColor: WidgetStateProperty.all(Colors.white),
+                      side: BorderSide(color: Colors.black, width: 2),
+                    ),
+                  ),
+                ],
               ),
-            ),
-            trailing: Checkbox(
-              overlayColor: WidgetStateProperty.all(Colors.white),
-              side: BorderSide(color: Colors.black, width: 2),
-              value: ref.watch(splitModeProvider),
-              onChanged: (value) =>
-                  ref.read(splitModeProvider.notifier).newState = value!,
             ),
           ),
           Padding(
@@ -619,7 +655,8 @@ class SettingsPage extends ConsumerWidget {
                             ),
                             ListTile(
                               visualDensity: const VisualDensity(vertical: -.3),
-                              contentPadding: const EdgeInsets.only(left: 8,right: 24),
+                              contentPadding:
+                                  const EdgeInsets.only(left: 8, right: 24),
                               onTap: () {
                                 ref
                                     .read(glossaryZoomProvider.notifier)
@@ -656,7 +693,8 @@ class SettingsPage extends ConsumerWidget {
                             ),
                             ListTile(
                               visualDensity: const VisualDensity(vertical: -.3),
-                              contentPadding: const EdgeInsets.only(left: 8,right: 24),
+                              contentPadding:
+                                  const EdgeInsets.only(left: 8, right: 24),
                               onTap: () {
                                 ref
                                     .read(glossaryZoomProvider.notifier)
@@ -692,7 +730,8 @@ class SettingsPage extends ConsumerWidget {
                             ),
                             ListTile(
                               visualDensity: const VisualDensity(vertical: -.3),
-                              contentPadding: const EdgeInsets.only(left: 8,right: 24),
+                              contentPadding:
+                                  const EdgeInsets.only(left: 8, right: 24),
                               onTap: () {
                                 ref
                                     .read(glossaryZoomProvider.notifier)
