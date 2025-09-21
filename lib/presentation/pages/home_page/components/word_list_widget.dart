@@ -61,6 +61,7 @@ class _SearchList extends ConsumerWidget {
             children: [
               SizedBox(height: MediaQuery.of(context).size.height/4),
               Text(
+              textAlign: TextAlign.center,
                 '${tr('translation_not_found')}.',
                 style: Theme.of(context).textTheme.headlineLarge!.copyWith(fontSize: 20),
               ),

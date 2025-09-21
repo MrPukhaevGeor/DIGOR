@@ -32,8 +32,8 @@ class _AboutAppPageState extends State<AboutAppPage> {
     return Scaffold(
       appBar: AppBar(
         title: MediaQuery(
-          data: MediaQuery.of(context)
-              .copyWith(textScaler: const TextScaler.linear(1)),
+          data: MediaQuery.of(context).copyWith(
+              textScaler: const TextScaler.linear(1), boldText: false),
           child: Text(
             tr('about_app'),
             style: theme.textTheme.bodyMedium!.copyWith(
@@ -45,11 +45,9 @@ class _AboutAppPageState extends State<AboutAppPage> {
         ),
         backgroundColor: theme.primaryColor,
       ),
-      body: MediaQuery(
-        data: MediaQuery.of(context)
-            .copyWith(textScaler: const TextScaler.linear(1)),
+      body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+          padding: const EdgeInsets.only(top: 10, right: 15,left: 22),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -59,7 +57,7 @@ class _AboutAppPageState extends State<AboutAppPage> {
               if (context.locale == const Locale('km', 'KM')) ...[
                 Text.rich(
                   TextSpan(
-                    text: 'Дзырдуӕттӕ Digor®',
+                    text: 'Дзырдуӕттӕ Digor',
                     style: theme.textTheme.headlineSmall!.copyWith(
                       fontSize: 22,
                       fontWeight: isBold ? FontWeight.w600 : FontWeight.w500,
@@ -88,7 +86,7 @@ class _AboutAppPageState extends State<AboutAppPage> {
           
 Проект «Digor» нысангонд у алкӕмӕн дӕр, кӕцы цымыдис кӕны дыгурон ӕвзагмӕ - куыд мадӕлон кӕнӕ фӕсарӕйнаг ӕвзаг, астӕуккаг ӕмӕ уӕлдӕр ахуыргӕнӕндӕтты студенттӕн, афтӕ ма профессионалон ӕгъдауӕй лингвистикӕйы чи архайы, кӕнӕ дыгурон ӕвзаг ӕмӕ литературӕ чи амоны, уыцы специалисттӕн. Ацы ӕмхасӕны бакӕсӕн ис алыхуызы ӕвзагзонынады информаци.
       ''',
-                  textAlign: TextAlign.justify,
+                  textAlign: TextAlign.left,
                   style: theme.textTheme.bodySmall!.copyWith(
                     fontSize: 14,
                     height: 1.3,

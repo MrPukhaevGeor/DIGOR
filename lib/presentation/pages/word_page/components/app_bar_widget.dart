@@ -11,6 +11,8 @@ class WordPageAppBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isBold = MediaQuery.of(context).boldText;
+    print("жирны $isBold");
     final isShowingExamples =
         ref.watch(exampleModeProvider) == ExampleModeEnum.show;
     final theme = Theme.of(context);
@@ -18,11 +20,14 @@ class WordPageAppBar extends ConsumerWidget {
       backgroundColor: theme.primaryColor,
       title: MediaQuery(
         data: MediaQuery.of(context)
-            .copyWith(textScaler: const TextScaler.linear(1),boldText: false),
+            .copyWith(textScaler: const TextScaler.linear(1), boldText: false),
         child: Text(
           tr('translation'),
           style: theme.textTheme.bodyMedium!.copyWith(
-              color: Colors.white, fontSize: 22, fontWeight: FontWeight.w500),
+            color: Colors.white,
+            fontSize: 22,
+            fontWeight: isBold ? FontWeight.w600 : FontWeight.w500,
+          ),
         ),
       ),
       actions: [

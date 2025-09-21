@@ -56,7 +56,7 @@ class SearchTextfield extends ConsumerWidget {
 
                       // Оставляем только copy, selectAll и share
                       final wanted = <ContextMenuButtonType>{
-                        ContextMenuButtonType.selectAll,
+                       
                         ContextMenuButtonType.paste,
                         ContextMenuButtonType.copy,
                       };
@@ -76,27 +76,42 @@ class SearchTextfield extends ConsumerWidget {
                           case ContextMenuButtonType.paste:
                             title = tr('paste'); // твоя локаль
                             break;
-                          case ContextMenuButtonType.selectAll:
-                            title = tr('select_all');
-                            break;
+                        
 
                           default:
                             title = item.label ?? '';
                         }
 
-                        return TextButton(
-                          onPressed: item.onPressed,
-                          style: TextButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 2, horizontal: 8),
-                          ),
-                          child: Text(
-                            title,
-                            style: TextStyle(color: Colors.black),
+                        return Material(
+                          color: Colors.transparent,
+                         
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(
+                                12), // важно — чтобы hover/splash совпадал
+                            hoverColor: Colors.blue.withOpacity(0.02),
+                            highlightColor:Colors.blue.withOpacity(0.08),
+                            onTap: item.onPressed,
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(minHeight: 48),
+                              child: Padding(
+                                padding: EdgeInsets.only(
+                                    left: 12.0,
+                                    right: 12,
+                                    top: 14 /
+                                        MediaQuery.of(context)
+                                            .textScaler
+                                            .scale(1)),
+                                child: Text(
+                                  title,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                              ),
+                            ),
                           ),
                         );
                       }).toList();
-                      
+
                       return TextSelectionToolbar(
                         anchorAbove: anchors.primaryAnchor,
                         anchorBelow:
@@ -105,8 +120,7 @@ class SearchTextfield extends ConsumerWidget {
                           return Material(
                             elevation: 2,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                  12),
+                              borderRadius: BorderRadius.circular(12),
                             ),
                             child: child,
                           );
