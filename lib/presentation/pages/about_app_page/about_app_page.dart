@@ -81,7 +81,7 @@ class _AboutAppPageState extends State<AboutAppPage> {
           
 Нымӕц# 2025/25.
           
-© 2023 «Digor»
+© 2025 «Digor»
 Проекты автор ӕмӕ разамонӕг Будайты Мурат 
           
 Проект «Digor» нысангонд у алкӕмӕн дӕр, кӕцы цымыдис кӕны дыгурон ӕвзагмӕ - куыд мадӕлон кӕнӕ фӕсарӕйнаг ӕвзаг, астӕуккаг ӕмӕ уӕлдӕр ахуыргӕнӕндӕтты студенттӕн, афтӕ ма профессионалон ӕгъдауӕй лингвистикӕйы чи архайы, кӕнӕ дыгурон ӕвзаг ӕмӕ литературӕ чи амоны, уыцы специалисттӕн. Ацы ӕмхасӕны бакӕсӕн ис алыхуызы ӕвзагзонынады информаци.
@@ -122,7 +122,7 @@ class _AboutAppPageState extends State<AboutAppPage> {
           
 Артикул# 2025/25.
           
-© 2023 «Digor»
+© 2025 «Digor»
 Автор и руководитель проекта Мурат Будаев
           
 Проект «Digor» предназначен для всех, кто интересуется дигорским языком - как родным или как иностранным, для учащихся средней и высшей школы, а также для специалистов, профессионально занимающихся лингвистикой или преподаванием дигорского языка и литературы. Приложение содержит общедоступную лингвистическую информацию разного типа.
@@ -171,7 +171,7 @@ Version $appVersion
           
 Part# 2025/25.
           
-© 2023 «Digor»
+© 2025 «Digor»
 Author and project manager Murat Budaev
           
 The "Digor" project is intended for everyone who is interested in the Digor language - as a native or as a foreign language, for students of secondary and higher education, as well as for specialists who are professionally engaged in linguistics or teaching the Digor language and literature. The application contains publicly available linguistic information of various types.
@@ -220,7 +220,7 @@ Sürüm $appVersion
           
 Ürün kodu# 2025/25.
           
-© 2023 «Digor»
+© 2025 «Digor»
 Yazar ve proje yöneticisi Murat Budayev
           
 «Digor» projesi, ana dili veya yabancı dili olarak Digor diliyle ilgilenen herkese, ortaöğretim ve yükseköğretim öğrencilerine ve profesyonel olarak dilbilim alanında çalışan veya Digor dili ve edebiyatı öğreten uzmanlara yöneliktir. Uygulama, çeşitli türlerde kamuya açık dil bilgisi içermektedir.
@@ -261,7 +261,7 @@ Yazar ve proje yöneticisi Murat Budayev
           
 Нимӕдзӕ# 2025/25.
           
-© 2023 «Digor»
+© 2025 «Digor»
 Проекти автор ӕма разамонӕг Будайти Мурат 
           
 Проект «Digor» арӕзт ӕй, дигорон ӕвзаг цӕмӕдесаг кӕмӕн ӕй, уонӕй алке туххӕн дӕр – ӕвзаг ин хеуон уа, ӕви фӕсарӕйнаг, уӕдта астӕуккаг ӕма уӕлдӕр ахургӕнӕндӕнтти ахурдзаутӕн, никки ба ма, лингвистикӕ ӕ професси кӕмӕн ӕй, кенӕ дигорон ӕвзаг ӕма литератури ахургӕнӕг ка ӕй, уонӕн. Аци ӕнхасӕни бакӕсӕн ес аллихузи ӕвзагзонунади информаци.

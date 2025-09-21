@@ -44,9 +44,7 @@ class SettingsPage extends ConsumerWidget {
 
           // Language selector row
           Container(
-            decoration: BoxDecoration(
-                border: Border(
-                    bottom: BorderSide(color: Colors.grey.withOpacity(0.2)))),
+          
             child: ListTile(
               title: Text(tr('language'),
                   style: theme.textTheme.bodyMedium!.copyWith(fontSize: 16)),
@@ -469,7 +467,7 @@ class SettingsPage extends ConsumerWidget {
                   top: 12.0, bottom: 12, left: 16.0, right: 8),
               decoration: BoxDecoration(
                 border: Border(
-                  bottom: BorderSide(color: Colors.grey.withOpacity(0.3)),
+                  bottom: BorderSide(color: Colors.grey.withOpacity(0.2)),
                 ),
               ),
               child: Row(
