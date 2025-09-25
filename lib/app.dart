@@ -96,6 +96,7 @@ class MyApp extends StatelessWidget {
             cursorColor: Colors.blue),
         brightness: Brightness.light,
         appBarTheme: const AppBarTheme(
+            centerTitle: false,
             backgroundColor: primaryColor,
             titleTextStyle: TextStyle(fontSize: 20, color: Colors.white),
             iconTheme: IconThemeData(
@@ -105,7 +106,6 @@ class MyApp extends StatelessWidget {
         primaryColor: primaryColor,
         dialogBackgroundColor: Colors.white,
         dialogTheme: DialogThemeData(
-       
           backgroundColor: Colors.white,
         ),
         radioTheme: RadioThemeData(
@@ -183,6 +183,7 @@ class MyApp extends StatelessWidget {
         drawerTheme: const DrawerThemeData(
             backgroundColor: Color.fromARGB(255, 0, 0, 0)),
         appBarTheme: const AppBarTheme(
+            centerTitle: false,
             backgroundColor: primaryColor,
             titleTextStyle: TextStyle(fontSize: 20, color: Colors.white),
             iconTheme: IconThemeData(
@@ -205,7 +206,6 @@ class MyApp extends StatelessWidget {
             cursorColor: Colors.blue),
         scaffoldBackgroundColor: const Color.fromARGB(255, 0, 0, 0),
         dialogTheme: DialogThemeData(
-          
           backgroundColor: const Color.fromARGB(255, 0, 0, 0),
         ),
       ),
